@@ -43,3 +43,10 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 - Récords, perfil y auth usan datos mock hasta conectar el backend.
 - Las partidas de la web no se guardan ni se sincronizan estadísticas todavía.
 - Selector de idioma: cosmético (el contenido está en inglés).
+
+## Pruebas E2E
+```bash
+pnpm build && pnpm start -p 3111   # en otra terminal
+pnpm e2e                           # requiere Google Chrome; E2E_BASE_URL para otra URL
+```
+`e2e/vs-ai-flow.mjs` cubre setup, victoria, derrota, jugada repetida, navegación y abandono; `e2e/vs-ai-edge.mjs` cubre empate (12 jugadas por lado) y el reloj de Grandmaster.

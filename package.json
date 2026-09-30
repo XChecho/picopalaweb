@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "e2e": "node e2e/vs-ai-flow.mjs && node e2e/vs-ai-edge.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
@@ -21,6 +22,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "playwright-core": "^1.63.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.0"
   }
