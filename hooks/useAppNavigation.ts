@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { AppView, Difficulty, GameMode } from "@/types/game";
 import { useAppStore } from "@/store/useAppStore";
+import { useMatchStore } from "@/store/useMatchStore";
 
 export const VIEW_ROUTES: Record<AppView, string> = {
   landing: "/",
@@ -35,6 +36,8 @@ export function useAppNavigation() {
 
   const startMatch = useCallback(
     (mode: GameMode, difficulty?: Difficulty) => {
+      // A new match request always discards any match still in memory.
+      useMatchStore.getState().reset();
       startMatchInStore(mode, difficulty);
       navigate("arena");
     },

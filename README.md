@@ -25,11 +25,21 @@ pnpm build
 - `app/` layout, estilos globales y una página por ruta
 - `components/` `Header`, `Footer`, `AppShell`, `Providers` y `views/` (las seis vistas del prototipo)
 - `store/useAppStore.ts` estado global (Zustand): modo, dificultad, partida activa, idioma y audio
+- `store/useMatchStore.ts` estado de la partida Versus IA
 - `hooks/useAppNavigation.ts` mapea las vistas a rutas de Next; `usePublicStats` y `useWaitlist` (TanStack Query) esperan endpoints del backend
-- `lib/` motor de juego (`picoEngine.ts`), sintetizador de audio (`audio.ts`), cliente API y `QueryClient`
+- `lib/` reglas y bots (`gameLogic.ts`), sintetizador de audio (`audio.ts`), cliente API y `QueryClient`
 - `docs/web-endpoints-plan.md` endpoints que faltan en el backend
 
+## Modo Versus IA (jugable)
+Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
+- Eliges tu número secreto (o uno aleatorio); un sorteo decide quién empieza.
+- 12 intentos por lado. Ganas con 4 Picos; pierdes si el bot los consigue antes; empate si ambos agotan los intentos.
+- Tres niveles: **Novice** (jugadas aleatorias sin repetir), **Tactician** (candidato consistente al azar) y **Grandmaster** (minimax + reloj de 60 s por turno; al agotarse se envía una jugada aleatoria).
+- Las jugadas repetidas se rechazan. La partida se conserva en memoria si sales de la arena y vuelves.
+- Código: `lib/gameLogic.ts` (reglas y bots), `store/useMatchStore.ts` (estado y turnos), `components/views/ArenaView.tsx` (UI).
+
 ## Estado
-- Jugable: Versus IA (arena con motor y audio propios, sin backend).
-- Datos de muestra: la arena arranca con una partida de ejemplo y una barra de "debug states"; récords y perfil usan datos mock; salas privada/global y auth son solo interfaz.
+- Salas privada y global: solo interfaz; la arena muestra "coming soon".
+- Récords, perfil y auth usan datos mock hasta conectar el backend.
+- Las partidas de la web no se guardan ni se sincronizan estadísticas todavía.
 - Selector de idioma: cosmético (el contenido está en inglés).

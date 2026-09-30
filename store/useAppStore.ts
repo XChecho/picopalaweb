@@ -9,6 +9,7 @@ interface IAppState {
   lang: string;
   audioSettings: AudioSettings;
   startMatch: (mode: GameMode, difficulty?: Difficulty) => void;
+  setMatchActive: (active: boolean) => void;
   finishMatch: () => void;
   setLang: (lang: string) => void;
   toggleSound: () => void;
@@ -18,7 +19,7 @@ interface IAppState {
 export const useAppStore = create<IAppState>((set) => ({
   matchMode: "ai",
   matchDifficulty: "grandmaster",
-  hasActiveMatch: true,
+  hasActiveMatch: false,
   lang: "en",
   audioSettings: {
     soundEffects: true,
@@ -30,8 +31,8 @@ export const useAppStore = create<IAppState>((set) => ({
     set((state) => ({
       matchMode: mode,
       matchDifficulty: difficulty ?? state.matchDifficulty,
-      hasActiveMatch: true,
     })),
+  setMatchActive: (active) => set({ hasActiveMatch: active }),
   finishMatch: () => set({ hasActiveMatch: false }),
   setLang: (lang) => set({ lang }),
   toggleSound: () =>

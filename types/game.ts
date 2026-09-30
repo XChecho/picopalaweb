@@ -15,8 +15,6 @@ export interface TurnRecord {
   timestamp: string;
 }
 
-export type ArenaDebugState = 'active' | 'start' | 'thinking' | 'error' | 'final' | 'reconnect' | 'victory';
-
 export interface MatchHistoryItem {
   id: string;
   result: 'WIN' | 'LOSS' | 'DRAW';
@@ -61,4 +59,26 @@ export interface AudioSettings {
   matchAmbientMusic: boolean;
   hapticFeedback: boolean;
   turnAlerts: boolean;
+}
+
+export type Actor = 'PLAYER' | 'AI';
+export type MatchPhase = 'idle' | 'setup' | 'toss' | 'playing' | 'finished';
+export type MatchResult = 'win' | 'lose' | 'draw';
+
+export interface IMoveFeedback {
+  picos: number;
+  palas: number;
+  isWin: boolean;
+}
+
+export interface ILocalMove {
+  turnNumber: number;
+  guess: string;
+  feedback: IMoveFeedback;
+  isPlayerMove: boolean;
+}
+
+export interface IGuessValidation {
+  valid: boolean;
+  errorCode?: 'INVALID_LENGTH' | 'INVALID_DIGITS' | 'REPEATED_DIGITS';
 }

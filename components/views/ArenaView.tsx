@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Timer,
-  Volume2,
-  Sliders,
-  User,
   Bot,
   Lock,
   EyeOff,
@@ -15,333 +12,335 @@ import {
   Delete,
   Flag,
   Trophy,
-  AlertTriangle,
-  RefreshCw,
+  Skull,
+  Handshake,
   Share2,
   Check,
-  CheckCircle2,
   Flame,
-  HelpCircle,
+  Shuffle,
 } from 'lucide-react';
-import { TurnRecord, ArenaDebugState, Difficulty, GameMode } from '@/types/game';
-import {
-  generateSecret,
-  evaluateGuess,
-  generateBotGuess,
-  isValidCipher,
-} from '@/lib/picoEngine';
+import { Difficulty, GameMode, MatchResult, TurnRecord } from '@/types/game';
+import { countRemainingCandidates, generateSecretNumber } from '@/lib/gameLogic';
+import { MAX_ATTEMPTS, useMatchStore, type TSubmitError } from '@/store/useMatchStore';
 import { soundEngine } from '@/lib/audio';
 
 interface ArenaViewProps {
   mode?: GameMode;
   difficulty?: Difficulty;
-  onMatchComplete?: (won: boolean, turns: number) => void;
+  onMatchStart?: () => void;
+  onMatchComplete?: (result: MatchResult) => void;
   onExitArena?: () => void;
 }
+
+const DIFFICULTY_META: Record<Difficulty, { label: string; botLine: string }> = {
+  novice: { label: 'Novice', botLine: 'Bot · Easy' },
+  tactician: { label: 'Tactician', botLine: 'Bot · Medium' },
+  grandmaster: { label: 'Grandmaster', botLine: 'Bot · Hard · 60s per turn' },
+};
+
+const ERROR_MESSAGES: Record<TSubmitError, string> = {
+  NOT_YOUR_TURN: 'Wait for your turn.',
+  INVALID_LENGTH: 'INVALID INPUT: Exactly 4 unique digits (1–9) required!',
+  INVALID_DIGITS: 'INVALID INPUT: Only digits 1–9 are allowed!',
+  REPEATED_DIGITS: 'INVALID INPUT: Digits cannot repeat!',
+  DUPLICATE_GUESS: 'You already tried that number. Pick a different one.',
+};
+
+const RESULT_THEME = {
+  win: {
+    border: 'border-[#e9c400]/40',
+    glow: 'bg-[#e9c400]/20',
+    iconBg: 'bg-[#e9c400]/20 shadow-[0_0_40px_rgba(255,214,0,0.5)]',
+    iconColor: 'text-[#ffe170]',
+    badge: 'bg-[#e9c400] text-black',
+    badgeText: 'VICTORY',
+    title: 'CIPHER CRACKED!',
+    Icon: Trophy,
+  },
+  lose: {
+    border: 'border-rose-500/40',
+    glow: 'bg-rose-500/20',
+    iconBg: 'bg-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.5)]',
+    iconColor: 'text-rose-400',
+    badge: 'bg-rose-500 text-white',
+    badgeText: 'DEFEAT',
+    title: 'YOUR CIPHER WAS BROKEN',
+    Icon: Skull,
+  },
+  draw: {
+    border: 'border-[#00d2ff]/40',
+    glow: 'bg-[#00d2ff]/20',
+    iconBg: 'bg-[#00d2ff]/20 shadow-[0_0_40px_rgba(0,210,255,0.5)]',
+    iconColor: 'text-[#00d2ff]',
+    badge: 'bg-[#00d2ff] text-black',
+    badgeText: 'DRAW',
+    title: 'TACTICAL DRAW',
+    Icon: Handshake,
+  },
+} as const;
+
+const formatClock = (seconds: number): string =>
+  `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
 export const ArenaView: React.FC<ArenaViewProps> = ({
   mode = 'ai',
   difficulty = 'grandmaster',
+  onMatchStart,
   onMatchComplete,
   onExitArena,
 }) => {
-  // --- REAL MATCH STATE ---
-  const [playerSecret, setPlayerSecret] = useState<number[]>([5, 8, 4, 1]);
-  const [opponentSecret, setOpponentSecret] = useState<number[]>(() => generateSecret());
-  const [currentDraft, setCurrentDraft] = useState<number[]>([5, 8, 7]);
-  const [turnCount, setTurnCount] = useState<number>(6);
-  const maxTurns = 12;
-  const [timerSeconds, setTimerSeconds] = useState<number>(45);
+  const phase = useMatchStore((s) => s.phase);
+  const storeDifficulty = useMatchStore((s) => s.difficulty);
+  const playerSecretStr = useMatchStore((s) => s.playerSecret);
+  const opponentSecretStr = useMatchStore((s) => s.opponentSecret);
+  const moves = useMatchStore((s) => s.moves);
+  const starter = useMatchStore((s) => s.starter);
+  const currentActor = useMatchStore((s) => s.currentActor);
+  const playerAttemptsLeft = useMatchStore((s) => s.playerAttemptsLeft);
+  const aiAttemptsLeft = useMatchStore((s) => s.aiAttemptsLeft);
+  const result = useMatchStore((s) => s.result);
+  const isBotThinking = useMatchStore((s) => s.isAIThinking);
+  const timeRemaining = useMatchStore((s) => s.timeRemaining);
+  const timeUp = useMatchStore((s) => s.timeUp);
 
-  // Past turns ledger
-  const [ledger, setLedger] = useState<TurnRecord[]>([
-    {
-      id: '1',
-      turnNumber: 1,
-      actor: 'BOT',
-      actorName: 'VORTEX-AI',
-      guess: [3, 7, 1, 9],
-      picos: 1,
-      palas: 1,
-      misses: 2,
-      timestamp: 'Today, 14:18',
-    },
-    {
-      id: '2',
-      turnNumber: 2,
-      actor: 'YOU',
-      actorName: 'Cipher_Master',
-      guess: [9, 2, 4, 6],
-      picos: 1,
-      palas: 0,
-      misses: 3,
-      timestamp: 'Today, 14:19',
-    },
-    {
-      id: '3',
-      turnNumber: 3,
-      actor: 'BOT',
-      actorName: 'VORTEX-AI',
-      guess: [5, 4, 8, 2],
-      picos: 0,
-      palas: 3,
-      misses: 1,
-      timestamp: 'Today, 14:19',
-    },
-    {
-      id: '4',
-      turnNumber: 4,
-      actor: 'YOU',
-      actorName: 'Cipher_Master',
-      guess: [5, 8, 1, 7],
-      picos: 2,
-      palas: 1,
-      misses: 1,
-      timestamp: 'Today, 14:20',
-    },
-    {
-      id: '5',
-      turnNumber: 5,
-      actor: 'BOT',
-      actorName: 'VORTEX-AI',
-      guess: [1, 8, 3, 4],
-      picos: 0,
-      palas: 2,
-      misses: 2,
-      timestamp: 'Today, 14:20',
-    },
-  ]);
-
-  // Debug & Presentation states
-  const [activeDebugState, setActiveDebugState] = useState<ArenaDebugState>('active');
+  const [currentDraft, setCurrentDraft] = useState<number[]>([]);
   const [validationErrorMsg, setValidationErrorMsg] = useState<string | null>(null);
-  const [isBotThinking, setIsBotThinking] = useState(false);
-  const [activeModal, setActiveModal] = useState<
-    'start' | 'final' | 'reconnect' | 'victory' | null
-  >(null);
+  const [shareCopied, setShareCopied] = useState(false);
+  const ledgerRef = useRef<HTMLDivElement>(null);
+  const previousPhaseRef = useRef(phase);
+  const maxTurns = MAX_ATTEMPTS;
 
-  // Auto countdown for turn
+  const canPlay = phase === 'playing' && currentActor === 'PLAYER' && !isBotThinking;
+  const difficultyMeta = DIFFICULTY_META[storeDifficulty];
+
+  const playerSecret = useMemo(() => playerSecretStr.split('').map(Number), [playerSecretStr]);
+  const opponentSecret = useMemo(() => opponentSecretStr.split('').map(Number), [opponentSecretStr]);
+
+  const ledger: TurnRecord[] = useMemo(
+    () =>
+      moves.map((move) => ({
+        id: String(move.turnNumber),
+        turnNumber: move.turnNumber,
+        actor: move.isPlayerMove ? 'YOU' : 'BOT',
+        actorName: move.isPlayerMove ? 'You' : 'VORTEX-AI',
+        guess: move.guess.split('').map(Number),
+        picos: move.feedback.picos,
+        palas: move.feedback.palas,
+        misses: 4 - move.feedback.picos - move.feedback.palas,
+        timestamp: '',
+      })),
+    [moves],
+  );
+
+  const playerMoves = useMemo(() => moves.filter((move) => move.isPlayerMove), [moves]);
+  const totalPicos = playerMoves.reduce((sum, move) => sum + move.feedback.picos, 0);
+  const totalPalas = playerMoves.reduce((sum, move) => sum + move.feedback.palas, 0);
+  const remainingCandidates = useMemo(() => countRemainingCandidates(playerMoves), [playerMoves]);
+
+  // Round number shown in the gauge: one round = one guess from each side.
+  const turnCount = Math.min(maxTurns, Math.floor(moves.length / 2) + 1);
+  const windowStart = Math.max(1, Math.min(moves.length - 2, maxTurns * 2 - 7));
+  const timelineSteps = Array.from({ length: 8 }, (_, i) => windowStart + i);
+
+  const timerLabel =
+    storeDifficulty !== 'grandmaster' || phase !== 'playing'
+      ? '∞'
+      : currentActor === 'PLAYER'
+        ? formatClock(timeRemaining)
+        : '--:--';
+
+  const statusText =
+    phase === 'finished'
+      ? 'Match finished'
+      : isBotThinking
+        ? 'VORTEX-AI Calculating...'
+        : phase === 'playing' && currentActor === 'PLAYER'
+          ? 'Awaiting your move'
+          : phase === 'playing'
+            ? 'Opponent turn'
+            : 'Preparing duel...';
+
+  // Start a fresh setup the first time the arena opens without a match in memory.
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimerSeconds((prev) => (prev > 0 ? prev - 1 : 45));
-    }, 1000);
-    return () => clearInterval(timer);
+    if (mode === 'ai' && useMatchStore.getState().phase === 'idle') {
+      useMatchStore.getState().openSetup(difficulty);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keyboard navigation for physical gaming keypads
+  // Tell the app shell when the match starts / ends; play the end-of-match sound once.
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key >= '1' && e.key <= '9') {
-        pressKey(parseInt(e.key, 10));
-      } else if (e.key === 'Backspace') {
-        handleBackspace();
-      } else if (e.key === 'Escape') {
-        handleClear();
-      } else if (e.key === 'Enter') {
-        submitDraftGuess();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentDraft, opponentSecret, turnCount]);
+    const previous = previousPhaseRef.current;
+    previousPhaseRef.current = phase;
 
-  // Keypad click handlers
+    if (phase === 'playing' && previous !== 'playing') onMatchStart?.();
+    if (phase === 'finished' && result) {
+      onMatchComplete?.(result);
+      if (previous !== 'finished') {
+        if (result === 'lose') soundEngine.playErrorBuzz();
+        else soundEngine.playVictoryFanfare();
+      }
+    }
+  }, [phase, result, onMatchStart, onMatchComplete]);
+
+  // One-second clock (only runs a countdown for the Grandmaster level).
+  useEffect(() => {
+    const interval = setInterval(() => useMatchStore.getState().tick(), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!timeUp) return;
+    setCurrentDraft([]);
+    setValidationErrorMsg('TIME UP: a random guess was submitted for you.');
+    useMatchStore.getState().clearTimeUp();
+  }, [timeUp]);
+
+  useEffect(() => {
+    const list = ledgerRef.current;
+    if (list) list.scrollTop = list.scrollHeight;
+  }, [moves.length]);
+
   const pressKey = (num: number) => {
-    if (currentDraft.includes(num)) return;
-    if (currentDraft.length >= 4) return;
+    if (!canPlay || currentDraft.includes(num) || currentDraft.length >= 4) return;
     soundEngine.playKeypad();
     setCurrentDraft((prev) => [...prev, num]);
     setValidationErrorMsg(null);
   };
 
   const handleBackspace = () => {
+    if (!canPlay) return;
     soundEngine.playKeypad();
     setCurrentDraft((prev) => prev.slice(0, -1));
     setValidationErrorMsg(null);
   };
 
   const handleClear = () => {
+    if (!canPlay) return;
     soundEngine.playKeypad();
     setCurrentDraft([]);
     setValidationErrorMsg(null);
   };
 
-  // Submit player guess
   const submitDraftGuess = () => {
-    if (currentDraft.length < 4) {
+    if (!canPlay) return;
+
+    const outcome = useMatchStore.getState().submitGuess(currentDraft.join(''));
+    if (!outcome.ok) {
       soundEngine.playErrorBuzz();
-      setValidationErrorMsg('INVALID INPUT: Exactly 4 unique digits (1–9) required!');
+      setValidationErrorMsg(ERROR_MESSAGES[outcome.error]);
       return;
     }
 
     soundEngine.playSubmit();
-    const evaluation = evaluateGuess(opponentSecret, currentDraft);
+    const last = useMatchStore.getState().moves.filter((move) => move.isPlayerMove).at(-1);
+    if (last && last.feedback.picos > 0) soundEngine.playPicoChime();
+    else if (last && last.feedback.palas > 0) soundEngine.playPalaPing();
 
-    if (evaluation.picos > 0) {
-      soundEngine.playPicoChime();
-    } else if (evaluation.palas > 0) {
-      soundEngine.playPalaPing();
-    }
+    setCurrentDraft([]);
+    setValidationErrorMsg(null);
+  };
 
-    const newRecord: TurnRecord = {
-      id: String(Date.now()),
-      turnNumber: turnCount,
-      actor: 'YOU',
-      actorName: 'Cipher_Master',
-      guess: [...currentDraft],
-      picos: evaluation.picos,
-      palas: evaluation.palas,
-      misses: evaluation.misses,
-      timestamp: 'Just now',
+  // Physical keyboard: 1–9 digits, Backspace, Escape, Enter.
+  useEffect(() => {
+    if (!canPlay) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        pressKey(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        handleClear();
+      } else if (e.key === 'Enter') {
+        // Stop Enter from also "clicking" whichever button currently has focus.
+        e.preventDefault();
+        submitDraftGuess();
+      }
     };
 
-    setLedger((prev) => [...prev, newRecord]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canPlay, currentDraft]);
+
+  const handleNewDuel = () => {
+    if (phase === 'playing' && !confirm('Abandon the current duel and start a new one?')) return;
+    useMatchStore.getState().openSetup(storeDifficulty);
     setCurrentDraft([]);
-
-    // Check if player cracked opponent cipher
-    if (evaluation.picos === 4) {
-      soundEngine.playVictoryFanfare();
-      setActiveModal('victory');
-      if (onMatchComplete) onMatchComplete(true, turnCount);
-      return;
-    }
-
-    // Check if max turns reached
-    if (turnCount >= maxTurns) {
-      setActiveModal('final');
-      return;
-    }
-
-    // Advance turn & simulate opponent Bot response
-    setTurnCount((prev) => prev + 1);
-    setIsBotThinking(true);
-
-    setTimeout(() => {
-      setIsBotThinking(false);
-      const botGuess = generateBotGuess([], difficulty);
-      const botEval = evaluateGuess(playerSecret, botGuess);
-
-      const botRecord: TurnRecord = {
-        id: String(Date.now() + 1),
-        turnNumber: turnCount + 1,
-        actor: 'BOT',
-        actorName: 'VORTEX-AI',
-        guess: botGuess,
-        picos: botEval.picos,
-        palas: botEval.palas,
-        misses: botEval.misses,
-        timestamp: 'Just now',
-      };
-
-      setLedger((prev) => [...prev, botRecord]);
-      setTurnCount((prev) => prev + 1);
-
-      if (botEval.picos === 4) {
-        soundEngine.playErrorBuzz();
-        alert('Opponent VORTEX-AI cracked your code! Match ended.');
-      }
-    }, 1200);
-  };
-
-  // Switch debug states
-  const switchDebugState = (state: ArenaDebugState) => {
-    setActiveDebugState(state);
-    setActiveModal(null);
     setValidationErrorMsg(null);
+    setShareCopied(false);
+  };
 
-    if (state === 'start') {
-      setActiveModal('start');
-    } else if (state === 'final') {
-      setActiveModal('final');
-    } else if (state === 'reconnect') {
-      setActiveModal('reconnect');
-    } else if (state === 'victory') {
-      soundEngine.playVictoryFanfare();
-      setActiveModal('victory');
-    } else if (state === 'error') {
-      soundEngine.playErrorBuzz();
-      setValidationErrorMsg('VALIDATION ERROR: Exactly 4 unique digits (1–9) required!');
-    } else if (state === 'thinking') {
-      setIsBotThinking(true);
-    } else {
-      setIsBotThinking(false);
+  const handleLeave = () => {
+    useMatchStore.getState().reset();
+    onExitArena?.();
+  };
+
+  const handleForfeit = () => {
+    if (!confirm('Are you sure you want to forfeit this duel? This counts as a defeat.')) return;
+    useMatchStore.getState().reset();
+    onMatchComplete?.('lose');
+    onExitArena?.();
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `I cracked the cipher in ${playerMoves.length} guesses on Pico & Pala!`,
+      );
+      setShareCopied(true);
+    } catch {
+      setShareCopied(false);
     }
   };
 
-  // Restart match fresh
-  const restartFreshDuel = () => {
-    setPlayerSecret([5, 8, 4, 1]);
-    setOpponentSecret(generateSecret());
-    setCurrentDraft([]);
-    setTurnCount(1);
-    setLedger([]);
-    setActiveModal(null);
-    setActiveDebugState('active');
-  };
+  if (mode !== 'ai') {
+    return (
+      <div className="max-w-xl w-full mx-auto px-4 py-20 text-center flex flex-col items-center gap-4">
+        <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
+          This mode is coming soon
+        </span>
+        <p className="text-sm text-[#a98891]">
+          Private and global rooms need the online backend. You can play against the AI right now.
+        </p>
+        <button
+          onClick={onExitArena}
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider"
+        >
+          Back to Play Hub
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col select-none pb-12">
-      {/* 1. INTERACTIVE DEBUG STATE NAVIGATOR BAR */}
-      <div className="w-full bg-[#0c0e14] border-b border-[#282a30] px-4 py-2.5 flex items-center justify-between overflow-x-auto shadow-md">
-        <div className="flex items-center gap-2 min-w-max">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a98891] mr-1 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#ff479b]" /> Debug States:
-          </span>
-          {[
-            { id: 'active', label: 'Mid-Match (Active Turn)' },
-            { id: 'start', label: 'Coin Toss (Start)' },
-            { id: 'thinking', label: 'Opponent Thinking' },
-            { id: 'error', label: 'Validation Error' },
-            { id: 'final', label: 'Final Turn Alert' },
-            { id: 'reconnect', label: 'Reconnecting' },
-            { id: 'victory', label: 'Victory Modal' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => switchDebugState(item.id as ArenaDebugState)}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                activeDebugState === item.id
-                  ? 'bg-[#ff479b] text-white shadow-[0_0_12px_rgba(255,46,149,0.4)]'
-                  : 'bg-[#191b21] text-[#a98891] hover:text-white hover:bg-[#282a30]'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="hidden xl:flex items-center gap-3 shrink-0 text-xs">
-          <span className="text-[#a98891]">
-            PING: <strong className="text-[#00d2ff]">24ms</strong>
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
-          <span className="text-[#a98891]">
-            FPS: <strong className="text-white">60</strong>
-          </span>
-        </div>
-      </div>
-
       {/* ARENA HEADER STRIP */}
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 pt-3 flex items-center justify-between flex-wrap gap-2 text-xs">
         <div className="flex items-center gap-2 text-[#a98891]">
           <span>TACTICAL 1v1 ARENA</span>
           <span>•</span>
-          <span className="text-[#00d2ff] font-bold">NODE: TOKYO EAST</span>
+          <span className="text-[#00d2ff] font-bold">VS AI · {difficultyMeta.label.toUpperCase()}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
             <Timer className="w-3.5 h-3.5 text-[#00d2ff]" />
             <span className="font-mono text-xs font-bold text-[#00d2ff]">
-              00:{timerSeconds < 10 ? `0${timerSeconds}` : timerSeconds}
+              {timerLabel}
             </span>
           </div>
           <button
-            onClick={restartFreshDuel}
+            onClick={handleNewDuel}
             className="px-2.5 py-1 rounded-full bg-[#191b21] hover:bg-[#282a30] text-[#a98891] hover:text-white transition-all flex items-center gap-1"
-            title="Reset Game"
+            title="Start a new duel"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Reset Board</span>
+            <span>New Duel</span>
           </button>
         </div>
       </div>
@@ -359,7 +358,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                 Pacing Gauge
               </span>
               <span className="px-2 py-0.5 rounded text-[10px] font-black tracking-wider uppercase bg-[#00d2ff]/20 text-[#00d2ff]">
-                Optimal Speed
+                {playerAttemptsLeft} left
               </span>
             </div>
 
@@ -439,7 +438,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                   <button
                     key={key.n}
                     onClick={() => pressKey(key.n)}
-                    disabled={isSlotted}
+                    disabled={isSlotted || !canPlay}
                     className={`h-14 rounded-xl flex flex-col items-center justify-center transition-all ${
                       isSlotted
                         ? 'bg-[#282a30] opacity-40 cursor-not-allowed border border-[#33353b]'
@@ -496,7 +495,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             </div>
             <div className="flex items-center justify-between text-xs text-[#a98891]">
               <span>Remaining Candidates</span>
-              <span className="text-[#ffe170] font-bold">~14 Feasible</span>
+              <span className="text-[#ffe170] font-bold">{remainingCandidates.toLocaleString()} feasible</span>
             </div>
           </div>
         </div>
@@ -520,10 +519,10 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="font-['Cairo'] font-bold text-sm text-white">VORTEX-AI</span>
                     <span className="px-1.5 py-0.2 rounded text-[10px] bg-[#00d2ff]/20 text-[#00d2ff] font-black uppercase">
-                      Grandmaster
+                      {difficultyMeta.label}
                     </span>
                   </div>
-                  <span className="text-xs text-[#a98891]">Bot · Hard ELO 2150</span>
+                  <span className="text-xs text-[#a98891]">{difficultyMeta.botLine}</span>
                 </div>
               </div>
 
@@ -535,7 +534,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                   }`}
                 />
                 <span className="text-xs font-bold text-[#00d2ff] uppercase tracking-wider">
-                  {isBotThinking ? 'VORTEX-AI Calculating...' : 'Awaiting your move'}
+                  {statusText}
                 </span>
               </div>
             </div>
@@ -607,7 +606,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             </div>
 
             {/* Ledger List */}
-            <div className="flex flex-col gap-2 overflow-y-auto pr-1">
+            <div ref={ledgerRef} className="flex flex-col gap-2 overflow-y-auto pr-1">
               {ledger.map((rec) => (
                 <div
                   key={rec.id}
@@ -624,7 +623,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                         rec.actor === 'YOU' ? 'text-[#ff479b]' : 'text-[#00d2ff]'
                       }`}
                     >
-                      T0{rec.turnNumber} · {rec.actor}
+                      T{String(rec.turnNumber).padStart(2, '0')} · {rec.actor}
                     </span>
 
                     <div className="flex items-center gap-1">
@@ -751,7 +750,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
               </button>
               <button
                 onClick={submitDraftGuess}
-                disabled={currentDraft.length < 4}
+                disabled={currentDraft.length < 4 || !canPlay}
                 className={`flex-1 h-12 rounded-xl text-white font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${
                   currentDraft.length === 4
                     ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] shadow-[0_0_24px_rgba(255,46,149,0.5)] cursor-pointer hover:brightness-110'
@@ -775,24 +774,24 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
               <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
                 Turn Flow Sequence
               </span>
-              <span className="text-xs font-bold text-[#00d2ff]">Round 1/1</span>
+              <span className="text-xs font-bold text-[#00d2ff]">Round {turnCount}/{maxTurns}</span>
             </div>
 
             <div className="flex flex-col gap-2 relative pl-3">
               {/* Vertical timeline line */}
               <div className="absolute left-[21px] top-3 bottom-3 w-0.5 bg-[#282a30]" />
 
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
-                const isPast = step < turnCount;
-                const isActive = step === turnCount;
-                const isBot = step % 2 === 1;
+              {timelineSteps.map((step) => {
+                const isPast = step <= moves.length;
+                const isActive = phase === 'playing' && step === moves.length + 1;
+                const isBot = (step % 2 === 1) === (starter === 'AI');
 
                 return (
                   <div
                     key={step}
                     className={`flex items-center gap-3 relative z-10 ${
                       isActive ? 'bg-[#ff479b]/10 p-1.5 -ml-1 rounded-xl' : ''
-                    } ${step > turnCount ? 'opacity-40' : ''}`}
+                    } ${!isPast && !isActive ? 'opacity-40' : ''}`}
                   >
                     <span
                       className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
@@ -831,24 +830,24 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             </span>
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Streak</span>
+                <span className="text-[11px] text-[#a98891]">Your Picos</span>
                 <span className="font-['Cairo'] text-sm font-black text-[#ffe170]">
-                  🔥 7 Wins
+                  {totalPicos}
                 </span>
               </div>
               <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">H2H Record</span>
+                <span className="text-[11px] text-[#a98891]">Your Palas</span>
                 <span className="font-['Cairo'] text-sm font-black text-[#00d2ff]">
-                  3W - 1L
+                  {totalPalas}
                 </span>
               </div>
               <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Avg Speed</span>
-                <span className="font-['Cairo'] text-sm font-black text-white">4.2s</span>
+                <span className="text-[11px] text-[#a98891]">Guesses Left</span>
+                <span className="font-['Cairo'] text-sm font-black text-white">{playerAttemptsLeft} / {maxTurns}</span>
               </div>
               <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Efficiency</span>
-                <span className="font-['Cairo'] text-sm font-black text-[#ffb0ca]">94%</span>
+                <span className="text-[11px] text-[#a98891]">Bot Guesses Left</span>
+                <span className="font-['Cairo'] text-sm font-black text-[#ffb0ca]">{aiAttemptsLeft} / {maxTurns}</span>
               </div>
             </div>
           </div>
@@ -895,11 +894,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
 
           {/* Forfeit button */}
           <button
-            onClick={() => {
-              if (confirm('Are you sure you want to forfeit this duel? This counts as an official defeat.')) {
-                onExitArena ? onExitArena() : restartFreshDuel();
-              }
-            }}
+            onClick={handleForfeit}
             className="w-full py-2 rounded-xl text-[#a98891] hover:text-rose-400 hover:bg-rose-950/20 border border-transparent hover:border-rose-500/20 transition-all text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
           >
             <Flag className="w-4 h-4" /> Forfeit Current Match
@@ -911,8 +906,20 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
       {/* MODALS & OVERLAYS                                     */}
       {/* ==================================================== */}
 
+      {/* Modal 0: Choose your secret cipher */}
+      {phase === 'setup' && (
+        <SecretSetupModal
+          difficultyLabel={difficultyMeta.label}
+          onLock={(secret) => {
+            soundEngine.playSubmit();
+            useMatchStore.getState().lockSecret(secret);
+          }}
+          onCancel={handleLeave}
+        />
+      )}
+
       {/* Modal 1: Coin Toss (Start) */}
-      {activeModal === 'start' && (
+      {phase === 'toss' && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4 animate-in fade-in zoom-in-95">
             <div className="w-20 h-20 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.4)] animate-bounce">
@@ -923,16 +930,22 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
                 Deciding Initiative
               </span>
               <span className="text-sm text-[#a98891]">
-                Coin flip complete: You won the toss and will shoot first in Turn 01!
+                {starter === 'PLAYER'
+                  ? 'Coin flip complete: You won the toss and will shoot first!'
+                  : 'Coin flip complete: VORTEX-AI won the toss and will shoot first.'}
               </span>
             </div>
             <div className="w-full py-3 bg-[#111319] rounded-2xl flex items-center justify-around text-xs font-bold">
-              <span className="text-[#ff479b]">YOUR MOVE: FIRST</span>
+              <span className="text-[#ff479b]">
+                YOUR MOVE: {starter === 'PLAYER' ? 'FIRST' : 'SECOND'}
+              </span>
               <span className="text-[#33353b]">|</span>
-              <span className="text-[#00d2ff]">AI BOT: SECOND</span>
+              <span className="text-[#00d2ff]">
+                AI BOT: {starter === 'PLAYER' ? 'SECOND' : 'FIRST'}
+              </span>
             </div>
             <button
-              onClick={() => setActiveModal(null)}
+              onClick={() => useMatchStore.getState().beginPlay()}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
             >
               Enter Duel Grid
@@ -941,140 +954,229 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
         </div>
       )}
 
-      {/* Modal 2: Final Turn Alert */}
-      {activeModal === 'final' && (
-        <div className="fixed inset-0 z-50 bg-red-950/50 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-[#191b21] border-2 border-rose-500 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4 animate-pulse">
-            <div className="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center">
-              <AlertTriangle className="w-8 h-8 text-rose-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="font-['Cairo'] text-2xl font-black uppercase text-rose-400">
-                SUDDEN DEATH: TURN 12
-              </span>
-              <span className="text-sm text-[#e2bdc7]">
-                This is your final opportunity. If you fail to break the cipher on this turn, match resolves to tactical draw.
-              </span>
-            </div>
-            <button
-              onClick={() => setActiveModal(null)}
-              className="w-full py-3 rounded-xl bg-rose-600 text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg active:scale-95 transition-all"
+      {/* Modal 2: Result (victory / defeat / draw) */}
+      {phase === 'finished' && result && (() => {
+        const theme = RESULT_THEME[result];
+        const ResultIcon = theme.Icon;
+        const botGuesses = moves.length - playerMoves.length;
+        const summary =
+          result === 'win'
+            ? `Deduction achieved in ${playerMoves.length} guesses. Opponent code decrypted.`
+            : result === 'lose'
+              ? `VORTEX-AI cracked your code in ${botGuesses} guesses.`
+              : 'Both sides ran out of guesses. Nobody cracked the cipher.';
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+            <div
+              className={`max-w-lg w-full bg-[#191b21] border ${theme.border} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden animate-in fade-in zoom-in-95`}
             >
-              Lock Final Calculation
-            </button>
-          </div>
-        </div>
-      )}
+              <div className={`absolute -top-20 -left-20 w-56 h-56 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
+              <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#ff479b]/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Modal 3: Reconnecting */}
-      {activeModal === 'reconnect' && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4">
-          <div className="max-w-sm w-full bg-[#191b21] border border-[#282a30] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
-            <div className="w-14 h-14 rounded-full border-4 border-[#00d2ff] border-t-transparent animate-spin" />
-            <div className="flex flex-col gap-1">
-              <span className="font-['Cairo'] text-lg font-bold text-white">
-                Reconnecting to Match Server
-              </span>
-              <span className="text-xs text-[#a98891]">
-                Restoring tactical telemetry · Attempt 2 of 5
-              </span>
-            </div>
-            <button
-              onClick={() => setActiveModal(null)}
-              className="px-6 py-2 rounded-xl bg-[#282a30] text-white hover:bg-[#33353b] text-xs font-bold transition-all"
-            >
-              Dismiss Simulation
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal 4: Victory / Defeat Modal */}
-      {activeModal === 'victory' && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="max-w-lg w-full bg-[#191b21] border border-[#e9c400]/40 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="absolute -top-20 -left-20 w-56 h-56 bg-[#e9c400]/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#ff479b]/20 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Victory Header Icon */}
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_40px_rgba(255,214,0,0.5)]">
-                <Trophy className="w-12 h-12 text-[#ffe170]" />
+              <div className="relative">
+                <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme.iconBg}`}>
+                  <ResultIcon className={`w-12 h-12 ${theme.iconColor}`} />
+                </div>
+                <span
+                  className={`absolute -top-2 -right-2 px-2.5 py-0.5 rounded-full ${theme.badge} font-['Cairo'] text-xs font-black uppercase`}
+                >
+                  {theme.badgeText}
+                </span>
               </div>
-              <span className="absolute -top-2 -right-2 px-2.5 py-0.5 rounded-full bg-[#e9c400] text-black font-['Cairo'] text-xs font-black uppercase">
-                VICTORY
-              </span>
-            </div>
 
-            <div className="flex flex-col gap-1">
-              <span className="font-['Cairo'] text-3xl font-black text-white uppercase tracking-tight">
-                CIPHER CRACKED!
-              </span>
-              <span className="text-sm text-[#e2bdc7]">
-                Flawless deduction achieved in {turnCount} turns. Opponent code decrypted.
-              </span>
-            </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-['Cairo'] text-3xl font-black text-white uppercase tracking-tight">
+                  {theme.title}
+                </span>
+                <span className="text-sm text-[#e2bdc7]">{summary}</span>
+              </div>
 
-            {/* Revealed Opponent Secret */}
-            <div className="w-full p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                Opponent Secret Decrypted
-              </span>
-              <div className="flex items-center gap-2">
-                {opponentSecret.map((d, i) => (
-                  <div
-                    key={i}
-                    className="w-12 h-14 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-md font-['Cairo'] text-2xl font-black text-[#ffe170]"
+              <div className="w-full p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
+                  {result === 'win' ? 'Opponent Secret Decrypted' : 'Opponent Secret Was'}
+                </span>
+                <div className="flex items-center gap-2">
+                  {opponentSecret.map((d, i) => (
+                    <div
+                      key={i}
+                      className="w-12 h-14 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-md font-['Cairo'] text-2xl font-black text-[#ffe170]"
+                    >
+                      {d}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 w-full">
+                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+                  <span className="text-[11px] text-[#a98891]">Your Guesses</span>
+                  <span className="font-['Cairo'] text-base font-bold text-white">
+                    {playerMoves.length} / {maxTurns}
+                  </span>
+                </div>
+                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+                  <span className="text-[11px] text-[#a98891]">Bot Guesses</span>
+                  <span className="font-['Cairo'] text-base font-bold text-[#00d2ff]">
+                    {botGuesses} / {maxTurns}
+                  </span>
+                </div>
+                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+                  <span className="text-[11px] text-[#a98891]">Picos / Palas</span>
+                  <span className="font-['Cairo'] text-base font-bold text-[#ffe170]">
+                    {totalPicos} / {totalPalas}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                <button
+                  onClick={handleNewDuel}
+                  className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" /> Play Next Duel
+                </button>
+                {result === 'win' && (
+                  <button
+                    onClick={handleShare}
+                    className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
-                    {d}
-                  </div>
-                ))}
+                    <Share2 className="w-4 h-4" /> {shareCopied ? 'Copied!' : 'Share'}
+                  </button>
+                )}
+                <button
+                  onClick={handleLeave}
+                  className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
+                >
+                  Play Hub
+                </button>
               </div>
-            </div>
-
-            {/* Telemetry Metrics */}
-            <div className="grid grid-cols-3 gap-2 w-full">
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Turns Used</span>
-                <span className="font-['Cairo'] text-base font-bold text-white">
-                  {turnCount} / 12
-                </span>
-              </div>
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Rating Gained</span>
-                <span className="font-['Cairo'] text-base font-bold text-[#00d2ff]">
-                  +32 ELO
-                </span>
-              </div>
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Accuracy</span>
-                <span className="font-['Cairo'] text-base font-bold text-[#ffe170]">
-                  98.4%
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-              <button
-                onClick={restartFreshDuel}
-                className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" /> Play Next Duel
-              </button>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`I cracked the cipher in ${turnCount} turns on Pico & Pala!`);
-                  alert('Victory share summary copied to clipboard!');
-                }}
-                className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-              >
-                <Share2 className="w-4 h-4" /> Share
-              </button>
             </div>
           </div>
+        );
+      })()}
+    </div>
+  );
+};
+
+interface SecretSetupModalProps {
+  difficultyLabel: string;
+  onLock: (secret: string) => void;
+  onCancel: () => void;
+}
+
+const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ difficultyLabel, onLock, onCancel }) => {
+  const [draft, setDraft] = useState<number[]>([]);
+
+  const press = (n: number) => {
+    setDraft((prev) => (prev.includes(n) || prev.length >= 4 ? prev : [...prev, n]));
+  };
+  const lock = () => {
+    if (draft.length === 4) onLock(draft.join(''));
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        press(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        setDraft((prev) => prev.slice(0, -1));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        lock();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.3)]">
+          <Lock className="w-8 h-8 text-[#ffe170]" />
         </div>
-      )}
+        <div className="flex flex-col gap-1">
+          <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
+            Choose Your Secret Cipher
+          </span>
+          <span className="text-sm text-[#a98891]">
+            4 unique digits from 1 to 9. VORTEX-AI ({difficultyLabel}) will try to crack it.
+          </span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2 w-full">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`h-16 rounded-xl flex items-center justify-center font-['Cairo'] text-3xl font-black ${
+                i < draft.length
+                  ? 'bg-[#282a30] border-2 border-[#e9c400] text-[#ffe170]'
+                  : 'bg-[#0c0e14] border border-[#282a30] text-[#a98891]/40'
+              }`}
+            >
+              {i < draft.length ? draft[i] : '·'}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 w-full">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+            const used = draft.includes(n);
+            return (
+              <button
+                key={n}
+                onClick={() => press(n)}
+                disabled={used}
+                className={`h-12 rounded-xl font-['Cairo'] text-xl font-black transition-all ${
+                  used
+                    ? 'bg-[#282a30] text-[#ff479b] opacity-40 cursor-not-allowed'
+                    : 'bg-[#111319] border border-[#282a30] hover:border-[#ff479b]/60 text-white active:scale-95'
+                }`}
+              >
+                {n}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <button
+            onClick={() => setDraft((prev) => prev.slice(0, -1))}
+            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
+          >
+            <Delete className="w-3.5 h-3.5" /> Undo
+          </button>
+          <button
+            onClick={() => setDraft(generateSecretNumber().split('').map(Number))}
+            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
+          >
+            <Shuffle className="w-3.5 h-3.5" /> Random
+          </button>
+          <button
+            onClick={onCancel}
+            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#a98891] text-xs font-bold uppercase tracking-wider"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <button
+          onClick={lock}
+          disabled={draft.length < 4}
+          className={`w-full py-3 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all ${
+            draft.length === 4
+              ? 'bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white shadow-lg hover:brightness-110 active:scale-95'
+              : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
+          }`}
+        >
+          Lock Secret
+        </button>
+      </div>
     </div>
   );
 };
