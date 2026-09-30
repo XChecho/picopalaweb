@@ -1,0 +1,108 @@
+{
+  "hero": {
+    "eyebrow": "Manual táctico y tutorial",
+    "title": "Cómo jugar",
+    "subtitle": "Tres minutos para aprender. Una vida entera de presumir. Domina el campo de batalla mental de la deducción y el descifrado de códigos.",
+    "easyToggle": "Ejemplo fácil",
+    "advancedToggle": "Estrategia avanzada",
+    "advancedAlert": {
+      "title": "Lógica avanzada de eliminación activada",
+      "body": "Mostrando árboles de probabilidad condicional, matemática de permutaciones y matrices estrictas de reducción de turnos a lo largo de este desglose."
+    }
+  },
+  "secret": {
+    "title": "El número secreto",
+    "step": "Paso 01",
+    "intro": "Cada duelista fija un código secreto de 4 dígitos. Todo código debe cumplir reglas estrictas de validez matemática:",
+    "digitsRange": {
+      "title": "Dígitos del 1 al 9",
+      "subtitle": "El cero no está permitido"
+    },
+    "noZeros": {
+      "title": "Sin ceros [ 0 ]",
+      "subtitle": "Fuera de la baraja"
+    },
+    "noDuplicates": {
+      "title": "Sin repetidos",
+      "subtitle": "[ 3 3 1 9 ] Inválido"
+    },
+    "footer": "4 dígitos únicos, guardados en secreto dentro de una bóveda cifrada."
+  },
+  "guess": {
+    "title": "El protocolo de intentos",
+    "step": "Paso 02",
+    "intro": "En cada ronda, transmite 4 dígitos sin repetir. Recibirás telemetría posicional al instante.",
+    "maxGuesses": "Máx. 12 intentos",
+    "turnCap": "Límite de turnos",
+    "footer": "La interfaz no permite repetir intentos. Cada sondeo consume un token de turno."
+  },
+  "firstMove": {
+    "title": "¿Quién empieza?",
+    "body": "El sistema lanza una moneda algorítmica 50/50. Quien empieza toma la iniciativa; quien va segundo gana la ventaja de ver primero."
+  },
+  "matrix": {
+    "eyebrow": "Reconocimiento de señales",
+    "title": "La matriz de deducción",
+    "intro": "Las pistas se calculan en tiempo real después de cada intento enviado. Memoriza estas tres firmas tácticas:",
+    "pico": {
+      "badge": "Fijación exacta",
+      "description": "Dígito correcto fijado en la <b>posición exacta</b>.",
+      "advTitle": "Aislamiento del objetivo",
+      "advBody": "Dígito y casilla verificados. No cambies de casilla."
+    },
+    "pala": {
+      "badge": "Coincidencia desplazada",
+      "description": "El dígito está en la bóveda, pero ahora mismo está en la <b>casilla equivocada</b>.",
+      "advTitle": "Trampa de permutación",
+      "advBody": "Conserva el dígito; rótalo por las otras 3 casillas."
+    },
+    "miss": {
+      "label": "FALLO",
+      "badge": "Vacío",
+      "description": "El dígito no está en el número secreto. Queda eliminado por completo.",
+      "advTitle": "Eliminación en la matriz",
+      "advBody": "Descarta el candidato del teclado de forma permanente."
+    }
+  },
+  "example": {
+    "eyebrow": "Desglose de telemetría",
+    "title": "Un turno, al detalle",
+    "round": "Simulador de la ronda 03",
+    "opponentSecret": "Secreto del oponente (vista de rayos X)",
+    "vaultTarget": "Objetivo de la bóveda",
+    "slot": "Casilla {{n}}",
+    "yourTransmission": "Tu transmisión",
+    "activeGuess": "Intento activo",
+    "pos": "Pos. {{n}}",
+    "position": "Posición {{n}}",
+    "step": {
+      "one": "Dígito correcto en la casilla correcta. Objetivo fijado.",
+      "two": "El 1 está en la bóveda (casilla 3), pero lo transmitiste en la casilla 2.",
+      "three": "El 5 no aparece en 3719. Descártalo.",
+      "four": "Posición y valor idénticos. Segundo Pico."
+    },
+    "telemetryReturned": "Telemetría recibida:",
+    "result": {
+      "picos": "2 Picos",
+      "pala": "1 Pala",
+      "miss": "1 Fallo"
+    },
+    "note": "Nota: ¡la pista NO indica qué dígito causó cada señal!"
+  },
+  "directive": {
+    "title": "Directiva maestra de deducción",
+    "body": "Si tu primer intento da <yellow>1 Pico</yellow> y <pink>2 Palas</pink>, ya tienes 3 de los 4 números correctos de la bóveda (75 % de precisión). <white>Nunca juegues al azar en el turno 2.</white> Conserva 3 números, permuta las posiciones y cambia solo el único candidato sospechoso."
+  },
+  "sudden": {
+    "title": "El protocolo de muerte súbita de 12 turnos",
+    "capLimit": "Límite: turno 12",
+    "final": "12 (FINAL)",
+    "body": "Si ningún duelista descifra los 4 dígitos en 12 intentos, el duelo termina en un <white>empate táctico</white>. Ambas bóvedas secretas se revelan al mismo tiempo para revisarlas juntos."
+  },
+  "cta": {
+    "title": "¿Listo para poner a prueba tu deducción?",
+    "body": "Entra directo a un duelo offline contra la IA o invita a un rival en segundos. Sin descargas.",
+    "play": "Juega gratis ahora",
+    "explore": "Explora el Play Hub"
+  }
+}

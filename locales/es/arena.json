@@ -1,0 +1,110 @@
+{
+  "turn": "Turno {{n}} / {{max}}",
+  "status": {
+    "yourTurn": "Tu turno",
+    "thinking": "{{name}} está calculando…",
+    "opponentTurn": "Turno del oponente",
+    "preparing": "Preparando el duelo…",
+    "finished": "Partida terminada"
+  },
+  "level": {
+    "novice": "Novato",
+    "tactician": "Estratega",
+    "grandmaster": "Gran Maestro"
+  },
+  "botLine": {
+    "novice": "Bot · Fácil",
+    "tactician": "Bot · Medio",
+    "grandmaster": "Bot · Difícil · 60 s por turno"
+  },
+  "columns": {
+    "opponent": "Oponente",
+    "you": "Tú",
+    "secretHidden": "Clave oculta",
+    "yourSecret": "Tu clave",
+    "guessesLeft": "{{n}} restantes",
+    "pendingYou": "Tu jugada…",
+    "pendingBot": "Pensando…"
+  },
+  "hud": {
+    "candidates": "{{count}} posibles",
+    "legendPico": "Pico",
+    "legendPala": "Pala",
+    "clock": "Reloj del turno"
+  },
+  "menu": {
+    "newDuel": "Nuevo duelo",
+    "forfeit": "Rendirse",
+    "confirmNewDuel": "¿Abandonar el duelo actual y empezar uno nuevo?",
+    "confirmForfeit": "¿Seguro que quieres rendirte? Contará como una derrota."
+  },
+  "write": {
+    "button": "Escribir turno",
+    "waiting": "Turno del oponente…",
+    "title": "Escribe tu jugada del turno {{n}}",
+    "hint": "Solo dígitos 1–9 · Sin repetir · faltan {{count}}",
+    "clear": "Borrar",
+    "undo": "Deshacer",
+    "submit": "Fijar y enviar",
+    "close": "Cerrar",
+    "digitAlpha": "Dígito"
+  },
+  "errors": {
+    "NOT_YOUR_TURN": "Espera tu turno.",
+    "INVALID_LENGTH": "¡Se requieren exactamente 4 dígitos únicos (1–9)!",
+    "INVALID_DIGITS": "¡Solo se permiten dígitos del 1 al 9!",
+    "REPEATED_DIGITS": "¡Los dígitos no pueden repetirse!",
+    "DUPLICATE_GUESS": "Ya probaste ese número. Elige otro.",
+    "timeUp": "TIEMPO AGOTADO: se envió una jugada aleatoria por ti."
+  },
+  "setup": {
+    "title": "Elige tu clave secreta",
+    "text": "4 dígitos únicos del 1 al 9. {{name}} ({{level}}) intentará descifrarla.",
+    "lock": "Fijar clave",
+    "random": "Aleatoria",
+    "undo": "Deshacer",
+    "cancel": "Cancelar"
+  },
+  "toss": {
+    "title": "Decidiendo la iniciativa",
+    "playerWon": "¡Sorteo completado: ganaste y jugarás primero!",
+    "botWon": "Sorteo completado: {{name}} ganó y jugará primero.",
+    "yourMove": "TU JUGADA: {{order}}",
+    "botMove": "BOT IA: {{order}}",
+    "first": "PRIMERO",
+    "second": "SEGUNDO",
+    "enter": "Entrar al duelo"
+  },
+  "result": {
+    "win": {
+      "badge": "VICTORIA",
+      "title": "¡CLAVE DESCIFRADA!",
+      "summary": "Deducción lograda en {{count}} jugadas. Código del oponente descifrado."
+    },
+    "lose": {
+      "badge": "DERROTA",
+      "title": "DESCIFRARON TU CLAVE",
+      "summary": "{{name}} descifró tu código en {{count}} jugadas."
+    },
+    "draw": {
+      "badge": "EMPATE",
+      "title": "EMPATE TÁCTICO",
+      "summary": "Ambos se quedaron sin jugadas. Nadie descifró la clave."
+    },
+    "secretDecrypted": "Clave del oponente descifrada",
+    "secretWas": "La clave del oponente era",
+    "yourGuesses": "Tus jugadas",
+    "botGuesses": "Jugadas del bot",
+    "picosPalas": "Picos / Palas",
+    "playNext": "Siguiente duelo",
+    "share": "Compartir",
+    "copied": "¡Copiado!",
+    "hub": "Centro de Juego",
+    "shareText": "¡Descifré la clave en {{count}} jugadas en Pico & Pala!"
+  },
+  "unavailable": {
+    "title": "Este modo llega pronto",
+    "text": "Las salas privadas y globales necesitan el backend en línea. Ya puedes jugar contra la IA.",
+    "back": "Volver al Centro de Juego"
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   Trophy,
   Flame,
@@ -34,6 +35,8 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
   audioSettings,
   onUpdateAudio,
 }) => {
+  const { t, i18n } = useTranslation('records');
+  const lang = i18n.language;
   const [profile, setProfile] = useState<DuelistProfile>({
     handle: 'CIPHER_MASTER',
     email: 'duelist@auron.gg',
@@ -133,6 +136,23 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
     },
   ];
 
+  const stakesKeys: Record<string, string> = {
+    'Training Drill': 'stakes.trainingDrill',
+    'Friendly Match': 'stakes.friendlyMatch',
+    'Warmup (+0)': 'stakes.warmup',
+  };
+  const subtextKeys: Record<string, string> = {
+    'Grandmaster (Hard)': 'opponents.grandmasterHard',
+    'Novice (Warmup)': 'opponents.noviceWarmup',
+  };
+  const timestampLabel = (ts: string) => {
+    if (ts.startsWith('Today, ')) return t('timestamps.todayAt', { time: ts.slice(7) });
+    if (ts === 'Yesterday') return t('timestamps.yesterday');
+    if (ts === 'Oct 24') return t('timestamps.oct24');
+    if (ts === 'Oct 23') return t('timestamps.oct23');
+    return ts;
+  };
+
   const filteredMatches = matches.filter((m) => {
     if (filterMode === 'all') return true;
     return m.mode === filterMode;
@@ -166,21 +186,21 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               onClick={() => onNavigate('play-hub')}
               className="hover:text-[#ff479b] cursor-pointer transition-colors uppercase"
             >
-              DUELIST HQ
+              {t('breadcrumb.hq')}
             </span>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-[#ff479b] uppercase">RECORDS & LEDGER</span>
+            <span className="text-[#ff479b] uppercase">{t('breadcrumb.records')}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
               <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
               <span className="text-[11px] font-bold text-[#a5e7ff] uppercase">
-                NODE SYNCED // TOKYO EAST
+                {t('node.synced')}
               </span>
             </div>
             <span className="px-2.5 py-1 rounded-full bg-[#191b21] text-xs font-bold text-white border border-[#282a30]">
-              EN
+              {lang.slice(0, 2).toUpperCase()}
             </span>
           </div>
         </div>
@@ -211,7 +231,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#282a30] text-xs font-bold text-[#ffe170] flex items-center gap-1 border border-white/5">
                   <Award className="w-3.5 h-3.5" />
-                  {profile.rankTitle}
+                  {t('profile.rankTitle', { elo: profile.elo.toLocaleString(lang) })}
                 </span>
               </div>
 
@@ -223,10 +243,10 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 <span>•</span>
                 <span className="flex items-center gap-1 text-[#ffe170]">
                   <Trophy className="w-3.5 h-3.5" />
-                  {profile.seasonTag}
+                  {t('profile.seasonTag')}
                 </span>
                 <span>•</span>
-                <span className="text-[#00d2ff] font-bold">{profile.statusText}</span>
+                <span className="text-[#00d2ff] font-bold">{t('profile.statusText')}</span>
               </div>
             </div>
           </div>
@@ -238,14 +258,14 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               className="px-5 py-2.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md"
             >
               <Edit className="w-4 h-4 text-[#ff479b]" />
-              <span>Edit Profile</span>
+              <span>{t('profile.editProfile')}</span>
             </button>
             <button
               onClick={() => onNavigate('arena')}
               className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.45)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" />
-              <span>Enter Ranked Arena</span>
+              <span>{t('profile.enterArena')}</span>
             </button>
           </div>
         </div>
@@ -258,7 +278,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-br from-[#00d2ff]/10 via-transparent to-transparent opacity-50" />
           <div className="flex items-center justify-between relative z-10">
             <span className="text-xs font-bold tracking-wider uppercase text-[#a98891]">
-              GAMES PLAYED
+              {t('stats.gamesPlayed')}
             </span>
             <div className="w-10 h-10 rounded-xl bg-[#282a30] flex items-center justify-center text-[#00d2ff]">
               <History className="w-5 h-5" />
@@ -270,7 +290,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
             <div className="text-xs text-[#00d2ff] flex items-center gap-1 mt-1 font-bold">
               <TrendingUp className="w-3.5 h-3.5" />
-              +{profile.gamesWeekDelta} this week
+              {t('stats.thisWeek', { count: profile.gamesWeekDelta })}
             </div>
           </div>
         </div>
@@ -280,7 +300,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-br from-[#ffe170]/10 via-transparent to-transparent opacity-60" />
           <div className="flex items-center justify-between relative z-10">
             <span className="text-xs font-bold tracking-wider uppercase text-[#a98891]">
-              TOTAL VICTORIES
+              {t('stats.totalVictories')}
             </span>
             <div className="w-10 h-10 rounded-xl bg-[#282a30] flex items-center justify-center text-[#ffe170]">
               <Trophy className="w-5 h-5" />
@@ -292,7 +312,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
             <div className="text-xs text-[#ffe170] flex items-center gap-1 mt-1 font-bold">
               <Check className="w-3.5 h-3.5" />
-              64.1% true winrate
+              {t('stats.trueWinrate')}
             </div>
           </div>
         </div>
@@ -302,7 +322,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-br from-[#e9c400]/10 via-transparent to-transparent opacity-40" />
           <div className="flex items-center justify-between relative z-10">
             <span className="text-xs font-bold tracking-wider uppercase text-[#a98891]">
-              WIN RATIO
+              {t('stats.winRatio')}
             </span>
             <div className="relative w-10 h-10 flex items-center justify-center">
               <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
@@ -332,7 +352,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
             <div className="text-xs text-[#a98891] flex items-center gap-1 mt-1">
               <Award className="w-3.5 h-3.5 text-[#ffe170]" />
-              Top 8% global duelist pool
+              {t('stats.topPool')}
             </div>
           </div>
         </div>
@@ -342,7 +362,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="absolute inset-0 bg-gradient-to-br from-[#ff479b]/20 via-transparent to-transparent opacity-60" />
           <div className="flex items-center justify-between relative z-10">
             <span className="text-xs font-bold tracking-wider uppercase text-[#a98891]">
-              CURRENT STREAK
+              {t('stats.currentStreak')}
             </span>
             <div className="w-10 h-10 rounded-xl bg-[#282a30] flex items-center justify-center text-[#ff479b]">
               <Flame className="w-5 h-5 fill-[#ff479b]" />
@@ -352,11 +372,11 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <div className="font-['Cairo'] text-5xl font-black tracking-tight text-white leading-none flex items-center gap-2">
               <span className="text-[#ff479b]">🔥</span>
               <span>{profile.currentStreak}</span>
-              <span className="text-base font-bold text-[#a98891] uppercase">Wins</span>
+              <span className="text-base font-bold text-[#a98891] uppercase">{t('stats.wins')}</span>
             </div>
             <div className="text-xs text-[#a98891] flex items-center gap-1 mt-1">
               <Award className="w-3.5 h-3.5 text-[#ff479b]" />
-              Personal best: {profile.bestStreak} matches
+              {t('stats.personalBest', { count: profile.bestStreak })}
             </div>
           </div>
         </div>
@@ -368,7 +388,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* Segment 1: Draws */}
           <div className="flex flex-col px-4 py-1">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold">
-              Draws
+              {t('metrics.draws')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-white">{profile.draws}</span>
           </div>
@@ -376,20 +396,20 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* Segment 2: Longest Streak */}
           <div className="flex flex-col px-4 py-1 bg-[#282a30]/30 rounded-xl">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold">
-              Longest Streak
+              {t('metrics.longestStreak')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ffb0ca]">
-              {profile.bestStreak} Wins
+              {t('metrics.winsValue', { count: profile.bestStreak })}
             </span>
           </div>
 
           {/* Segment 3: Avg. Decrypt */}
           <div className="flex flex-col px-4 py-1">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold">
-              Avg. Decrypt
+              {t('metrics.avgDecrypt')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#00d2ff]">
-              {profile.avgDecryptTurns} Turns
+              {t('metrics.turnsValue', { count: profile.avgDecryptTurns })}
             </span>
           </div>
 
@@ -397,7 +417,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="flex flex-col px-4 py-1 bg-[#282a30]/30 rounded-xl">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400] shadow-[0_0_8px_rgba(233,196,0,0.6)]" />
-              Total Picos
+              {t('metrics.totalPicos')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ffe170]">
               {profile.totalPicos}
@@ -408,17 +428,17 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="flex flex-col px-4 py-1">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b] bg-transparent shadow-[0_0_8px_rgba(255,71,155,0.6)]" />
-              Total Palas
+              {t('metrics.totalPalas')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ff479b]">
-              {profile.totalPalas.toLocaleString()}
+              {profile.totalPalas.toLocaleString(lang)}
             </span>
           </div>
 
           {/* Segment 6: Avg. Turn Pace */}
           <div className="flex flex-col px-4 py-1 bg-[#282a30]/30 rounded-xl">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold">
-              Avg. Turn Pace
+              {t('metrics.avgTurnPace')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-white">
               {profile.avgTurnPace}s
@@ -438,10 +458,10 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               </div>
               <div>
                 <h2 className="font-['Cairo'] text-lg font-black uppercase text-white">
-                  Match History & Deduction Logs
+                  {t('history.title')}
                 </h2>
                 <p className="text-xs text-[#a98891]">
-                  Full cryptographic round traces, pico strikes, and ELO shift audits.
+                  {t('history.subtitle')}
                 </p>
               </div>
             </div>
@@ -458,7 +478,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                       : 'text-[#a98891] hover:text-white'
                   }`}
                 >
-                  {m === 'all' ? 'All' : m === 'ai' ? 'vs AI' : m}
+                  {t(`filters.${m}`)}
                 </button>
               ))}
             </div>
@@ -467,7 +487,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* State Preview Switches */}
           <div className="flex items-center gap-2 flex-wrap pt-1">
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-bold mr-1">
-              State Preview:
+              {t('preview.label')}
             </span>
             {(['default', 'offline', 'empty', 'error', 'loading'] as const).map((st) => (
               <button
@@ -479,15 +499,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     : 'bg-[#282a30] text-[#a98891] hover:text-white'
                 }`}
               >
-                {st === 'default'
-                  ? 'Default History'
-                  : st === 'offline'
-                  ? 'Offline Sync Pending'
-                  : st === 'empty'
-                  ? 'Empty State'
-                  : st === 'error'
-                  ? 'Error State'
-                  : 'Loading Shimmer'}
+                {t(`preview.${st}`)}
               </button>
             ))}
           </div>
@@ -499,14 +511,14 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <div className="flex items-center gap-2 text-xs font-bold">
               <RefreshCw className={`w-4 h-4 text-[#ffe170] ${isSyncing ? 'animate-spin' : ''}`} />
               <span>
-                ⚡ Showing local device cached records — cloud synchronization pending (3 matches unsaved).
+                {t('offline.banner', { count: 3 })}
               </span>
             </div>
             <button
               onClick={handleManualSync}
               className="px-3.5 py-1 rounded-full bg-[#e9c400] text-black font-['Cairo'] text-xs font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all"
             >
-              Sync Now
+              {t('offline.syncNow')}
             </button>
           </div>
         )}
@@ -517,13 +529,13 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <table className="w-full text-left border-collapse min-w-[760px]">
               <thead>
                 <tr className="bg-[#191b21] text-xs font-bold text-[#a98891] uppercase tracking-wider border-b border-[#282a30]">
-                  <th className="py-3 px-6">Result</th>
-                  <th className="py-3 px-4">Mode</th>
-                  <th className="py-3 px-4">Opponent</th>
-                  <th className="py-3 px-4">Stakes / ELO</th>
-                  <th className="py-3 px-4">Turns Taken</th>
-                  <th className="py-3 px-4">Timestamp</th>
-                  <th className="py-3 px-6 text-right">Log View</th>
+                  <th className="py-3 px-6">{t('table.result')}</th>
+                  <th className="py-3 px-4">{t('table.mode')}</th>
+                  <th className="py-3 px-4">{t('table.opponent')}</th>
+                  <th className="py-3 px-4">{t('table.stakes')}</th>
+                  <th className="py-3 px-4">{t('table.turnsTaken')}</th>
+                  <th className="py-3 px-4">{t('table.timestamp')}</th>
+                  <th className="py-3 px-6 text-right">{t('table.logView')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#282a30] text-sm">
@@ -545,7 +557,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                         }`}
                       >
                         <Trophy className="w-3.5 h-3.5" />
-                        {m.result}
+                        {t(`results.${m.result}`)}
                       </span>
                     </td>
 
@@ -553,7 +565,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     <td className="py-4 px-4">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#00d2ff]/15 text-[#00d2ff] text-xs font-bold">
                         <Globe className="w-3 h-3" />
-                        {m.modeLabel}
+                        {t(`modes.${m.mode}`)}
                       </span>
                     </td>
 
@@ -567,7 +579,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                           <span className="font-['Cairo'] text-sm font-bold text-white group-hover:text-[#ff479b] transition-colors">
                             {m.opponent.name}
                           </span>
-                          <span className="text-xs text-[#a98891]">{m.opponent.subtext}</span>
+                          <span className="text-xs text-[#a98891]">{subtextKeys[m.opponent.subtext] ? t(subtextKeys[m.opponent.subtext]) : m.opponent.subtext}</span>
                         </div>
                       </div>
                     </td>
@@ -583,7 +595,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                             : 'text-white'
                         }`}
                       >
-                        {m.stakes}
+                        {stakesKeys[m.stakes] ? t(stakesKeys[m.stakes]) : m.stakes}
                       </span>
                     </td>
 
@@ -605,7 +617,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     </td>
 
                     {/* Timestamp */}
-                    <td className="py-4 px-4 text-xs text-[#a98891]">{m.timestamp}</td>
+                    <td className="py-4 px-4 text-xs text-[#a98891]">{timestampLabel(m.timestamp)}</td>
 
                     {/* Action */}
                     <td className="py-4 px-6 text-right">
@@ -619,14 +631,18 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             {/* Pagination */}
             <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0c0e14] border-t border-[#282a30]">
               <span className="text-xs text-[#a98891]">
-                Showing <strong className="text-white font-bold">{filteredMatches.length}</strong> of{' '}
-                <strong className="text-white font-bold">{profile.gamesPlayed}</strong> recorded matches
+                <Trans
+                  t={t}
+                  i18nKey="table.showing"
+                  values={{ shown: filteredMatches.length, total: profile.gamesPlayed }}
+                  components={{ strong: <strong className="text-white font-bold" /> }}
+                />
               </span>
               <button
-                onClick={() => alert('All 284 recorded matches are backed up in client buffer.')}
+                onClick={() => alert(t('table.loadMoreAlert', { total: profile.gamesPlayed }))}
                 className="px-4 py-1.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold transition-all"
               >
-                Load more records
+                {t('table.loadMore')}
               </button>
             </div>
           </div>
@@ -644,16 +660,16 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               ))}
             </div>
             <h3 className="font-['Cairo'] text-2xl font-black text-white uppercase mb-2">
-              No games played yet
+              {t('empty.title')}
             </h3>
             <p className="text-sm text-[#a98891] max-w-md mb-6">
-              Step into the arena, set your secret 4-digit cipher, and outsmart your opponent with deductive strikes.
+              {t('empty.description')}
             </p>
             <button
               onClick={() => onNavigate('arena')}
               className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
-              <Swords className="w-4 h-4" /> Play your first match
+              <Swords className="w-4 h-4" /> {t('empty.cta')}
             </button>
           </div>
         ) : tableState === 'error' ? (
@@ -663,16 +679,16 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               <AlertTriangle className="w-8 h-8" />
             </div>
             <h3 className="font-['Cairo'] text-2xl font-bold text-rose-400 uppercase mb-2">
-              Sync Connection Timeout
+              {t('error.title')}
             </h3>
             <p className="text-sm text-[#a98891] max-w-md mb-6">
-              Unable to retrieve cloud deduction ledger. Network latency or security handshake timed out.
+              {t('error.description')}
             </p>
             <button
               onClick={() => setTableState('default')}
               className="px-6 py-2.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold flex items-center gap-2 transition-all"
             >
-              <RefreshCw className="w-4 h-4" /> Retry Handshake
+              <RefreshCw className="w-4 h-4" /> {t('error.retry')}
             </button>
           </div>
         ) : (
@@ -689,10 +705,10 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
       <div className="flex flex-col gap-3">
         <div>
           <h2 className="font-['Cairo'] text-2xl font-black uppercase text-white">
-            Duelist Configuration
+            {t('config.title')}
           </h2>
           <p className="text-xs text-[#a98891]">
-            Tactile feedback, security credentials, and anti-cheat protocol parameters.
+            {t('config.subtitle')}
           </p>
         </div>
 
@@ -706,9 +722,9 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 </div>
                 <div>
                   <h3 className="font-['Cairo'] text-base font-bold text-white">
-                    Audio & Feedback
+                    {t('audio.title')}
                   </h3>
-                  <p className="text-xs text-[#a98891]">Haptics & arcade soundscape</p>
+                  <p className="text-xs text-[#a98891]">{t('audio.subtitle')}</p>
                 </div>
               </div>
 
@@ -717,31 +733,23 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 {[
                   {
                     key: 'soundEffects' as const,
-                    title: 'Sound Effects',
-                    desc: 'Keypad clicks & strike chimes',
                   },
                   {
                     key: 'matchAmbientMusic' as const,
-                    title: 'Match Ambient Music',
-                    desc: 'Competitive low-fi drone',
                   },
                   {
                     key: 'hapticFeedback' as const,
-                    title: 'Haptic / Vibration',
-                    desc: 'Tactile click on mobile decks',
                   },
                   {
                     key: 'turnAlerts' as const,
-                    title: 'Turn Alerts',
-                    desc: 'Countdown chime at 5s',
                   },
                 ].map((item) => {
                   const active = audioSettings[item.key];
                   return (
                     <div key={item.key} className="flex items-center justify-between">
                       <div>
-                        <div className="text-xs font-bold text-white">{item.title}</div>
-                        <div className="text-[11px] text-[#a98891]">{item.desc}</div>
+                        <div className="text-xs font-bold text-white">{t(`audio.${item.key}.title`)}</div>
+                        <div className="text-[11px] text-[#a98891]">{t(`audio.${item.key}.desc`)}</div>
                       </div>
                       <button
                         onClick={() => onUpdateAudio(item.key, !active)}
@@ -760,7 +768,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
 
             <div className="mt-6 pt-4 border-t border-[#282a30] text-[11px] text-[#a98891]">
-              Hardware audio synthesis active.
+              {t('audio.footer')}
             </div>
           </div>
 
@@ -773,9 +781,9 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 </div>
                 <div>
                   <h3 className="font-['Cairo'] text-base font-bold text-white">
-                    Account & Security
+                    {t('account.title')}
                   </h3>
-                  <p className="text-xs text-[#a98891]">Authentication credentials</p>
+                  <p className="text-xs text-[#a98891]">{t('account.subtitle')}</p>
                 </div>
               </div>
 
@@ -783,12 +791,12 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 {/* Email Item */}
                 <div className="flex flex-col gap-1">
                   <span className="text-[11px] text-[#a98891] uppercase font-bold">
-                    Duelist Email
+                    {t('account.email')}
                   </span>
                   <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#111319] border border-[#282a30]">
                     <span className="text-xs font-bold text-white truncate">{profile.email}</span>
                     <span className="px-2 py-0.5 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold flex items-center gap-1 shrink-0">
-                      <Check className="w-3 h-3" /> Verified
+                      <Check className="w-3 h-3" /> {t('account.verified')}
                     </span>
                   </div>
                 </div>
@@ -796,15 +804,15 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 {/* Password Item */}
                 <div className="flex flex-col gap-1">
                   <span className="text-[11px] text-[#a98891] uppercase font-bold">
-                    Security Passcode
+                    {t('account.passcode')}
                   </span>
                   <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#111319] border border-[#282a30]">
-                    <span className="text-xs text-[#a98891]">Updated 2 weeks ago</span>
+                    <span className="text-xs text-[#a98891]">{t('account.updated')}</span>
                     <button
-                      onClick={() => alert('Security Passcode update link sent to ' + profile.email)}
+                      onClick={() => alert(t('account.changeAlert', { email: profile.email }))}
                       className="px-3 py-1 rounded-lg bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold transition-colors"
                     >
-                      Change
+                      {t('account.change')}
                     </button>
                   </div>
                 </div>
@@ -815,17 +823,22 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
                     className="w-full py-2.5 rounded-xl bg-rose-950/20 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20 text-xs font-bold transition-all flex items-center justify-center gap-2"
                   >
-                    <span>Delete Account...</span>
+                    <span>{t('account.delete')}</span>
                   </button>
 
                   {showDeleteConfirm && (
                     <div className="mt-3 p-4 rounded-2xl bg-[#0c0e14] border border-rose-500/40 flex flex-col gap-3">
                       <p className="text-xs text-[#e2bdc7] leading-relaxed">
-                        Irreversible action. Type <strong className="text-rose-400 font-mono">DELETE</strong> to purge ELO, match logs, and cosmetics.
+                        <Trans
+                          t={t}
+                          i18nKey="account.deleteWarning"
+                          values={{ word: 'DELETE' }}
+                          components={{ strong: <strong className="text-rose-400 font-mono" /> }}
+                        />
                       </p>
                       <input
                         type="text"
-                        placeholder='Type "DELETE"'
+                        placeholder={t('account.deletePlaceholder', { word: 'DELETE' })}
                         value={deleteInputText}
                         onChange={(e) => setDeleteInputText(e.target.value)}
                         className="w-full px-3 py-1.5 rounded-lg bg-[#191b21] border border-[#282a30] text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-rose-500"
@@ -833,15 +846,15 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                       <button
                         onClick={() => {
                           if (deleteInputText === 'DELETE') {
-                            alert('Account data purged from local ledger.');
+                            alert(t('account.deletePurged'));
                             setShowDeleteConfirm(false);
                           } else {
-                            alert('Please type DELETE exactly to confirm.');
+                            alert(t('account.deleteMismatch', { word: 'DELETE' }));
                           }
                         }}
                         className="w-full py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
                       >
-                        Permanently Purge
+                        {t('account.purge')}
                       </button>
                     </div>
                   )}
@@ -850,7 +863,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
 
             <div className="mt-6 pt-4 border-t border-[#282a30] text-[11px] text-[#a98891]">
-              2-Factor Steam/Discord link enabled.
+              {t('account.footer')}
             </div>
           </div>
 
@@ -863,15 +876,15 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 </div>
                 <div>
                   <h3 className="font-['Cairo'] text-base font-bold text-white">
-                    About & Integrity
+                    {t('about.title')}
                   </h3>
-                  <p className="text-xs text-[#a98891]">Engine build & fair play rules</p>
+                  <p className="text-xs text-[#a98891]">{t('about.subtitle')}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-[#111319] border border-[#282a30] flex items-center justify-between">
-                  <span className="text-xs text-[#a98891]">Client Engine</span>
+                  <span className="text-xs text-[#a98891]">{t('about.clientEngine')}</span>
                   <span className="font-mono text-xs font-bold text-[#00d2ff]">
                     v1.0.0 (Build #2024.10)
                   </span>
@@ -882,35 +895,35 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     href="#terms"
                     onClick={(e) => {
                       e.preventDefault();
-                      alert('Terms of Service: Auron Tale Games');
+                      alert(t('about.termsAlert'));
                     }}
                     className="p-2.5 rounded-xl hover:bg-[#282a30] flex items-center justify-between text-[#e2bdc7] hover:text-white transition-colors"
                   >
-                    <span>Terms of Service</span>
+                    <span>{t('about.terms')}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <a
                     href="#privacy"
                     onClick={(e) => {
                       e.preventDefault();
-                      alert('Privacy & Telemetry: Local encrypted storage');
+                      alert(t('about.privacyAlert'));
                     }}
                     className="p-2.5 rounded-xl hover:bg-[#282a30] flex items-center justify-between text-[#e2bdc7] hover:text-white transition-colors"
                   >
-                    <span>Privacy & Telemetry Policy</span>
+                    <span>{t('about.privacy')}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <a
                     href="#fairplay"
                     onClick={(e) => {
                       e.preventDefault();
-                      alert('Anti-Cheat: 100% deterministic permutation checker');
+                      alert(t('about.fairPlayAlert'));
                     }}
                     className="p-2.5 rounded-xl hover:bg-[#282a30] flex items-center justify-between text-[#e2bdc7] hover:text-white transition-colors"
                   >
                     <span className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#00d2ff]" />
-                      Fair Play Integrity & Anti-Cheat
+                      {t('about.fairPlay')}
                     </span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
@@ -920,7 +933,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
 
             <div className="mt-6 pt-4 border-t border-[#282a30] text-center">
               <span className="text-[11px] text-[#a98891] uppercase tracking-wider block font-bold">
-                CRAFTED FOR MIND-SPORT BY AURON TALE GAMES
+                {t('about.crafted')}
               </span>
             </div>
           </div>
@@ -932,9 +945,10 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-3xl bg-[#191b21] border border-[#33353b] p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between">
-              <h3 className="font-['Cairo'] text-xl font-bold text-white">Edit Duelist Record</h3>
+              <h3 className="font-['Cairo'] text-xl font-bold text-white">{t('edit.title')}</h3>
               <button
                 onClick={() => setShowEditModal(false)}
+                aria-label={t('edit.close')}
                 className="w-8 h-8 rounded-full bg-[#282a30] text-white flex items-center justify-center hover:bg-[#33353b]"
               >
                 ✕
@@ -944,7 +958,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-xs uppercase tracking-wider text-[#a98891] mb-1 font-bold">
-                  Display Call-sign
+                  {t('edit.callSign')}
                 </label>
                 <input
                   type="text"
@@ -956,7 +970,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
 
               <div>
                 <label className="block text-xs uppercase tracking-wider text-[#a98891] mb-1 font-bold">
-                  Registered Email
+                  {t('edit.email')}
                 </label>
                 <input
                   type="email"
@@ -972,13 +986,13 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                 onClick={() => setShowEditModal(false)}
                 className="px-4 py-2 rounded-full text-[#a98891] hover:text-white font-bold text-xs"
               >
-                Cancel
+                {t('edit.cancel')}
               </button>
               <button
                 onClick={handleSaveProfile}
                 className="px-6 py-2 rounded-full bg-[#ff479b] text-white font-bold text-xs shadow-md hover:bg-[#ff2e95]"
               >
-                Save Changes
+                {t('edit.save')}
               </button>
             </div>
           </div>

@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Timer,
   Bot,
+  User,
   Lock,
   EyeOff,
-  History,
   Send,
   RotateCcw,
   Delete,
@@ -15,13 +16,13 @@ import {
   Skull,
   Handshake,
   Share2,
-  Check,
   Flame,
   Shuffle,
+  X,
 } from 'lucide-react';
-import { Difficulty, GameMode, MatchResult, TurnRecord } from '@/types/game';
+import { Difficulty, GameMode, ILocalMove, MatchResult } from '@/types/game';
 import { countRemainingCandidates, generateSecretNumber } from '@/lib/gameLogic';
-import { MAX_ATTEMPTS, useMatchStore, type TSubmitError } from '@/store/useMatchStore';
+import { MAX_ATTEMPTS, useMatchStore } from '@/store/useMatchStore';
 import { soundEngine } from '@/lib/audio';
 
 interface ArenaViewProps {
@@ -32,19 +33,7 @@ interface ArenaViewProps {
   onExitArena?: () => void;
 }
 
-const DIFFICULTY_META: Record<Difficulty, { label: string; botLine: string }> = {
-  novice: { label: 'Novice', botLine: 'Bot · Easy' },
-  tactician: { label: 'Tactician', botLine: 'Bot · Medium' },
-  grandmaster: { label: 'Grandmaster', botLine: 'Bot · Hard · 60s per turn' },
-};
-
-const ERROR_MESSAGES: Record<TSubmitError, string> = {
-  NOT_YOUR_TURN: 'Wait for your turn.',
-  INVALID_LENGTH: 'INVALID INPUT: Exactly 4 unique digits (1–9) required!',
-  INVALID_DIGITS: 'INVALID INPUT: Only digits 1–9 are allowed!',
-  REPEATED_DIGITS: 'INVALID INPUT: Digits cannot repeat!',
-  DUPLICATE_GUESS: 'You already tried that number. Pick a different one.',
-};
+const BOT_NAME = 'VORTEX-AI';
 
 const RESULT_THEME = {
   win: {
@@ -53,8 +42,6 @@ const RESULT_THEME = {
     iconBg: 'bg-[#e9c400]/20 shadow-[0_0_40px_rgba(255,214,0,0.5)]',
     iconColor: 'text-[#ffe170]',
     badge: 'bg-[#e9c400] text-black',
-    badgeText: 'VICTORY',
-    title: 'CIPHER CRACKED!',
     Icon: Trophy,
   },
   lose: {
@@ -63,8 +50,6 @@ const RESULT_THEME = {
     iconBg: 'bg-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.5)]',
     iconColor: 'text-rose-400',
     badge: 'bg-rose-500 text-white',
-    badgeText: 'DEFEAT',
-    title: 'YOUR CIPHER WAS BROKEN',
     Icon: Skull,
   },
   draw: {
@@ -73,14 +58,14 @@ const RESULT_THEME = {
     iconBg: 'bg-[#00d2ff]/20 shadow-[0_0_40px_rgba(0,210,255,0.5)]',
     iconColor: 'text-[#00d2ff]',
     badge: 'bg-[#00d2ff] text-black',
-    badgeText: 'DRAW',
-    title: 'TACTICAL DRAW',
     Icon: Handshake,
   },
 } as const;
 
 const formatClock = (seconds: number): string =>
   `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+
+const pad2 = (n: number): string => String(n).padStart(2, '0');
 
 export const ArenaView: React.FC<ArenaViewProps> = ({
   mode = 'ai',
@@ -89,6 +74,8 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   onMatchComplete,
   onExitArena,
 }) => {
+  const { t } = useTranslation('arena');
+
   const phase = useMatchStore((s) => s.phase);
   const storeDifficulty = useMatchStore((s) => s.difficulty);
   const playerSecretStr = useMatchStore((s) => s.playerSecret);
@@ -104,43 +91,51 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   const timeUp = useMatchStore((s) => s.timeUp);
 
   const [currentDraft, setCurrentDraft] = useState<number[]>([]);
-  const [validationErrorMsg, setValidationErrorMsg] = useState<string | null>(null);
+  const [writeOpen, setWriteOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
-  const ledgerRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
   const previousPhaseRef = useRef(phase);
   const maxTurns = MAX_ATTEMPTS;
 
   const canPlay = phase === 'playing' && currentActor === 'PLAYER' && !isBotThinking;
-  const difficultyMeta = DIFFICULTY_META[storeDifficulty];
+  const levelLabel = t(`level.${storeDifficulty}`);
 
   const playerSecret = useMemo(() => playerSecretStr.split('').map(Number), [playerSecretStr]);
   const opponentSecret = useMemo(() => opponentSecretStr.split('').map(Number), [opponentSecretStr]);
 
-  const ledger: TurnRecord[] = useMemo(
-    () =>
-      moves.map((move) => ({
-        id: String(move.turnNumber),
-        turnNumber: move.turnNumber,
-        actor: move.isPlayerMove ? 'YOU' : 'BOT',
-        actorName: move.isPlayerMove ? 'You' : 'VORTEX-AI',
-        guess: move.guess.split('').map(Number),
-        picos: move.feedback.picos,
-        palas: move.feedback.palas,
-        misses: 4 - move.feedback.picos - move.feedback.palas,
-        timestamp: '',
-      })),
-    [moves],
-  );
-
   const playerMoves = useMemo(() => moves.filter((move) => move.isPlayerMove), [moves]);
+  const botMoves = useMemo(() => moves.filter((move) => !move.isPlayerMove), [moves]);
   const totalPicos = playerMoves.reduce((sum, move) => sum + move.feedback.picos, 0);
   const totalPalas = playerMoves.reduce((sum, move) => sum + move.feedback.palas, 0);
   const remainingCandidates = useMemo(() => countRemainingCandidates(playerMoves), [playerMoves]);
 
-  // Round number shown in the gauge: one round = one guess from each side.
+  // One round = one guess from each side; the top bar shows the current round.
   const turnCount = Math.min(maxTurns, Math.floor(moves.length / 2) + 1);
-  const windowStart = Math.max(1, Math.min(moves.length - 2, maxTurns * 2 - 7));
-  const timelineSteps = Array.from({ length: 8 }, (_, i) => windowStart + i);
+
+  // Rows of the two-column board, aligned by round (opponent left, player right).
+  const botSlots = botMoves.length + (phase === 'playing' && currentActor === 'AI' ? 1 : 0);
+  const playerSlots = playerMoves.length + (phase === 'playing' && currentActor === 'PLAYER' ? 1 : 0);
+  const rowCount = Math.max(botSlots, playerSlots, 1);
+
+  const statusState =
+    phase === 'finished'
+      ? 'finished'
+      : phase !== 'playing'
+        ? 'preparing'
+        : isBotThinking
+          ? 'thinking'
+          : currentActor === 'PLAYER'
+            ? 'your-turn'
+            : 'opponent';
+
+  const statusText = {
+    finished: t('status.finished'),
+    preparing: t('status.preparing'),
+    thinking: t('status.thinking', { name: BOT_NAME }),
+    'your-turn': t('status.yourTurn'),
+    opponent: t('status.opponentTurn'),
+  }[statusState];
 
   const timerLabel =
     storeDifficulty !== 'grandmaster' || phase !== 'playing'
@@ -148,17 +143,6 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
       : currentActor === 'PLAYER'
         ? formatClock(timeRemaining)
         : '--:--';
-
-  const statusText =
-    phase === 'finished'
-      ? 'Match finished'
-      : isBotThinking
-        ? 'VORTEX-AI Calculating...'
-        : phase === 'playing' && currentActor === 'PLAYER'
-          ? 'Awaiting your move'
-          : phase === 'playing'
-            ? 'Opponent turn'
-            : 'Preparing duel...';
 
   // Start a fresh setup the first time the arena opens without a match in memory.
   useEffect(() => {
@@ -192,34 +176,46 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   useEffect(() => {
     if (!timeUp) return;
     setCurrentDraft([]);
-    setValidationErrorMsg('TIME UP: a random guess was submitted for you.');
+    setWriteOpen(false);
+    setErrorMsg(t('errors.timeUp'));
     useMatchStore.getState().clearTimeUp();
-  }, [timeUp]);
+  }, [timeUp, t]);
+
+  // The keypad can only be open while it is the player's turn.
+  useEffect(() => {
+    if (!canPlay) setWriteOpen(false);
+  }, [canPlay]);
 
   useEffect(() => {
-    const list = ledgerRef.current;
-    if (list) list.scrollTop = list.scrollHeight;
-  }, [moves.length]);
+    const board = boardRef.current;
+    if (board) board.scrollTop = board.scrollHeight;
+  }, [rowCount]);
 
   const pressKey = (num: number) => {
     if (!canPlay || currentDraft.includes(num) || currentDraft.length >= 4) return;
     soundEngine.playKeypad();
     setCurrentDraft((prev) => [...prev, num]);
-    setValidationErrorMsg(null);
+    setErrorMsg(null);
   };
 
   const handleBackspace = () => {
     if (!canPlay) return;
     soundEngine.playKeypad();
     setCurrentDraft((prev) => prev.slice(0, -1));
-    setValidationErrorMsg(null);
+    setErrorMsg(null);
   };
 
   const handleClear = () => {
     if (!canPlay) return;
     soundEngine.playKeypad();
     setCurrentDraft([]);
-    setValidationErrorMsg(null);
+    setErrorMsg(null);
+  };
+
+  const openWrite = () => {
+    if (!canPlay) return;
+    setErrorMsg(null);
+    setWriteOpen(true);
   };
 
   const submitDraftGuess = () => {
@@ -228,7 +224,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
     const outcome = useMatchStore.getState().submitGuess(currentDraft.join(''));
     if (!outcome.ok) {
       soundEngine.playErrorBuzz();
-      setValidationErrorMsg(ERROR_MESSAGES[outcome.error]);
+      setErrorMsg(t(`errors.${outcome.error}`));
       return;
     }
 
@@ -238,10 +234,11 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
     else if (last && last.feedback.palas > 0) soundEngine.playPalaPing();
 
     setCurrentDraft([]);
-    setValidationErrorMsg(null);
+    setErrorMsg(null);
+    setWriteOpen(false);
   };
 
-  // Physical keyboard: 1–9 digits, Backspace, Escape, Enter.
+  // Physical keyboard: digits open the keypad, Enter submits, Escape closes it.
   useEffect(() => {
     if (!canPlay) return;
 
@@ -250,29 +247,33 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
 
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
+        setWriteOpen(true);
         pressKey(parseInt(e.key, 10));
       } else if (e.key === 'Backspace') {
+        if (!writeOpen) return;
         e.preventDefault();
         handleBackspace();
       } else if (e.key === 'Escape') {
-        handleClear();
+        setWriteOpen(false);
       } else if (e.key === 'Enter') {
         // Stop Enter from also "clicking" whichever button currently has focus.
         e.preventDefault();
-        submitDraftGuess();
+        if (writeOpen) submitDraftGuess();
+        else openWrite();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canPlay, currentDraft]);
+  }, [canPlay, currentDraft, writeOpen]);
 
   const handleNewDuel = () => {
-    if (phase === 'playing' && !confirm('Abandon the current duel and start a new one?')) return;
+    if (phase === 'playing' && !confirm(t('menu.confirmNewDuel'))) return;
     useMatchStore.getState().openSetup(storeDifficulty);
     setCurrentDraft([]);
-    setValidationErrorMsg(null);
+    setErrorMsg(null);
+    setWriteOpen(false);
     setShareCopied(false);
   };
 
@@ -282,7 +283,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   };
 
   const handleForfeit = () => {
-    if (!confirm('Are you sure you want to forfeit this duel? This counts as a defeat.')) return;
+    if (!confirm(t('menu.confirmForfeit'))) return;
     useMatchStore.getState().reset();
     onMatchComplete?.('lose');
     onExitArena?.();
@@ -290,9 +291,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(
-        `I cracked the cipher in ${playerMoves.length} guesses on Pico & Pala!`,
-      );
+      await navigator.clipboard.writeText(t('result.shareText', { count: playerMoves.length }));
       setShareCopied(true);
     } catch {
       setShareCopied(false);
@@ -303,613 +302,303 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
     return (
       <div className="max-w-xl w-full mx-auto px-4 py-20 text-center flex flex-col items-center gap-4">
         <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
-          This mode is coming soon
+          {t('unavailable.title')}
         </span>
-        <p className="text-sm text-[#a98891]">
-          Private and global rooms need the online backend. You can play against the AI right now.
-        </p>
+        <p className="text-sm text-[#a98891]">{t('unavailable.text')}</p>
         <button
           onClick={onExitArena}
           className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider"
         >
-          Back to Play Hub
+          {t('unavailable.back')}
         </button>
       </div>
     );
   }
 
+  const roundRows = Array.from({ length: rowCount }, (_, i) => i);
+
   return (
-    <div className="w-full flex flex-col select-none pb-12">
-      {/* ARENA HEADER STRIP */}
-      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 pt-3 flex items-center justify-between flex-wrap gap-2 text-xs">
-        <div className="flex items-center gap-2 text-[#a98891]">
-          <span>TACTICAL 1v1 ARENA</span>
-          <span>•</span>
-          <span className="text-[#00d2ff] font-bold">VS AI · {difficultyMeta.label.toUpperCase()}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
-            <Timer className="w-3.5 h-3.5 text-[#00d2ff]" />
-            <span className="font-mono text-xs font-bold text-[#00d2ff]">
-              {timerLabel}
+    <div className="w-full flex flex-col select-none h-[calc(100dvh-5rem)] min-h-[520px]">
+      {/* TOP BAR: turn indicator, status, clock and match actions */}
+      <div className="shrink-0 border-b border-[#282a30] bg-[#0c0e14]/70 backdrop-blur">
+        <div className="max-w-5xl w-full mx-auto px-3 sm:px-4 py-2.5 flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span
+                data-testid="turn-indicator"
+                className="shrink-0 px-2.5 py-1 rounded-lg bg-[#191b21] border border-[#282a30] font-['Cairo'] text-sm font-black text-white tabular-nums"
+              >
+                {t('turn', { n: pad2(turnCount), max: maxTurns })}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <div
+                title={t('hud.clock')}
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#191b21] border border-[#282a30]"
+              >
+                <Timer className="w-3.5 h-3.5 text-[#00d2ff]" />
+                <span
+                  data-testid="turn-clock"
+                  className={`font-mono text-xs font-bold tabular-nums ${
+                    storeDifficulty === 'grandmaster' && currentActor === 'PLAYER' && timeRemaining <= 10
+                      ? 'text-[#ff4d4d]'
+                      : 'text-[#00d2ff]'
+                  }`}
+                >
+                  {timerLabel}
+                </span>
+              </div>
+              <button
+                onClick={handleNewDuel}
+                title={t('menu.newDuel')}
+                aria-label={t('menu.newDuel')}
+                className="w-8 h-8 rounded-full bg-[#191b21] hover:bg-[#282a30] border border-[#282a30] text-[#a98891] hover:text-white flex items-center justify-center transition-all"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleForfeit}
+                title={t('menu.forfeit')}
+                aria-label={t('menu.forfeit')}
+                className="w-8 h-8 rounded-full bg-[#191b21] hover:bg-rose-950/40 border border-[#282a30] text-[#a98891] hover:text-rose-400 flex items-center justify-center transition-all"
+              >
+                <Flag className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 text-[11px] text-[#a98891]">
+              <span
+                data-testid="turn-status"
+                data-state={statusState}
+                className={`min-w-0 flex-1 truncate flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider border ${
+                  statusState === 'your-turn'
+                    ? 'bg-[#ff479b]/15 border-[#ff479b]/50 text-[#ffb0ca] shadow-[0_0_12px_rgba(255,46,149,0.3)]'
+                    : 'bg-[#111319] border-[#282a30] text-[#00d2ff]'
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 shrink-0 rounded-full ${
+                    statusState === 'your-turn'
+                      ? 'bg-[#ff479b] animate-pulse'
+                      : statusState === 'thinking'
+                        ? 'bg-[#00d2ff] animate-ping'
+                        : 'bg-[#a98891]'
+                  }`}
+                />
+                <span className="truncate">{statusText}</span>
+              </span>
+            <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#111319] border border-[#282a30]">
+              <span className="text-[#ffe170] font-bold tabular-nums">
+                {t('hud.candidates', { count: remainingCandidates })}
+              </span>
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* BOARD: opponent on the left, player on the right */}
+      <div className="flex-1 min-h-0 max-w-5xl w-full mx-auto px-2 sm:px-4 pt-2 flex flex-col gap-2">
+        <div className="shrink-0 grid grid-cols-2 gap-2 sm:gap-4">
+          <ColumnHeader
+            side="opponent"
+            title={t('columns.opponent')}
+            subtitle={`${BOT_NAME} · ${levelLabel}`}
+            icon={<Bot className="w-4 h-4 text-[#00d2ff]" />}
+            digits={null}
+            secretLabel={t('columns.secretHidden')}
+            attemptsLabel={t('columns.guessesLeft', { n: aiAttemptsLeft })}
+          />
+          <ColumnHeader
+            side="you"
+            title={t('columns.you')}
+            subtitle={t('columns.yourSecret')}
+            icon={<User className="w-4 h-4 text-[#ff479b]" />}
+            digits={playerSecret.length === 4 ? playerSecret : null}
+            secretLabel={t('columns.yourSecret')}
+            attemptsLabel={t('columns.guessesLeft', { n: playerAttemptsLeft })}
+          />
+        </div>
+
+        <div
+          ref={boardRef}
+          data-testid="board"
+          className="flex-1 min-h-0 overflow-y-auto pr-0.5 pb-2 grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-2 content-start"
+        >
+          {roundRows.map((i) => (
+            <React.Fragment key={i}>
+              <BoardCell
+                actor="BOT"
+                move={botMoves[i]}
+                round={i + 1}
+                pending={
+                  !botMoves[i] && i === botMoves.length && phase === 'playing' && currentActor === 'AI'
+                    ? t('columns.pendingBot')
+                    : null
+                }
+              />
+              <BoardCell
+                actor="YOU"
+                move={playerMoves[i]}
+                round={i + 1}
+                pending={
+                  !playerMoves[i] &&
+                  i === playerMoves.length &&
+                  phase === 'playing' &&
+                  currentActor === 'PLAYER'
+                    ? t('columns.pendingYou')
+                    : null
+                }
+              />
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* BOTTOM ACTION BAR */}
+      <div className="shrink-0 border-t border-[#282a30] bg-[#0c0e14]/90 backdrop-blur">
+        <div className="max-w-5xl w-full mx-auto px-3 sm:px-4 py-3 flex flex-col gap-1.5">
+          <div className="flex items-center justify-center gap-4 text-[11px] text-[#a98891]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-[#e9c400] shadow-[0_0_6px_rgba(233,196,0,0.7)]" />
+              {t('hud.legendPico')}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full border-2 border-[#ff479b]" />
+              {t('hud.legendPala')}
+            </span>
+          </div>
+          {errorMsg && !writeOpen && (
+            <span role="alert" className="text-xs font-bold text-rose-400 text-center">
+              {errorMsg}
+            </span>
+          )}
           <button
-            onClick={handleNewDuel}
-            className="px-2.5 py-1 rounded-full bg-[#191b21] hover:bg-[#282a30] text-[#a98891] hover:text-white transition-all flex items-center gap-1"
-            title="Start a new duel"
+            onClick={openWrite}
+            disabled={!canPlay}
+            className={`w-full h-14 rounded-2xl font-['Cairo'] font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+              canPlay
+                ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-[0.99]'
+                : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
+            }`}
           >
-            <RotateCcw className="w-3 h-3" />
-            <span>New Duel</span>
+            <Send className="w-5 h-5" />
+            {canPlay ? t('write.button') : t('write.waiting')}
           </button>
         </div>
       </div>
 
-      {/* 2. MAIN 3-ZONE ARENA GRID */}
-      <div className="max-w-[1400px] w-full mx-auto px-2 sm:px-4 lg:px-6 pt-3 grid grid-cols-1 lg:grid-cols-12 gap-4 xl:gap-6 relative">
-        {/* ==================================================== */}
-        {/* ZONE 1: LEFT RAIL (Turn Meter & Input Pad)            */}
-        {/* ==================================================== */}
-        <div className="lg:col-span-3 flex flex-col gap-4 order-2 lg:order-1">
-          {/* Pacing Gauge Card */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
+      {/* WRITE-TURN MODAL (number pad) */}
+      {writeOpen && canPlay && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center"
+          onClick={() => setWriteOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('write.title', { n: pad2(turnCount) })}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-md bg-[#191b21] border border-[#ff479b]/40 rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                Pacing Gauge
+              <span className="font-['Cairo'] font-bold text-sm text-[#ff479b] uppercase tracking-wider flex items-center gap-1.5">
+                <Send className="w-4 h-4" /> {t('write.title', { n: pad2(turnCount) })}
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-black tracking-wider uppercase bg-[#00d2ff]/20 text-[#00d2ff]">
-                {playerAttemptsLeft} left
-              </span>
+              <button
+                onClick={() => setWriteOpen(false)}
+                aria-label={t('write.close')}
+                className="w-8 h-8 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Circular SVG Meter */}
-              <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-[#282a30]"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                  />
-                  <path
-                    className="text-[#ff479b] transition-all duration-500"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeDasharray={`${(turnCount / maxTurns) * 100}, 100`}
-                    strokeLinecap="round"
-                    strokeWidth="3.5"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="font-['Cairo'] text-lg font-black text-white leading-none">
-                    {turnCount < 10 ? `0${turnCount}` : turnCount}
-                  </span>
-                  <span className="text-[9px] text-[#a98891] uppercase font-bold">/ 12</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <span className="font-['Cairo'] text-sm font-bold text-white">
-                  Turn {turnCount < 10 ? `0${turnCount}` : turnCount} of 12
-                </span>
-                <span className="text-xs text-[#a98891]">
-                  Turns Remaining:{' '}
-                  <strong className="text-[#ff479b] font-bold">
-                    {Math.max(0, maxTurns - turnCount)}
-                  </strong>
-                </span>
-                <div className="w-full bg-[#0c0e14] h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#00d2ff] to-[#ff479b] transition-all duration-300"
-                    style={{ width: `${(turnCount / maxTurns) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tactical Virtual Keypad Card */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                Tactical Keypad
-              </span>
-              <span className="text-xs font-bold text-[#ff479b]">1–9 ONLY</span>
-            </div>
-
-            {/* 3x3 Keypad Matrix (Zero is excluded) */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { n: 1, label: 'Alpha' },
-                { n: 2, label: 'Beta' },
-                { n: 3, label: 'Gamma' },
-                { n: 4, label: 'Delta' },
-                { n: 5, label: 'Epsilon' },
-                { n: 6, label: 'Zeta' },
-                { n: 7, label: 'Eta' },
-                { n: 8, label: 'Theta' },
-                { n: 9, label: 'Iota' },
-              ].map((key) => {
-                const isSlotted = currentDraft.includes(key.n);
+            <div className="grid grid-cols-4 gap-2">
+              {[0, 1, 2, 3].map((slot) => {
+                const filled = slot < currentDraft.length;
+                const active = slot === currentDraft.length;
                 return (
-                  <button
-                    key={key.n}
-                    onClick={() => pressKey(key.n)}
-                    disabled={isSlotted || !canPlay}
-                    className={`h-14 rounded-xl flex flex-col items-center justify-center transition-all ${
-                      isSlotted
-                        ? 'bg-[#282a30] opacity-40 cursor-not-allowed border border-[#33353b]'
-                        : 'bg-[#111319] hover:bg-[#282a30] active:scale-95 border border-[#282a30] hover:border-[#ff479b]/60 text-white shadow-md'
+                  <div
+                    key={slot}
+                    className={`h-16 rounded-xl flex items-center justify-center font-['Cairo'] text-3xl font-black transition-all ${
+                      filled
+                        ? 'bg-[#282a30] border-2 border-[#ff479b] text-white shadow-[0_0_15px_rgba(255,71,155,0.3)]'
+                        : active
+                          ? 'bg-[#0c0e14] border-2 border-[#00d2ff] text-[#00d2ff] animate-pulse'
+                          : 'bg-[#0c0e14] border border-[#282a30] text-[#a98891]/40 opacity-60'
                     }`}
                   >
-                    <span
-                      className={`font-['Cairo'] text-2xl font-black leading-none ${
-                        isSlotted ? 'text-[#ff479b]' : 'text-white'
-                      }`}
-                    >
-                      {key.n}
-                    </span>
-                    <span className="text-[9px] uppercase tracking-tighter leading-none mt-0.5 text-[#a98891]">
-                      {isSlotted ? 'SLOTTED' : key.label}
-                    </span>
+                    {filled ? currentDraft[slot] : active ? '_' : '·'}
+                  </div>
+                );
+              })}
+            </div>
+
+            <span
+              role={errorMsg ? 'alert' : undefined}
+              className={`text-xs text-center ${errorMsg ? 'text-rose-400 font-bold' : 'text-[#a98891]'}`}
+            >
+              {errorMsg ?? t('write.hint', { count: Math.max(0, 4 - currentDraft.length) })}
+            </span>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+                const used = currentDraft.includes(n);
+                return (
+                  <button
+                    key={n}
+                    onClick={() => pressKey(n)}
+                    disabled={used}
+                    aria-label={`${t('write.digitAlpha')} ${n}`}
+                    className={`h-14 rounded-xl font-['Cairo'] text-2xl font-black transition-all ${
+                      used
+                        ? 'bg-[#282a30] text-[#ff479b] opacity-40 cursor-not-allowed border border-[#33353b]'
+                        : 'bg-[#111319] border border-[#282a30] hover:border-[#ff479b]/60 text-white active:scale-95'
+                    }`}
+                  >
+                    {n}
                   </button>
                 );
               })}
             </div>
 
-            {/* Actions: Clear & Undo */}
-            <div className="grid grid-cols-2 gap-2 mt-1">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={handleClear}
-                className="h-10 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
+                className="h-11 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-[#a98891]" /> CLEAR
+                <RotateCcw className="w-3.5 h-3.5 text-[#a98891]" /> {t('write.clear')}
               </button>
               <button
                 onClick={handleBackspace}
-                className="h-10 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
+                className="h-11 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
               >
-                <Delete className="w-3.5 h-3.5 text-rose-400" /> UNDO
+                <Delete className="w-3.5 h-3.5 text-rose-400" /> {t('write.undo')}
               </button>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-[#0c0e14] border border-[#282a30] flex items-center gap-2">
-              <span className="text-[11px] text-[#a98891] leading-tight">
-                Use hardware keypad <code className="bg-[#282a30] px-1 rounded text-white font-bold">1–9</code> or tap on-screen keys.
-              </span>
-            </div>
-          </div>
-
-          {/* Quick Session Stats Mini */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-2">
-            <div className="flex items-center justify-between text-xs text-[#a98891]">
-              <span>Target Cipher Length</span>
-              <span className="text-white font-bold">4 Unique Digits</span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-[#a98891]">
-              <span>Possibility Matrix</span>
-              <span className="text-[#00d2ff] font-bold">3,024 Combinations</span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-[#a98891]">
-              <span>Remaining Candidates</span>
-              <span className="text-[#ffe170] font-bold">{remainingCandidates.toLocaleString()} feasible</span>
-            </div>
+            <button
+              onClick={submitDraftGuess}
+              disabled={currentDraft.length < 4}
+              className={`h-14 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                currentDraft.length === 4
+                  ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-95'
+                  : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
+              }`}
+            >
+              {t('write.submit')} <Send className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      )}
 
-        {/* ==================================================== */}
-        {/* ZONE 2: CENTER ARENA (Board, Ledger, Guess Console)  */}
-        {/* ==================================================== */}
-        <div className="lg:col-span-6 flex flex-col gap-4 order-1 lg:order-2 min-w-0">
-          {/* Opponent Strip (Top Center) */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00d2ff]/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-11 h-11 rounded-xl bg-[#282a30] flex items-center justify-center shadow-md">
-                    <Bot className="w-6 h-6 text-[#00d2ff]" />
-                  </div>
-                  <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-[#191b21]" />
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="font-['Cairo'] font-bold text-sm text-white">VORTEX-AI</span>
-                    <span className="px-1.5 py-0.2 rounded text-[10px] bg-[#00d2ff]/20 text-[#00d2ff] font-black uppercase">
-                      {difficultyMeta.label}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#a98891]">{difficultyMeta.botLine}</span>
-                </div>
-              </div>
-
-              {/* Opponent Status */}
-              <div className="px-3 py-1 rounded-full bg-[#111319] border border-[#282a30] flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    isBotThinking ? 'bg-[#ff479b] animate-ping' : 'bg-[#00d2ff] animate-pulse'
-                  }`}
-                />
-                <span className="text-xs font-bold text-[#00d2ff] uppercase tracking-wider">
-                  {statusText}
-                </span>
-              </div>
-            </div>
-
-            {/* Opponent Locked Mystery Slots */}
-            <div className="flex items-center justify-between bg-[#0c0e14] border border-[#282a30] rounded-xl p-3">
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#a98891]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                  Opponent Cipher Locked
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {[1, 2, 3, 4].map((idx) => (
-                  <div
-                    key={idx}
-                    className="w-8 h-10 rounded-lg bg-[#282a30] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-sm text-[#a98891]"
-                  >
-                    ?
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Player's Secret Cipher Strip */}
-          <div className="bg-gradient-to-r from-[#e9c400]/15 via-[#191b21] to-[#191b21] border border-[#e9c400]/30 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-10 bg-[#e9c400] rounded-full shadow-[0_0_12px_rgba(255,214,0,0.6)]" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-['Cairo'] font-black text-sm text-[#ffe170] uppercase tracking-wider">
-                    Your Secret Cipher
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#e9c400]/20 text-[#ffe170] font-bold uppercase flex items-center gap-1">
-                    <EyeOff className="w-3 h-3" /> Hidden from Rival
-                  </span>
-                </div>
-                <span className="text-xs text-[#a98891]">
-                  If opponent deduces this exact sequence, you lose.
-                </span>
-              </div>
-            </div>
-
-            {/* Glowing secret digits */}
-            <div className="flex items-center gap-2">
-              {playerSecret.map((digit, i) => (
-                <div
-                  key={i}
-                  className="w-10 h-12 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-inner"
-                >
-                  <span className="font-['Cairo'] text-2xl font-black text-[#ffe170] leading-none">
-                    {digit}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Deduction Ledger (Scrollable History Stream) */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-2 flex-1 min-h-[300px] max-h-[440px]">
-            <div className="flex items-center justify-between pb-2 border-b border-[#282a30]">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a98891] flex items-center gap-1.5">
-                <History className="w-4 h-4 text-[#ff479b]" /> Tactical Deduction Ledger
-              </span>
-              <span className="text-xs text-[#a98891]">
-                {ledger.length} Turns Recorded
-              </span>
-            </div>
-
-            {/* Ledger List */}
-            <div ref={ledgerRef} className="flex flex-col gap-2 overflow-y-auto pr-1">
-              {ledger.map((rec) => (
-                <div
-                  key={rec.id}
-                  className={`flex items-center justify-between p-2.5 rounded-xl border transition-colors ${
-                    rec.actor === 'YOU'
-                      ? 'bg-[#111319] border-[#282a30] hover:border-[#ff479b]/40'
-                      : 'bg-[#282a30]/50 border-transparent hover:bg-[#282a30]'
-                  }`}
-                >
-                  {/* Left: Actor tag & 4 guess digits */}
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs font-bold w-16 font-['Cairo'] ${
-                        rec.actor === 'YOU' ? 'text-[#ff479b]' : 'text-[#00d2ff]'
-                      }`}
-                    >
-                      T{String(rec.turnNumber).padStart(2, '0')} · {rec.actor}
-                    </span>
-
-                    <div className="flex items-center gap-1">
-                      {rec.guess.map((d, i) => (
-                        <span
-                          key={i}
-                          className="w-7 h-7 rounded-lg bg-[#0c0e14] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-sm text-white"
-                        >
-                          {d}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Right: Pico/Pala Clue Badges */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      {/* Picos */}
-                      {Array.from({ length: rec.picos }).map((_, i) => (
-                        <span
-                          key={`pico-${i}`}
-                          className="w-3.5 h-3.5 rounded-full bg-[#e9c400] shadow-[0_0_8px_rgba(233,196,0,0.8)]"
-                          title="Pico"
-                        />
-                      ))}
-                      {/* Palas */}
-                      {Array.from({ length: rec.palas }).map((_, i) => (
-                        <span
-                          key={`pala-${i}`}
-                          className="w-3.5 h-3.5 rounded-full bg-transparent border-2 border-[#ff479b] shadow-[0_0_8px_rgba(255,71,155,0.7)]"
-                          title="Pala"
-                        />
-                      ))}
-                      {/* Misses */}
-                      {Array.from({ length: rec.misses }).map((_, i) => (
-                        <span
-                          key={`miss-${i}`}
-                          className="w-2.5 h-2.5 rounded-full bg-[#33353b]"
-                          title="Miss"
-                        />
-                      ))}
-                    </div>
-
-                    <span className="text-xs font-bold text-[#e2bdc7] min-w-[70px] text-right font-['Cairo']">
-                      {rec.picos > 0 && `${rec.picos}P `}
-                      {rec.palas > 0 && `${rec.palas}L `}
-                      {rec.picos === 0 && rec.palas === 0 && '0 Matches'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Docked Current Guess Input Console */}
-          <div className="bg-[#191b21] border border-[#ff479b]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3 relative">
-            <div className="flex items-center justify-between">
-              <span className="font-['Cairo'] font-bold text-sm text-[#ff479b] uppercase tracking-wider flex items-center gap-1.5">
-                <Send className="w-4 h-4" /> Draft Your Turn {turnCount < 10 ? `0${turnCount}` : turnCount} Guess
-              </span>
-              <span
-                className={`text-xs font-medium ${
-                  validationErrorMsg ? 'text-rose-400 font-bold' : 'text-[#a98891]'
-                }`}
-              >
-                {validationErrorMsg ||
-                  `Digits 1–9 only · No repeats · ${Math.max(0, 4 - currentDraft.length)} remaining`}
-              </span>
-            </div>
-
-            {/* 4 Large Active Digit Slots */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-3 my-1">
-              {[0, 1, 2, 3].map((slotIdx) => {
-                const isFilled = slotIdx < currentDraft.length;
-                const isActive = slotIdx === currentDraft.length;
-                const digit = isFilled ? currentDraft[slotIdx] : null;
-
-                return (
-                  <div
-                    key={slotIdx}
-                    className={`h-16 sm:h-20 rounded-xl flex flex-col items-center justify-center transition-all ${
-                      isFilled
-                        ? 'bg-[#282a30] border-2 border-[#ff479b] shadow-[0_0_15px_rgba(255,71,155,0.3)]'
-                        : isActive
-                        ? 'bg-[#0c0e14] border-2 border-[#00d2ff] shadow-[0_0_12px_rgba(0,210,255,0.4)] animate-pulse'
-                        : 'bg-[#0c0e14] border border-[#282a30] opacity-50'
-                    }`}
-                  >
-                    <span
-                      className={`font-['Cairo'] text-3xl sm:text-4xl font-black leading-none ${
-                        isFilled
-                          ? 'text-white'
-                          : isActive
-                          ? 'text-[#00d2ff]'
-                          : 'text-[#a98891]/40'
-                      }`}
-                    >
-                      {isFilled ? digit : isActive ? '_' : '·'}
-                    </span>
-                    <span
-                      className={`text-[9px] font-bold uppercase tracking-widest leading-none mt-1 ${
-                        isFilled
-                          ? 'text-[#ffb0ca]'
-                          : isActive
-                          ? 'text-[#00d2ff]'
-                          : 'text-[#a98891]/40'
-                      }`}
-                    >
-                      {isActive ? 'READY' : `POS ${slotIdx + 1}`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Submission Triggers */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleClear}
-                className="h-12 px-4 rounded-xl bg-[#282a30] hover:bg-[#33353b] active:scale-95 text-white font-bold transition-all flex items-center justify-center"
-                title="Clear Draft"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={submitDraftGuess}
-                disabled={currentDraft.length < 4 || !canPlay}
-                className={`flex-1 h-12 rounded-xl text-white font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${
-                  currentDraft.length === 4
-                    ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] shadow-[0_0_24px_rgba(255,46,149,0.5)] cursor-pointer hover:brightness-110'
-                    : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
-                }`}
-              >
-                <span>LOCK & SUBMIT CIPHER</span>
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ==================================================== */}
-        {/* ZONE 3: RIGHT RAIL (Timeline, Match Intel, Lexicon)  */}
-        {/* ==================================================== */}
-        <div className="lg:col-span-3 flex flex-col gap-4 order-3">
-          {/* Turn Flow Sequence */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                Turn Flow Sequence
-              </span>
-              <span className="text-xs font-bold text-[#00d2ff]">Round {turnCount}/{maxTurns}</span>
-            </div>
-
-            <div className="flex flex-col gap-2 relative pl-3">
-              {/* Vertical timeline line */}
-              <div className="absolute left-[21px] top-3 bottom-3 w-0.5 bg-[#282a30]" />
-
-              {timelineSteps.map((step) => {
-                const isPast = step <= moves.length;
-                const isActive = phase === 'playing' && step === moves.length + 1;
-                const isBot = (step % 2 === 1) === (starter === 'AI');
-
-                return (
-                  <div
-                    key={step}
-                    className={`flex items-center gap-3 relative z-10 ${
-                      isActive ? 'bg-[#ff479b]/10 p-1.5 -ml-1 rounded-xl' : ''
-                    } ${!isPast && !isActive ? 'opacity-40' : ''}`}
-                  >
-                    <span
-                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                        isActive
-                          ? 'bg-[#ff479b] text-white shadow-[0_0_8px_rgba(255,46,149,0.8)]'
-                          : isPast
-                          ? 'bg-[#282a30] text-[#00d2ff]'
-                          : 'bg-[#282a30] text-[#a98891]'
-                      }`}
-                    >
-                      {step}
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        isActive
-                          ? "font-['Cairo'] font-bold text-[#ff479b]"
-                          : "text-[#e2e2ea]"
-                      }`}
-                    >
-                      Turn {step} · {isBot ? 'Bot' : 'You'} {isActive && '(ACTIVE)'}
-                    </span>
-                    {isPast && <Check className="w-3 h-3 text-[#00d2ff] ml-auto" />}
-                    {isActive && (
-                      <span className="w-2 h-2 rounded-full bg-[#ff479b] animate-ping ml-auto" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Tactical Match Intel Mini */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-              Tactical Match Intel
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Your Picos</span>
-                <span className="font-['Cairo'] text-sm font-black text-[#ffe170]">
-                  {totalPicos}
-                </span>
-              </div>
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Your Palas</span>
-                <span className="font-['Cairo'] text-sm font-black text-[#00d2ff]">
-                  {totalPalas}
-                </span>
-              </div>
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Guesses Left</span>
-                <span className="font-['Cairo'] text-sm font-black text-white">{playerAttemptsLeft} / {maxTurns}</span>
-              </div>
-              <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                <span className="text-[11px] text-[#a98891]">Bot Guesses Left</span>
-                <span className="font-['Cairo'] text-sm font-black text-[#ffb0ca]">{aiAttemptsLeft} / {maxTurns}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Rule Lexicon */}
-          <div className="bg-[#191b21] border border-[#282a30] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-              Rule Lexicon
-            </span>
-            <div className="flex items-start gap-2.5">
-              <span className="w-3.5 h-3.5 mt-0.5 rounded-full bg-[#e9c400] shrink-0 shadow-[0_0_8px_rgba(255,214,0,0.6)]" />
-              <div className="flex flex-col">
-                <span className="font-['Cairo'] text-xs font-bold text-[#ffe170]">
-                  PICO (Bullseye)
-                </span>
-                <span className="text-[11px] text-[#a98891]">
-                  Digit exists & occupies exact position.
-                </span>
-              </div>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <span className="w-3.5 h-3.5 mt-0.5 rounded-full border-2 border-[#ff479b] bg-transparent shrink-0 shadow-[0_0_8px_rgba(255,46,149,0.5)]" />
-              <div className="flex flex-col">
-                <span className="font-['Cairo'] text-xs font-bold text-[#ff479b]">
-                  PALA (Match)
-                </span>
-                <span className="text-[11px] text-[#a98891]">
-                  Digit exists in cipher, but wrong slot.
-                </span>
-              </div>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <span className="w-3 h-3 mt-0.5 rounded-full bg-[#33353b] shrink-0" />
-              <div className="flex flex-col">
-                <span className="font-['Cairo'] text-xs font-bold text-[#a98891]">
-                  MISS (Zero)
-                </span>
-                <span className="text-[11px] text-[#a98891]">
-                  Digit does not appear anywhere in code.
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Forfeit button */}
-          <button
-            onClick={handleForfeit}
-            className="w-full py-2 rounded-xl text-[#a98891] hover:text-rose-400 hover:bg-rose-950/20 border border-transparent hover:border-rose-500/20 transition-all text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
-          >
-            <Flag className="w-4 h-4" /> Forfeit Current Match
-          </button>
-        </div>
-      </div>
-
-      {/* ==================================================== */}
-      {/* MODALS & OVERLAYS                                     */}
-      {/* ==================================================== */}
-
-      {/* Modal 0: Choose your secret cipher */}
+      {/* SECRET SETUP MODAL */}
       {phase === 'setup' && (
         <SecretSetupModal
-          difficultyLabel={difficultyMeta.label}
+          botName={BOT_NAME}
+          levelLabel={levelLabel}
           onLock={(secret) => {
             soundEngine.playSubmit();
             useMatchStore.getState().lockSecret(secret);
@@ -918,154 +607,342 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
         />
       )}
 
-      {/* Modal 1: Coin Toss (Start) */}
+      {/* COIN TOSS MODAL */}
       {phase === 'toss' && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4 animate-in fade-in zoom-in-95">
+          <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
             <div className="w-20 h-20 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.4)] animate-bounce">
               <Flame className="w-10 h-10 text-[#ffe170]" />
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
-                Deciding Initiative
+                {t('toss.title')}
               </span>
               <span className="text-sm text-[#a98891]">
-                {starter === 'PLAYER'
-                  ? 'Coin flip complete: You won the toss and will shoot first!'
-                  : 'Coin flip complete: VORTEX-AI won the toss and will shoot first.'}
+                {starter === 'PLAYER' ? t('toss.playerWon') : t('toss.botWon', { name: BOT_NAME })}
               </span>
             </div>
             <div className="w-full py-3 bg-[#111319] rounded-2xl flex items-center justify-around text-xs font-bold">
               <span className="text-[#ff479b]">
-                YOUR MOVE: {starter === 'PLAYER' ? 'FIRST' : 'SECOND'}
+                {t('toss.yourMove', { order: starter === 'PLAYER' ? t('toss.first') : t('toss.second') })}
               </span>
               <span className="text-[#33353b]">|</span>
               <span className="text-[#00d2ff]">
-                AI BOT: {starter === 'PLAYER' ? 'SECOND' : 'FIRST'}
+                {t('toss.botMove', { order: starter === 'PLAYER' ? t('toss.second') : t('toss.first') })}
               </span>
             </div>
             <button
               onClick={() => useMatchStore.getState().beginPlay()}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
             >
-              Enter Duel Grid
+              {t('toss.enter')}
             </button>
           </div>
         </div>
       )}
 
-      {/* Modal 2: Result (victory / defeat / draw) */}
-      {phase === 'finished' && result && (() => {
-        const theme = RESULT_THEME[result];
-        const ResultIcon = theme.Icon;
-        const botGuesses = moves.length - playerMoves.length;
-        const summary =
-          result === 'win'
-            ? `Deduction achieved in ${playerMoves.length} guesses. Opponent code decrypted.`
-            : result === 'lose'
-              ? `VORTEX-AI cracked your code in ${botGuesses} guesses.`
-              : 'Both sides ran out of guesses. Nobody cracked the cipher.';
-
-        return (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-            <div
-              className={`max-w-lg w-full bg-[#191b21] border ${theme.border} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden animate-in fade-in zoom-in-95`}
-            >
-              <div className={`absolute -top-20 -left-20 w-56 h-56 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
-              <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#ff479b]/20 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="relative">
-                <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme.iconBg}`}>
-                  <ResultIcon className={`w-12 h-12 ${theme.iconColor}`} />
-                </div>
-                <span
-                  className={`absolute -top-2 -right-2 px-2.5 py-0.5 rounded-full ${theme.badge} font-['Cairo'] text-xs font-black uppercase`}
-                >
-                  {theme.badgeText}
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="font-['Cairo'] text-3xl font-black text-white uppercase tracking-tight">
-                  {theme.title}
-                </span>
-                <span className="text-sm text-[#e2bdc7]">{summary}</span>
-              </div>
-
-              <div className="w-full p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-                  {result === 'win' ? 'Opponent Secret Decrypted' : 'Opponent Secret Was'}
-                </span>
-                <div className="flex items-center gap-2">
-                  {opponentSecret.map((d, i) => (
-                    <div
-                      key={i}
-                      className="w-12 h-14 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-md font-['Cairo'] text-2xl font-black text-[#ffe170]"
-                    >
-                      {d}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 w-full">
-                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                  <span className="text-[11px] text-[#a98891]">Your Guesses</span>
-                  <span className="font-['Cairo'] text-base font-bold text-white">
-                    {playerMoves.length} / {maxTurns}
-                  </span>
-                </div>
-                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                  <span className="text-[11px] text-[#a98891]">Bot Guesses</span>
-                  <span className="font-['Cairo'] text-base font-bold text-[#00d2ff]">
-                    {botGuesses} / {maxTurns}
-                  </span>
-                </div>
-                <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-                  <span className="text-[11px] text-[#a98891]">Picos / Palas</span>
-                  <span className="font-['Cairo'] text-base font-bold text-[#ffe170]">
-                    {totalPicos} / {totalPalas}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-                <button
-                  onClick={handleNewDuel}
-                  className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" /> Play Next Duel
-                </button>
-                {result === 'win' && (
-                  <button
-                    onClick={handleShare}
-                    className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                  >
-                    <Share2 className="w-4 h-4" /> {shareCopied ? 'Copied!' : 'Share'}
-                  </button>
-                )}
-                <button
-                  onClick={handleLeave}
-                  className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
-                >
-                  Play Hub
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+      {/* RESULT MODAL (victory / defeat / draw) */}
+      {phase === 'finished' && result && (
+        <ResultModal
+          result={result}
+          botName={BOT_NAME}
+          opponentSecret={opponentSecret}
+          playerGuesses={playerMoves.length}
+          botGuesses={botMoves.length}
+          maxTurns={maxTurns}
+          totalPicos={totalPicos}
+          totalPalas={totalPalas}
+          shareCopied={shareCopied}
+          onNext={handleNewDuel}
+          onShare={handleShare}
+          onLeave={handleLeave}
+        />
+      )}
     </div>
   );
 };
 
+/* ---------------------------------------------------------------- */
+
+interface ColumnHeaderProps {
+  side: 'opponent' | 'you';
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  digits: number[] | null;
+  secretLabel: string;
+  attemptsLabel: string;
+}
+
+const ColumnHeader: React.FC<ColumnHeaderProps> = ({
+  side,
+  title,
+  subtitle,
+  icon,
+  digits,
+  secretLabel,
+  attemptsLabel,
+}) => (
+  <div
+    data-testid={`column-${side}`}
+    className={`rounded-2xl border p-2 sm:p-3 flex flex-col gap-2 min-w-0 ${
+      side === 'you'
+        ? 'bg-gradient-to-br from-[#e9c400]/10 via-[#191b21] to-[#191b21] border-[#e9c400]/30'
+        : 'bg-[#191b21] border-[#282a30]'
+    }`}
+  >
+    <div className="flex items-center justify-between gap-1 min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0">
+        <span className="w-7 h-7 shrink-0 rounded-lg bg-[#282a30] flex items-center justify-center">{icon}</span>
+        <div className="flex flex-col min-w-0">
+          <span className="font-['Cairo'] text-xs sm:text-sm font-black text-white uppercase leading-tight truncate">
+            {title}
+          </span>
+          <span className="text-[10px] text-[#a98891] leading-tight truncate">{subtitle}</span>
+        </div>
+      </div>
+      <span className="shrink-0 text-[10px] font-bold text-[#a98891] tabular-nums">{attemptsLabel}</span>
+    </div>
+
+    <div className="flex items-center justify-center gap-1" aria-label={secretLabel}>
+      {[0, 1, 2, 3].map((i) => (
+        <span
+          key={i}
+          className={`w-7 h-8 sm:w-8 sm:h-9 rounded-lg border flex items-center justify-center font-['Cairo'] text-base font-black ${
+            digits
+              ? 'bg-[#282a30] border-white/10 text-[#ffe170]'
+              : 'bg-[#111319] border-white/5 text-[#a98891]'
+          }`}
+        >
+          {digits ? digits[i] : '?'}
+        </span>
+      ))}
+      {digits ? (
+        <EyeOff className="w-3.5 h-3.5 text-[#a98891] ml-1 hidden sm:block" />
+      ) : (
+        <Lock className="w-3.5 h-3.5 text-[#a98891] ml-1 hidden sm:block" />
+      )}
+    </div>
+  </div>
+);
+
+interface BoardCellProps {
+  actor: 'BOT' | 'YOU';
+  move: ILocalMove | undefined;
+  round: number;
+  pending: string | null;
+}
+
+const BoardCell: React.FC<BoardCellProps> = ({ actor, move, round, pending }) => {
+  if (!move) {
+    return pending ? (
+      <div className="rounded-xl border border-dashed border-[#ff479b]/50 bg-[#ff479b]/5 p-2 flex items-center justify-center gap-2 min-h-[68px] animate-pulse">
+        <span className="text-[10px] font-bold text-[#a98891]">#{pad2(round)}</span>
+        <span className="text-xs font-bold text-[#ffb0ca] uppercase tracking-wider truncate">{pending}</span>
+      </div>
+    ) : (
+      <div aria-hidden className="min-h-[68px]" />
+    );
+  }
+
+  const { picos, palas } = move.feedback;
+  const misses = 4 - picos - palas;
+
+  return (
+    <div
+      data-testid="move"
+      data-actor={actor}
+      data-guess={move.guess}
+      data-picos={picos}
+      data-palas={palas}
+      className={`rounded-xl border p-2 flex flex-col gap-1.5 min-h-[68px] ${
+        actor === 'YOU'
+          ? 'bg-[#111319] border-[#282a30]'
+          : 'bg-[#282a30]/50 border-transparent'
+      }`}
+    >
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] font-bold text-[#a98891] tabular-nums w-5 shrink-0">#{pad2(round)}</span>
+        <div className="flex items-center gap-1">
+          {move.guess.split('').map((d, i) => (
+            <span
+              key={i}
+              className="w-6 h-7 sm:w-7 sm:h-8 rounded-md bg-[#0c0e14] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-sm text-white"
+            >
+              {d}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-1 pl-6">
+        <div className="flex items-center gap-1">
+          {Array.from({ length: picos }).map((_, i) => (
+            <span
+              key={`p${i}`}
+              className="w-3 h-3 rounded-full bg-[#e9c400] shadow-[0_0_6px_rgba(233,196,0,0.8)]"
+            />
+          ))}
+          {Array.from({ length: palas }).map((_, i) => (
+            <span
+              key={`l${i}`}
+              className="w-3 h-3 rounded-full bg-transparent border-2 border-[#ff479b] shadow-[0_0_6px_rgba(255,71,155,0.7)]"
+            />
+          ))}
+          {Array.from({ length: misses }).map((_, i) => (
+            <span key={`m${i}`} className="w-2 h-2 rounded-full bg-[#33353b]" />
+          ))}
+        </div>
+        <span className="text-[11px] font-bold text-[#e2bdc7] tabular-nums whitespace-nowrap">
+          {picos > 0 && `${picos}P `}
+          {palas > 0 && `${palas}L`}
+          {picos === 0 && palas === 0 && '0'}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+/* ---------------------------------------------------------------- */
+
+interface ResultModalProps {
+  result: MatchResult;
+  botName: string;
+  opponentSecret: number[];
+  playerGuesses: number;
+  botGuesses: number;
+  maxTurns: number;
+  totalPicos: number;
+  totalPalas: number;
+  shareCopied: boolean;
+  onNext: () => void;
+  onShare: () => void;
+  onLeave: () => void;
+}
+
+const ResultModal: React.FC<ResultModalProps> = ({
+  result,
+  botName,
+  opponentSecret,
+  playerGuesses,
+  botGuesses,
+  maxTurns,
+  totalPicos,
+  totalPalas,
+  shareCopied,
+  onNext,
+  onShare,
+  onLeave,
+}) => {
+  const { t } = useTranslation('arena');
+  const theme = RESULT_THEME[result];
+  const ResultIcon = theme.Icon;
+  const count = result === 'lose' ? botGuesses : playerGuesses;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+      <div
+        className={`max-w-lg w-full bg-[#191b21] border ${theme.border} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden`}
+      >
+        <div className={`absolute -top-20 -left-20 w-56 h-56 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
+        <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#ff479b]/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative">
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme.iconBg}`}>
+            <ResultIcon className={`w-12 h-12 ${theme.iconColor}`} />
+          </div>
+          <span
+            className={`absolute -top-2 -right-2 px-2.5 py-0.5 rounded-full ${theme.badge} font-['Cairo'] text-xs font-black uppercase`}
+          >
+            {t(`result.${result}.badge`)}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span
+            data-testid="result-title"
+            data-result={result}
+            className="font-['Cairo'] text-3xl font-black text-white uppercase tracking-tight"
+          >
+            {t(`result.${result}.title`)}
+          </span>
+          <span className="text-sm text-[#e2bdc7]">{t(`result.${result}.summary`, { count, name: botName })}</span>
+        </div>
+
+        <div className="w-full p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
+            {result === 'win' ? t('result.secretDecrypted') : t('result.secretWas')}
+          </span>
+          <div className="flex items-center gap-2">
+            {opponentSecret.map((d, i) => (
+              <div
+                key={i}
+                className="w-12 h-14 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-md font-['Cairo'] text-2xl font-black text-[#ffe170]"
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+            <span className="text-[11px] text-[#a98891]">{t('result.yourGuesses')}</span>
+            <span className="font-['Cairo'] text-base font-bold text-white">
+              {playerGuesses} / {maxTurns}
+            </span>
+          </div>
+          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+            <span className="text-[11px] text-[#a98891]">{t('result.botGuesses')}</span>
+            <span className="font-['Cairo'] text-base font-bold text-[#00d2ff]">
+              {botGuesses} / {maxTurns}
+            </span>
+          </div>
+          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
+            <span className="text-[11px] text-[#a98891]">{t('result.picosPalas')}</span>
+            <span className="font-['Cairo'] text-base font-bold text-[#ffe170]">
+              {totalPicos} / {totalPalas}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+          <button
+            onClick={onNext}
+            className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4" /> {t('result.playNext')}
+          </button>
+          {result === 'win' && (
+            <button
+              onClick={onShare}
+              className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+            >
+              <Share2 className="w-4 h-4" /> {shareCopied ? t('result.copied') : t('result.share')}
+            </button>
+          )}
+          <button
+            onClick={onLeave}
+            className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
+          >
+            {t('result.hub')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------------------------------------------------------------- */
+
 interface SecretSetupModalProps {
-  difficultyLabel: string;
+  botName: string;
+  levelLabel: string;
   onLock: (secret: string) => void;
   onCancel: () => void;
 }
 
-const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ difficultyLabel, onLock, onCancel }) => {
+const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ botName, levelLabel, onLock, onCancel }) => {
+  const { t } = useTranslation('arena');
   const [draft, setDraft] = useState<number[]>([]);
 
   const press = (n: number) => {
@@ -1095,18 +972,14 @@ const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ difficultyLabel, on
   }, [draft]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.3)]">
-          <Lock className="w-8 h-8 text-[#ffe170]" />
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4">
+      <div className="w-full sm:max-w-md bg-[#191b21] border border-[#33353b] rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.3)]">
+          <Lock className="w-7 h-7 text-[#ffe170]" />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
-            Choose Your Secret Cipher
-          </span>
-          <span className="text-sm text-[#a98891]">
-            4 unique digits from 1 to 9. VORTEX-AI ({difficultyLabel}) will try to crack it.
-          </span>
+          <span className="font-['Cairo'] text-2xl font-black uppercase text-white">{t('setup.title')}</span>
+          <span className="text-sm text-[#a98891]">{t('setup.text', { name: botName, level: levelLabel })}</span>
         </div>
 
         <div className="grid grid-cols-4 gap-2 w-full">
@@ -1149,19 +1022,19 @@ const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ difficultyLabel, on
             onClick={() => setDraft((prev) => prev.slice(0, -1))}
             className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
           >
-            <Delete className="w-3.5 h-3.5" /> Undo
+            <Delete className="w-3.5 h-3.5" /> {t('setup.undo')}
           </button>
           <button
             onClick={() => setDraft(generateSecretNumber().split('').map(Number))}
             className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
           >
-            <Shuffle className="w-3.5 h-3.5" /> Random
+            <Shuffle className="w-3.5 h-3.5" /> {t('setup.random')}
           </button>
           <button
             onClick={onCancel}
             className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#a98891] text-xs font-bold uppercase tracking-wider"
           >
-            Cancel
+            {t('setup.cancel')}
           </button>
         </div>
 
@@ -1174,7 +1047,7 @@ const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ difficultyLabel, on
               : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
           }`}
         >
-          Lock Secret
+          {t('setup.lock')}
         </button>
       </div>
     </div>

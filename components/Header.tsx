@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Volume2, VolumeX, Settings, Globe, Shield, Swords } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from '@/lib/i18n/config';
 import { AppView } from '@/types/game';
 
 interface HeaderProps {
@@ -23,14 +25,15 @@ export const Header: React.FC<HeaderProps> = ({
   onChangeLang,
   activeMatchInProgress = false,
 }) => {
+  const { t } = useTranslation('common');
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   const navItems: { label: string; view: AppView }[] = [
-    { label: 'Play Hub', view: 'play-hub' },
-    { label: 'Live Arena', view: 'arena' },
-    { label: 'How to Play', view: 'how-to-play' },
-    { label: 'Game Modes', view: 'landing' },
-    { label: 'Records', view: 'records' },
+    { label: t('nav.playHub'), view: 'play-hub' },
+    { label: t('nav.liveArena'), view: 'arena' },
+    { label: t('nav.howToPlay'), view: 'how-to-play' },
+    { label: t('nav.gameModes'), view: 'landing' },
+    { label: t('nav.records'), view: 'records' },
   ];
 
   return (
@@ -58,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <span className="text-[11px] text-[#a98891] tracking-wide hidden sm:block">
-              Tactical Mind-Sport Duel
+              {t('brand.tagline')}
             </span>
           </div>
         </button>
@@ -93,14 +96,14 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <span className="w-2 h-2 rounded-full bg-[#ff479b] animate-ping" />
               <span className="text-xs font-bold text-[#ffb0ca] uppercase tracking-wider flex items-center gap-1">
-                <Swords className="w-3.5 h-3.5" /> Match Live
+                <Swords className="w-3.5 h-3.5" /> {t('header.matchLive')}
               </span>
             </button>
           ) : (
             <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
               <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
               <span className="text-[11px] font-semibold text-[#a5e7ff] uppercase tracking-wider">
-                Node Synced // Tokyo East
+                {t('header.nodeSynced')}
               </span>
             </div>
           )}
@@ -110,7 +113,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#191b21] hover:bg-[#282a30] border border-[#282a30] text-xs font-bold text-[#e2e2ea] transition-all"
-              title="Change Language"
+              title={t('header.changeLanguage')}
+              aria-label={t('header.changeLanguage')}
             >
               <Globe className="w-3.5 h-3.5 text-[#00d2ff]" />
               <span>{lang.toUpperCase()}</span>
@@ -118,12 +122,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {langMenuOpen && (
               <div className="absolute right-0 mt-2 w-36 rounded-xl bg-[#282a30] border border-[#33353b] shadow-2xl p-1 z-50 flex flex-col gap-0.5">
-                {[
-                  { code: 'en', label: 'English' },
-                  { code: 'es', label: 'Español' },
-                  { code: 'ja', label: '日本語' },
-                  { code: 'pt', label: 'Português' },
-                ].map((item) => (
+                {SUPPORTED_LANGUAGES.map((code) => ({ code, label: LANGUAGE_LABELS[code] })).map((item) => (
                   <button
                     key={item.code}
                     onClick={() => {
@@ -152,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-[#191b21] text-[#00d2ff] hover:bg-[#282a30] border border-[#282a30]'
                 : 'bg-[#191b21] text-[#a98891] hover:bg-[#282a30] border border-[#282a30]'
             }`}
-            title={soundEnabled ? 'Mute Game Sounds' : 'Unmute Game Sounds'}
+            title={soundEnabled ? t('header.mute') : t('header.unmute')}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -180,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onNavigate(currentView === 'arena' ? 'play-hub' : 'arena')}
             className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_18px_rgba(255,46,149,0.4)] hover:shadow-[0_0_24px_rgba(255,46,149,0.7)] hover:scale-105 active:scale-95 transition-all"
           >
-            {currentView === 'arena' ? 'Modes' : 'Play Arena'}
+            {currentView === 'arena' ? t('header.modes') : t('header.playArena')}
           </button>
         </div>
       </div>

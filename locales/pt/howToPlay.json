@@ -1,0 +1,108 @@
+{
+  "hero": {
+    "eyebrow": "Manual tático e tutorial",
+    "title": "Como jogar",
+    "subtitle": "Três minutos para aprender. Uma vida inteira de moral para se gabar. Domine o campo de batalha mental da dedução e da quebra de códigos.",
+    "easyToggle": "Exemplo fácil",
+    "advancedToggle": "Estratégia avançada",
+    "advancedAlert": {
+      "title": "Lógica avançada de eliminação ativada",
+      "body": "Exibindo árvores de probabilidade condicional, matemática de permutações e matrizes rigorosas de redução de turnos ao longo desta análise."
+    }
+  },
+  "secret": {
+    "title": "O número secreto",
+    "step": "Passo 01",
+    "intro": "Cada duelista define um código secreto de 4 dígitos. Todo código deve seguir regras rigorosas de validade matemática:",
+    "digitsRange": {
+      "title": "Dígitos de 1 a 9",
+      "subtitle": "O zero não é permitido"
+    },
+    "noZeros": {
+      "title": "Sem zeros [ 0 ]",
+      "subtitle": "Fora do baralho"
+    },
+    "noDuplicates": {
+      "title": "Sem repetidos",
+      "subtitle": "[ 3 3 1 9 ] Inválido"
+    },
+    "footer": "4 dígitos únicos mantidos em segredo dentro de um cofre criptografado."
+  },
+  "guess": {
+    "title": "O protocolo de palpites",
+    "step": "Passo 02",
+    "intro": "A cada rodada, transmita 4 dígitos sem repetição. Você recebe telemetria posicional instantânea.",
+    "maxGuesses": "Máx. 12 palpites",
+    "turnCap": "Limite de turnos",
+    "footer": "A interface não permite palpites repetidos. Cada sondagem consome um token de turno."
+  },
+  "firstMove": {
+    "title": "Quem começa?",
+    "body": "O sistema lança uma moeda algorítmica 50/50. Quem começa toma a iniciativa; quem joga em segundo ganha a vantagem de observar primeiro."
+  },
+  "matrix": {
+    "eyebrow": "Reconhecimento de sinais",
+    "title": "A matriz de dedução",
+    "intro": "As pistas são calculadas em tempo real após cada tentativa enviada. Memorize estas três assinaturas táticas:",
+    "pico": {
+      "badge": "Trava exata",
+      "description": "Dígito correto travado na <b>posição exata</b>.",
+      "advTitle": "Isolamento do alvo",
+      "advBody": "Dígito e posição verificados. Não mude de posição."
+    },
+    "pala": {
+      "badge": "Correspondência deslocada",
+      "description": "O dígito existe no cofre, mas está atualmente na <b>posição errada</b>.",
+      "advTitle": "Armadilha de permutação",
+      "advBody": "Mantenha o dígito; gire-o pelas outras 3 posições."
+    },
+    "miss": {
+      "label": "ERRO",
+      "badge": "Vazio",
+      "description": "O dígito não está no número secreto. Completamente eliminado.",
+      "advTitle": "Eliminação na matriz",
+      "advBody": "Descarte o candidato do teclado permanentemente."
+    }
+  },
+  "example": {
+    "eyebrow": "Análise de telemetria",
+    "title": "Um turno, dissecado",
+    "round": "Simulador da rodada 03",
+    "opponentSecret": "Segredo do oponente (visão de raio-X)",
+    "vaultTarget": "Alvo do cofre",
+    "slot": "Posição {{n}}",
+    "yourTransmission": "Sua transmissão",
+    "activeGuess": "Palpite ativo",
+    "pos": "Pos. {{n}}",
+    "position": "Posição {{n}}",
+    "step": {
+      "one": "Dígito certo na posição certa. Alvo travado.",
+      "two": "O 1 está no cofre (posição 3), mas foi transmitido na posição 2.",
+      "three": "O 5 não aparece em 3719. Descarte-o.",
+      "four": "Posição e valor idênticos. Segundo Pico."
+    },
+    "telemetryReturned": "Telemetria recebida:",
+    "result": {
+      "picos": "2 Picos",
+      "pala": "1 Pala",
+      "miss": "1 Erro"
+    },
+    "note": "Nota: a pista NÃO indica qual dígito gerou cada sinal!"
+  },
+  "directive": {
+    "title": "Diretriz mestra de dedução",
+    "body": "Se o seu primeiro palpite render <yellow>1 Pico</yellow> e <pink>2 Palas</pink>, você já tem 3 dos 4 números corretos do cofre (75% de precisão). <white>Nunca jogue no aleatório no turno 2.</white> Mantenha 3 números, permute as posições e troque apenas o único candidato suspeito."
+  },
+  "sudden": {
+    "title": "O protocolo de morte súbita de 12 turnos",
+    "capLimit": "Limite: turno 12",
+    "final": "12 (FINAL)",
+    "body": "Se nenhum duelista decifrar os 4 dígitos em 12 tentativas, o duelo termina em um <white>empate tático</white>. Os dois cofres secretos são revelados ao mesmo tempo para revisão mútua."
+  },
+  "cta": {
+    "title": "Pronto para testar sua dedução?",
+    "body": "Entre direto em um duelo offline contra a IA ou convide um rival em segundos. Sem downloads.",
+    "play": "Jogue grátis agora",
+    "explore": "Explorar o Play Hub"
+  }
+}

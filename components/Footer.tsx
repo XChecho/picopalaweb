@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppView } from '@/types/game';
 
 interface FooterProps {
@@ -9,6 +10,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, lang }) => {
+  const { t } = useTranslation('common');
+
   return (
     <footer className="w-full bg-[#0c0e14] border-t border-[#1d1f26] py-10 mt-16 shadow-[0_-1px_12px_rgba(0,0,0,0.4)]">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -23,10 +26,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, lang }) => {
             <span className="font-['Cairo'] font-bold text-base text-[#e2e2ea] tracking-tight uppercase">
               Pico & Pala
             </span>
-            <span className="text-xs text-[#a98891]">· Tactical 1v1 Deduction</span>
+            <span className="text-xs text-[#a98891]">· {t('brand.footerTagline')}</span>
           </div>
           <span className="text-xs text-[#a98891] tracking-wide">
-            © 2024–2026 Pico & Pala. Crafted for mind-sport by Auron Tale Games.
+            {t('brand.copyright')}
           </span>
         </div>
 
@@ -36,45 +39,45 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, lang }) => {
             onClick={() => onNavigate('how-to-play')}
             className="hover:text-white transition-colors"
           >
-            How to Play
+            {t('footer.howToPlay')}
           </button>
           <button
             onClick={() => onNavigate('play-hub')}
             className="hover:text-white transition-colors"
           >
-            Game Modes
+            {t('footer.gameModes')}
           </button>
           <button
             onClick={() => onNavigate('records')}
             className="hover:text-white transition-colors"
           >
-            Records Ledger
+            {t('footer.recordsLedger')}
           </button>
           <button
             onClick={() => onNavigate('auth')}
             className="hover:text-white transition-colors"
           >
-            Duelist Profile
+            {t('footer.duelistProfile')}
           </button>
           <a
             href="#terms"
             onClick={(e) => {
               e.preventDefault();
-              alert('Terms of Service: Fair play deduction protocols. Algorithmic anti-cheat active.');
+              alert(t('footer.termsAlert'));
             }}
             className="hover:text-white transition-colors"
           >
-            Terms of Service
+            {t('footer.terms')}
           </a>
           <a
             href="#privacy"
             onClick={(e) => {
               e.preventDefault();
-              alert('Privacy Policy: All game states and records stored encrypted in local browser cache.');
+              alert(t('footer.privacyAlert'));
             }}
             className="hover:text-white transition-colors"
           >
-            Privacy Policy
+            {t('footer.privacy')}
           </a>
         </div>
 
@@ -82,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, lang }) => {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30] text-xs font-bold text-[#a5e7ff]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
-            <span>{lang.toUpperCase()} · v2.4 Live</span>
+            <span>{t('footer.version', { lang: lang.toUpperCase() })}</span>
           </div>
         </div>
       </div>

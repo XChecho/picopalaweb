@@ -1,0 +1,110 @@
+{
+  "turn": "Turn {{n}} / {{max}}",
+  "status": {
+    "yourTurn": "Your turn",
+    "thinking": "{{name}} is calculating…",
+    "opponentTurn": "Opponent's turn",
+    "preparing": "Preparing duel…",
+    "finished": "Match finished"
+  },
+  "level": {
+    "novice": "Novice",
+    "tactician": "Tactician",
+    "grandmaster": "Grandmaster"
+  },
+  "botLine": {
+    "novice": "Bot · Easy",
+    "tactician": "Bot · Medium",
+    "grandmaster": "Bot · Hard · 60s per turn"
+  },
+  "columns": {
+    "opponent": "Opponent",
+    "you": "You",
+    "secretHidden": "Hidden cipher",
+    "yourSecret": "Your cipher",
+    "guessesLeft": "{{n}} left",
+    "pendingYou": "Your move…",
+    "pendingBot": "Thinking…"
+  },
+  "hud": {
+    "candidates": "{{count}} feasible",
+    "legendPico": "Pico",
+    "legendPala": "Pala",
+    "clock": "Turn clock"
+  },
+  "menu": {
+    "newDuel": "New duel",
+    "forfeit": "Forfeit",
+    "confirmNewDuel": "Abandon the current duel and start a new one?",
+    "confirmForfeit": "Are you sure you want to forfeit this duel? This counts as a defeat."
+  },
+  "write": {
+    "button": "Write turn",
+    "waiting": "Opponent's turn…",
+    "title": "Write your turn {{n}} guess",
+    "hint": "Digits 1–9 only · No repeats · {{count}} remaining",
+    "clear": "Clear",
+    "undo": "Undo",
+    "submit": "Lock & submit",
+    "close": "Close",
+    "digitAlpha": "Digit"
+  },
+  "errors": {
+    "NOT_YOUR_TURN": "Wait for your turn.",
+    "INVALID_LENGTH": "Exactly 4 unique digits (1–9) required!",
+    "INVALID_DIGITS": "Only digits 1–9 are allowed!",
+    "REPEATED_DIGITS": "Digits cannot repeat!",
+    "DUPLICATE_GUESS": "You already tried that number. Pick a different one.",
+    "timeUp": "TIME UP: a random guess was submitted for you."
+  },
+  "setup": {
+    "title": "Choose your secret cipher",
+    "text": "4 unique digits from 1 to 9. {{name}} ({{level}}) will try to crack it.",
+    "lock": "Lock secret",
+    "random": "Random",
+    "undo": "Undo",
+    "cancel": "Cancel"
+  },
+  "toss": {
+    "title": "Deciding initiative",
+    "playerWon": "Coin flip complete: you won the toss and will shoot first!",
+    "botWon": "Coin flip complete: {{name}} won the toss and will shoot first.",
+    "yourMove": "YOUR MOVE: {{order}}",
+    "botMove": "AI BOT: {{order}}",
+    "first": "FIRST",
+    "second": "SECOND",
+    "enter": "Enter duel grid"
+  },
+  "result": {
+    "win": {
+      "badge": "VICTORY",
+      "title": "CIPHER CRACKED!",
+      "summary": "Deduction achieved in {{count}} guesses. Opponent code decrypted."
+    },
+    "lose": {
+      "badge": "DEFEAT",
+      "title": "YOUR CIPHER WAS BROKEN",
+      "summary": "{{name}} cracked your code in {{count}} guesses."
+    },
+    "draw": {
+      "badge": "DRAW",
+      "title": "TACTICAL DRAW",
+      "summary": "Both sides ran out of guesses. Nobody cracked the cipher."
+    },
+    "secretDecrypted": "Opponent secret decrypted",
+    "secretWas": "Opponent secret was",
+    "yourGuesses": "Your guesses",
+    "botGuesses": "Bot guesses",
+    "picosPalas": "Picos / Palas",
+    "playNext": "Play next duel",
+    "share": "Share",
+    "copied": "Copied!",
+    "hub": "Play Hub",
+    "shareText": "I cracked the cipher in {{count}} guesses on Pico & Pala!"
+  },
+  "unavailable": {
+    "title": "This mode is coming soon",
+    "text": "Private and global rooms need the online backend. You can play against the AI right now.",
+    "back": "Back to Play Hub"
+  }
+}

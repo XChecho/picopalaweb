@@ -1,0 +1,95 @@
+{
+  "hero": {
+    "eyebrow": "1v1 NUMBER DEDUCTION GAME",
+    "titleLine1": "Crack the",
+    "titleLine2": "code.",
+    "subtitleIntro": "Guess your rival's secret 4-digit number before they guess yours.",
+    "picoMeaning": "means right spot.",
+    "palaMeaning": "means wrong spot.",
+    "winCondition": "First to 4 Picos wins.",
+    "playNow": "Play now — it's free",
+    "readRules": "Read Rules & Strategy",
+    "trustLine": "Free to play · Zero ads · Made by Auron Tale Games"
+  },
+  "mockup": {
+    "liveMatch": "LIVE MATCH · TURN {{turn}}/{{max}}",
+    "botHard": "Bot (Hard)",
+    "yourSecret": "YOUR SECRET",
+    "pairsShort": "{{picos}}P · {{palas}}L",
+    "palasCount": "{{n}} Palas",
+    "picosCount": "{{n}} Picos",
+    "win": "WIN",
+    "victory": "VICTORY · 4 PICOS!",
+    "legendPico": "Pico = Exact Spot",
+    "legendPala": "Pala = Wrong Spot"
+  },
+  "rivals": {
+    "title": "THE RIVALS",
+    "subtitle": "Choose your battlefield and test your mental agility.",
+    "ai": {
+      "title": "Versus AI",
+      "description": "Challenge our smart bot with custom difficulty heuristics.",
+      "badge": "Works offline",
+      "cta": "Play Duel"
+    },
+    "private": {
+      "title": "Private Room",
+      "description": "Host a private battle room or join via 6-digit match key.",
+      "badge": "Code ABCD12",
+      "cta": "Create Room"
+    },
+    "global": {
+      "title": "Global Arena",
+      "description": "Challenge worldwide duelists with real-time ELO rating stakes.",
+      "badge": "Match in < 30s",
+      "cta": "Quick Match"
+    }
+  },
+  "how": {
+    "title": "How Pico & Pala Works",
+    "subtitle": "Three simple rules. Infinite tactical depth.",
+    "step1": {
+      "title": "Set your secret number",
+      "description": "Pick 4 unique numbers from 1 to 9. Zero is prohibited. No duplicate digits allowed."
+    },
+    "step2": {
+      "title": "Trade guesses",
+      "description": "Analyze feedback each turn. Compare Picos and Palas to isolate valid positions.",
+      "picoDesc": "Right digit & slot",
+      "palaDesc": "Right digit, wrong slot"
+    },
+    "step3": {
+      "title": "First to 4 Picos wins",
+      "description": "Crack the rival's code decisively. Sound deduction rewards quick victories before 12 turns.",
+      "victory": "VICTORY"
+    },
+    "readMore": "Read the complete rules & breakdown →"
+  },
+  "why": {
+    "title": "Why You'll Love It",
+    "fast": {
+      "title": "Fast 2-5 minute matches",
+      "description": "Quick cognitive duels designed for sharp coffee breaks or intense competitive ladder climbing."
+    },
+    "ai": {
+      "title": "3 AI difficulty levels",
+      "description": "From casual puzzle warmups to grandmaster bot heuristics that anticipate your next deduction."
+    },
+    "online": {
+      "title": "Real-time & async online play",
+      "description": "Smooth instant deduction turns with seamless reconnection, replay analysis, and match logs."
+    },
+    "stats": {
+      "title": "Full stats & streaks",
+      "description": "Analyze your win rates, average turns to solve, and Pico precision over lifetime matches."
+    }
+  },
+  "cta": {
+    "eyebrow": "ZERO INSTALL REQUIRED",
+    "title": "Your secret number is waiting.",
+    "description": "Play right in your browser or take the battle on mobile decks.",
+    "playFree": "Play Free",
+    "iosAlert": "Pico & Pala Web PWA / iOS Ready",
+    "androidAlert": "Pico & Pala Web PWA / Android Ready"
+  }
+}

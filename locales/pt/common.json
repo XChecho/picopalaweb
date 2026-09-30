@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "playHub": "Central de Jogo",
+    "liveArena": "Arena ao Vivo",
+    "howToPlay": "Como Jogar",
+    "gameModes": "Modos de Jogo",
+    "records": "Recordes"
+  },
+  "brand": {
+    "tagline": "Duelo Tático de Raciocínio",
+    "footerTagline": "Dedução Tática 1v1",
+    "copyright": "© 2024–2026 Pico & Pala. Criado para o esporte mental pela Auron Tale Games."
+  },
+  "header": {
+    "matchLive": "Partida ao Vivo",
+    "nodeSynced": "Nó Sincronizado // Tóquio Leste",
+    "changeLanguage": "Alterar idioma",
+    "mute": "Silenciar sons do jogo",
+    "unmute": "Ativar sons do jogo",
+    "modes": "Modos",
+    "playArena": "Jogar na Arena"
+  },
+  "footer": {
+    "howToPlay": "Como Jogar",
+    "gameModes": "Modos de Jogo",
+    "recordsLedger": "Registro de Recordes",
+    "duelistProfile": "Perfil de Duelista",
+    "terms": "Termos de Serviço",
+    "privacy": "Política de Privacidade",
+    "termsAlert": "Termos de Serviço: protocolos de dedução com jogo limpo. Antitrapaça algorítmico ativo.",
+    "privacyAlert": "Política de Privacidade: todos os estados de jogo e recordes ficam armazenados criptografados no cache local do navegador.",
+    "version": "{{lang}} · v2.4 Ao Vivo"
+  }
+}

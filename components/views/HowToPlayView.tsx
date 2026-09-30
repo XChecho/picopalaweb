@@ -17,6 +17,7 @@ import {
   Globe,
   HelpCircle,
 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { AppView } from '@/types/game';
 
 interface HowToPlayViewProps {
@@ -24,6 +25,7 @@ interface HowToPlayViewProps {
 }
 
 export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('howToPlay');
   const [tutorialMode, setTutorialMode] = useState<'easy' | 'advanced'>('easy');
 
   return (
@@ -36,16 +38,16 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
           <span className="w-2 h-2 rounded-full bg-[#ff479b] animate-pulse" />
           <span className="text-xs font-black text-[#ffb0ca] uppercase tracking-widest">
-            Tactical Rulebook & Tutorial
+            {t('hero.eyebrow')}
           </span>
         </div>
 
         {/* Headline */}
         <h1 className="font-['Cairo'] text-4xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tight">
-          How to Play
+          {t('hero.title')}
         </h1>
         <p className="text-base text-[#e2bdc7] max-w-xl">
-          Three minutes to learn. A lifetime of bragging rights. Master the mental battlefield of binary deduction and cipher breaking.
+          {t('hero.subtitle')}
         </p>
 
         {/* Mode Toggle Switch */}
@@ -58,7 +60,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 : 'text-[#a98891] hover:text-white'
             }`}
           >
-            Easy Example
+            {t('hero.easyToggle')}
           </button>
           <button
             onClick={() => setTutorialMode('advanced')}
@@ -68,7 +70,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 : 'text-[#a98891] hover:text-white'
             }`}
           >
-            Advanced Strategy
+            {t('hero.advancedToggle')}
           </button>
         </div>
 
@@ -78,10 +80,10 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
             <Brain className="w-6 h-6 text-[#00d2ff] shrink-0 mt-0.5" />
             <div>
               <span className="text-xs font-black text-[#00d2ff] uppercase tracking-wider block">
-                Advanced Elimination Logic Activated
+                {t('hero.advancedAlert.title')}
               </span>
               <p className="text-xs text-[#a98891] mt-0.5 leading-relaxed">
-                Showing conditional probability trees, permutation math, and strict turn-burn reduction matrices throughout this breakdown.
+                {t('hero.advancedAlert.body')}
               </p>
             </div>
           </div>
@@ -97,16 +99,16 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-sm bg-[#e9c400]" />
                 <h2 className="font-['Cairo'] text-xl sm:text-2xl font-black text-white uppercase">
-                  The Secret Number
+                  {t('secret.title')}
                 </h2>
               </div>
               <span className="px-2.5 py-0.5 rounded bg-[#282a30] text-xs font-bold text-[#a98891]">
-                Step 01
+                {t('secret.step')}
               </span>
             </div>
 
             <p className="text-sm text-[#e2bdc7] leading-relaxed">
-              Each duelist locks in an undisclosed 4-digit code. Every code must adhere to strict mathematical validity constraints:
+              {t('secret.intro')}
             </p>
 
             {/* 4 Digit Display */}
@@ -131,8 +133,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                   <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-white">Digits 1 to 9</span>
-                  <span className="text-[10px] text-[#a98891]">Zero is illegal</span>
+                  <span className="text-xs font-bold text-white">{t('secret.digitsRange.title')}</span>
+                  <span className="text-[10px] text-[#a98891]">{t('secret.digitsRange.subtitle')}</span>
                 </div>
               </div>
 
@@ -141,8 +143,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                   <X className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-rose-400">No Zeros [ 0 ]</span>
-                  <span className="text-[10px] text-[#a98891]">Omitted from deck</span>
+                  <span className="text-xs font-bold text-rose-400">{t('secret.noZeros.title')}</span>
+                  <span className="text-[10px] text-[#a98891]">{t('secret.noZeros.subtitle')}</span>
                 </div>
               </div>
 
@@ -151,8 +153,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                   <Ban className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-rose-400">No Duplicates</span>
-                  <span className="text-[10px] text-[#a98891] line-through">[ 3 3 1 9 ] Invalid</span>
+                  <span className="text-xs font-bold text-rose-400">{t('secret.noDuplicates.title')}</span>
+                  <span className="text-[10px] text-[#a98891] line-through">{t('secret.noDuplicates.subtitle')}</span>
                 </div>
               </div>
             </div>
@@ -160,7 +162,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
 
           <div className="mt-5 pt-3 border-t border-[#282a30] flex items-center gap-2 text-xs text-[#a98891]">
             <Lock className="w-4 h-4 text-[#ff479b]" />
-            <span>4 unique digits kept strictly hidden inside an encrypted vault.</span>
+            <span>{t('secret.footer')}</span>
           </div>
         </div>
 
@@ -173,16 +175,16 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-sm bg-[#00d2ff]" />
                   <h2 className="font-['Cairo'] text-xl font-black text-white uppercase">
-                    The Guess Protocol
+                    {t('guess.title')}
                   </h2>
                 </div>
                 <span className="px-2.5 py-0.5 rounded bg-[#282a30] text-xs font-bold text-[#a98891]">
-                  Step 02
+                  {t('guess.step')}
                 </span>
               </div>
 
               <p className="text-sm text-[#e2bdc7] leading-relaxed">
-                Every round, transmit 4 non-repeating digits. You receive instantaneous positional telemetry.
+                {t('guess.intro')}
               </p>
 
               <div className="flex items-center justify-center gap-2 py-2">
@@ -199,16 +201,16 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
               <div className="flex items-center justify-between bg-[#111319] border border-[#282a30] p-3 rounded-xl">
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <Timer className="w-4 h-4 text-[#00d2ff]" />
-                  <span>Max 12 Guesses</span>
+                  <span>{t('guess.maxGuesses')}</span>
                 </div>
                 <span className="text-xs font-bold text-[#00d2ff] uppercase tracking-wider">
-                  Turn Cap
+                  {t('guess.turnCap')}
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-[#a98891] mt-4">
-              Repeat guesses are prohibited by UI. Every probe burns one turn token.
+              {t('guess.footer')}
             </p>
           </div>
 
@@ -219,10 +221,10 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
             </div>
             <div className="flex flex-col">
               <span className="font-['Cairo'] text-base font-bold text-white uppercase">
-                Who Moves First?
+                {t('firstMove.title')}
               </span>
               <span className="text-xs text-[#a98891]">
-                System flips an algorithmic 50/50 token. First mover gets initiative; second mover gets retrospective balance.
+                {t('firstMove.body')}
               </span>
             </div>
           </div>
@@ -237,14 +239,14 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-bold uppercase tracking-wider text-[#ff479b] flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4" /> Signal Recognition
+              <Sparkles className="w-4 h-4" /> {t('matrix.eyebrow')}
             </span>
             <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-              The Deduction Matrix
+              {t('matrix.title')}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#a98891] max-w-md">
-            Clues are calculated in real-time after every submitted attempt. Memorize these three tactical signatures:
+            {t('matrix.intro')}
           </p>
         </div>
 
@@ -263,19 +265,19 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                     PICO
                   </span>
                   <span className="px-2 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold uppercase">
-                    Exact Lock
+                    {t('matrix.pico.badge')}
                   </span>
                 </div>
                 <p className="text-sm text-[#e2e2ea] mt-0.5">
-                  Correct digit locked in the <strong className="text-[#ffe170]">exact right position</strong>.
+                  <Trans t={t} i18nKey="matrix.pico.description" components={{ b: <strong className="text-[#ffe170]" /> }} />
                 </p>
               </div>
             </div>
 
             {tutorialMode === 'advanced' && (
               <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#ffe170] uppercase">Target Isolation</span>
-                <span className="text-xs text-[#a98891]">Digit & Slot verified. Do not shift slot.</span>
+                <span className="text-xs font-bold text-[#ffe170] uppercase">{t('matrix.pico.advTitle')}</span>
+                <span className="text-xs text-[#a98891]">{t('matrix.pico.advBody')}</span>
               </div>
             )}
           </div>
@@ -293,19 +295,19 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                     PALA
                   </span>
                   <span className="px-2 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold uppercase">
-                    Displaced Match
+                    {t('matrix.pala.badge')}
                   </span>
                 </div>
                 <p className="text-sm text-[#e2e2ea] mt-0.5">
-                  Digit exists inside the vault, but is currently in the <strong className="text-[#ff479b]">wrong slot</strong>.
+                  <Trans t={t} i18nKey="matrix.pala.description" components={{ b: <strong className="text-[#ff479b]" /> }} />
                 </p>
               </div>
             </div>
 
             {tutorialMode === 'advanced' && (
               <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#ff479b] uppercase">Permutation Trap</span>
-                <span className="text-xs text-[#a98891]">Keep digit; rotate across remaining 3 slots.</span>
+                <span className="text-xs font-bold text-[#ff479b] uppercase">{t('matrix.pala.advTitle')}</span>
+                <span className="text-xs text-[#a98891]">{t('matrix.pala.advBody')}</span>
               </div>
             )}
           </div>
@@ -322,22 +324,22 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-[#33353b]" />
                   <span className="font-['Cairo'] text-lg font-black text-[#a98891] uppercase tracking-wider">
-                    MISS
+                    {t('matrix.miss.label')}
                   </span>
                   <span className="px-2 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold uppercase">
-                    Void
+                    {t('matrix.miss.badge')}
                   </span>
                 </div>
                 <p className="text-sm text-[#a98891] mt-0.5">
-                  Digit is totally absent from the secret number. Completely eliminated.
+                  {t('matrix.miss.description')}
                 </p>
               </div>
             </div>
 
             {tutorialMode === 'advanced' && (
               <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#a98891] uppercase">Matrix Elimination</span>
-                <span className="text-xs text-rose-400">Permanently discard candidate from keypad.</span>
+                <span className="text-xs font-bold text-[#a98891] uppercase">{t('matrix.miss.advTitle')}</span>
+                <span className="text-xs text-rose-400">{t('matrix.miss.advBody')}</span>
               </div>
             )}
           </div>
@@ -349,15 +351,15 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#00d2ff]">
-              Telemetry Breakdown
+              {t('example.eyebrow')}
             </span>
             <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-              A Turn, Dissected
+              {t('example.title')}
             </h2>
           </div>
           <div className="inline-flex items-center gap-2 bg-[#111319] border border-[#282a30] px-4 py-1.5 rounded-full text-xs text-[#a98891]">
             <span className="w-2 h-2 rounded-full bg-[#00d2ff]" />
-            <span>Round 03 Simulator</span>
+            <span>{t('example.round')}</span>
           </div>
         </div>
 
@@ -368,22 +370,22 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#a98891] uppercase">
-                  Opponent Secret (X-Ray View)
+                  {t('example.opponentSecret')}
                 </span>
-                <span className="text-xs font-bold text-[#ffe170]">Vault Target</span>
+                <span className="text-xs font-bold text-[#ffe170]">{t('example.vaultTarget')}</span>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { pos: 'Slot 1', val: 3 },
-                  { pos: 'Slot 2', val: 7 },
-                  { pos: 'Slot 3', val: 1 },
-                  { pos: 'Slot 4', val: 9 },
+                  { pos: 1, val: 3 },
+                  { pos: 2, val: 7 },
+                  { pos: 3, val: 1 },
+                  { pos: 4, val: 9 },
                 ].map((s, i) => (
                   <div
                     key={i}
                     className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
                   >
-                    <span className="text-[10px] text-[#a98891]">{s.pos}</span>
+                    <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
                     <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
                   </div>
                 ))}
@@ -393,21 +395,21 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
             {/* Your Transmission */}
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#a98891] uppercase">Your Transmission</span>
-                <span className="text-xs font-bold text-[#ff479b]">Active Guess</span>
+                <span className="text-xs font-bold text-[#a98891] uppercase">{t('example.yourTransmission')}</span>
+                <span className="text-xs font-bold text-[#ff479b]">{t('example.activeGuess')}</span>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { pos: 'Pos 1', val: 3, color: 'text-[#ffe170]' },
-                  { pos: 'Pos 2', val: 1, color: 'text-[#ffb0ca]' },
-                  { pos: 'Pos 3', val: 5, color: 'text-gray-500' },
-                  { pos: 'Pos 4', val: 9, color: 'text-[#ffe170]' },
+                  { pos: 1, val: 3, color: 'text-[#ffe170]' },
+                  { pos: 2, val: 1, color: 'text-[#ffb0ca]' },
+                  { pos: 3, val: 5, color: 'text-gray-500' },
+                  { pos: 4, val: 9, color: 'text-[#ffe170]' },
                 ].map((s, i) => (
                   <div
                     key={i}
                     className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
                   >
-                    <span className="text-[10px] text-[#a98891]">{s.pos}</span>
+                    <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
                     <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
                   </div>
                 ))}
@@ -419,49 +421,49 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">Position 1</span>
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
                 <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
                   PICO
                 </span>
               </div>
               <div className="font-['Cairo'] text-base font-bold text-white">3 == 3</div>
-              <p className="text-xs text-[#a98891]">Right digit & right slot. Target anchored.</p>
+              <p className="text-xs text-[#a98891]">{t('example.step.one')}</p>
             </div>
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">Position 2</span>
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
                 <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
                   PALA
                 </span>
               </div>
               <div className="font-['Cairo'] text-base font-bold text-white">1 vs 7</div>
               <p className="text-xs text-[#a98891]">
-                1 exists in vault (Slot 3), but transmitted into Slot 2.
+                {t('example.step.two')}
               </p>
             </div>
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">Position 3</span>
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
                 <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
-                  MISS
+                  {t('matrix.miss.label')}
                 </span>
               </div>
               <div className="font-['Cairo'] text-base font-bold text-white">5 vs 1</div>
-              <p className="text-xs text-[#a98891]">5 is completely unassigned in 3719. Discard it.</p>
+              <p className="text-xs text-[#a98891]">{t('example.step.three')}</p>
             </div>
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">Position 4</span>
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
                 <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
                   PICO
                 </span>
               </div>
               <div className="font-['Cairo'] text-base font-bold text-white">9 == 9</div>
               <p className="text-xs text-[#a98891]">
-                Identical position and value lock. Second Pico.
+                {t('example.step.four')}
               </p>
             </div>
           </div>
@@ -470,26 +472,26 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           <div className="bg-[#0c0e14] border border-[#282a30] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-xs font-black text-white uppercase tracking-wider">
-                Telemetry Returned:
+                {t('example.telemetryReturned')}
               </span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                  2 Picos
+                  {t('example.result.picos')}
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
                   <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                  1 Pala
+                  {t('example.result.pala')}
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a30] text-[#a98891] text-xs font-bold">
                   <span className="w-2 h-2 rounded-full bg-[#33353b]" />
-                  1 Miss
+                  {t('example.result.miss')}
                 </div>
               </div>
             </div>
 
             <span className="text-xs text-[#a98891]">
-              Note: The clue does NOT specify which digit caused which signal!
+              {t('example.note')}
             </span>
           </div>
         </div>
@@ -501,12 +503,18 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           </div>
           <div className="flex flex-col gap-1">
             <span className="font-['Cairo'] text-base font-bold text-[#00d2ff] uppercase">
-              Master Deduction Directive
+              {t('directive.title')}
             </span>
             <p className="text-xs sm:text-sm text-[#e2e2ea] leading-relaxed">
-              If your initial guess yields <strong className="text-[#ffe170]">1 Pico</strong> and{' '}
-              <strong className="text-[#ff479b]">2 Palas</strong>, you already possess 3 out of 4 correct vault numbers (75% precision).{' '}
-              <strong className="text-white">Never randomize on Turn 2.</strong> Keep 3 numbers, permute positions, and swap only the single suspect candidate.
+              <Trans
+                t={t}
+                i18nKey="directive.body"
+                components={{
+                  yellow: <strong className="text-[#ffe170]" />,
+                  pink: <strong className="text-[#ff479b]" />,
+                  white: <strong className="text-white" />,
+                }}
+              />
             </p>
           </div>
         </div>
@@ -518,11 +526,11 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           <div className="flex items-center gap-2">
             <Timer className="w-5 h-5 text-[#ff479b]" />
             <span className="font-['Cairo'] text-lg font-black text-white uppercase">
-              The 12-Turn Sudden Death Protocol
+              {t('sudden.title')}
             </span>
           </div>
           <span className="text-xs font-black text-[#ff479b] uppercase tracking-wider">
-            Turn 12 Cap Limit
+            {t('sudden.capLimit')}
           </span>
         </div>
 
@@ -534,12 +542,11 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => (
             <div key={n}>{n < 10 ? `0${n}` : n}</div>
           ))}
-          <div className="text-rose-400 font-black">12 (FINAL)</div>
+          <div className="text-rose-400 font-black">{t('sudden.final')}</div>
         </div>
 
         <p className="text-xs text-[#a98891]">
-          If neither duelist decrypts all 4 digits within 12 attempts, the duel terminates in a{' '}
-          <strong className="text-white">Tactical Draw</strong>. Both secret vaults are unveiled simultaneously for mutual review.
+          <Trans t={t} i18nKey="sudden.body" components={{ white: <strong className="text-white" /> }} />
         </p>
       </div>
 
@@ -547,10 +554,10 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
       <div className="bg-gradient-to-r from-[#191b21] via-[#201a24] to-[#191b21] border border-[#ff479b]/40 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
         <div className="flex flex-col gap-1 text-center md:text-left">
           <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-            Ready to test your deduction?
+            {t('cta.title')}
           </h2>
           <p className="text-sm text-[#e2bdc7]">
-            Jump straight into an offline AI duel or invite a rival in seconds. No download required.
+            {t('cta.body')}
           </p>
         </div>
 
@@ -559,13 +566,13 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
             onClick={() => onNavigate('arena')}
             className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all"
           >
-            Play Free Now
+            {t('cta.play')}
           </button>
           <button
             onClick={() => onNavigate('play-hub')}
             className="px-6 py-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold uppercase tracking-wider transition-all"
           >
-            Explore Play Hub
+            {t('cta.explore')}
           </button>
         </div>
       </div>

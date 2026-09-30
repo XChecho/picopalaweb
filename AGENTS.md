@@ -9,3 +9,5 @@
 - Pico = dígito correcto en su posición; Pala = dígito correcto en otra posición.
 - No prometer funciones no implementadas (login real, ranking real, salas, push, tiempo real).
 - Sin `console.log`, sin `throw 'string'`. Nunca commitear `.env*`.
+- i18n: todo texto de UI va por `t()` (`useTranslation('<namespace>')`) y existe en `locales/{en,es,pt}`, con las mismas claves y variables. Español neutro latinoamericano y portugués de Brasil. No traducir "Pico", "Pala" ni la marca.
+- Batalla: el teclado numérico vive en un modal (botón "Escribir turno"); el tablero es de dos columnas (oponente izquierda, jugador derecha). Los e2e leen `data-testid` (`move`, `turn-status`, `turn-clock`, `result-title`), no el texto.

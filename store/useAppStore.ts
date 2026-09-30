@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import type { AudioSettings, Difficulty, GameMode } from "@/types/game";
 import { soundEngine } from "@/lib/audio";
+import i18n, { LANGUAGE_STORAGE_KEY, isSupportedLanguage, type TLanguage } from "@/lib/i18n/config";
 
 interface IAppState {
   matchMode: GameMode;
   matchDifficulty: Difficulty;
   hasActiveMatch: boolean;
-  lang: string;
+  lang: TLanguage;
   audioSettings: AudioSettings;
   startMatch: (mode: GameMode, difficulty?: Difficulty) => void;
   setMatchActive: (active: boolean) => void;
@@ -34,7 +35,14 @@ export const useAppStore = create<IAppState>((set) => ({
     })),
   setMatchActive: (active) => set({ hasActiveMatch: active }),
   finishMatch: () => set({ hasActiveMatch: false }),
-  setLang: (lang) => set({ lang }),
+  setLang: (lang) => {
+    if (!isSupportedLanguage(lang)) return;
+    void i18n.changeLanguage(lang);
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    } catch {}
+    set({ lang });
+  },
   toggleSound: () =>
     set((state) => {
       const soundEffects = !state.audioSettings.soundEffects;

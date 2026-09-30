@@ -1,0 +1,104 @@
+{
+  "status": {
+    "title": "⚡ You're in offline-ready node",
+    "body": "— Versus AI operates 100% client-side with zero latency. Global & Private rooms simulate real matchmaking.",
+    "recheck": "Recheck Status"
+  },
+  "session": {
+    "badge": "SESSION ACTIVE",
+    "round": "Round Phase #02",
+    "title": "Turn <hl>7 / 12</hl> vs Bot ({{difficulty}})",
+    "cipher": "Target cipher: 4 distinct digits locked. Deductive ledger synced.",
+    "reset": "Reset Match",
+    "resume": "Resume Match"
+  },
+  "header": {
+    "eyebrow": "Tactical Operations Deck",
+    "title": "Choose Your Battle",
+    "subtitle": "Step into the deduction arena. Select your mode, lock in your cipher, and decipher your rival's hidden code through pure deduction logic."
+  },
+  "tabs": {
+    "standard": "Standard Play",
+    "ranked": "Ranked S1",
+    "scrims": "Custom Scrims"
+  },
+  "versusAi": {
+    "title": "Versus AI",
+    "badge": "Zero Latency",
+    "subtitle": "Challenge our tactical cipher engine. Works offline with instantaneous round turns.",
+    "offlineReady": "Offline Ready",
+    "matrixTitle": "Target Difficulty Matrix",
+    "perTurn": "45s / turn",
+    "digits": "4 Digits (1–9)",
+    "engage": "Engage Bot ({{difficulty}})"
+  },
+  "difficulty": {
+    "novice": {
+      "name": "Novice",
+      "description": "Basic elimination logic. Forgiving timer constraints."
+    },
+    "tactician": {
+      "name": "Tactician",
+      "description": "Aggressive branch pruning. Detects digit collisions fast."
+    },
+    "grandmaster": {
+      "name": "Grandmaster",
+      "description": "Near-optimal tree pruning. Zero wasted queries. Maximum pressure."
+    },
+    "guesses": "{{count}} Guesses Allotted",
+    "level": "Lvl {{level}}",
+    "selected": "Selected"
+  },
+  "private": {
+    "title": "Private Duel",
+    "badge": "Direct 1v1",
+    "subtitle": "Host a private battle room or join via 6-digit match key.",
+    "host": {
+      "title": "Host Secure Room",
+      "waiting": "Waiting: 0/1 Rival",
+      "copyTitle": "Copy Code",
+      "shareTitle": "Share Room",
+      "shareSubject": "Pico & Pala 1v1 Room",
+      "shareText": "Join my Pico & Pala battle with code: {{code}}"
+    },
+    "join": {
+      "title": "Enter Rival's Passcode",
+      "error": "Room not found — verify code or ask host to re-issue session.",
+      "connect": "Connect to Lobby"
+    }
+  },
+  "global": {
+    "title": "Global Ranked Arena",
+    "badge": "Verified Anti-Cheat",
+    "subtitle": "Compete on the global ladder. Real-time synchronous duel deduction with competitive ELO rating stakes.",
+    "bracket": "Your Bracket",
+    "bracketValue": "Diamond Tier · 1,420 ELO",
+    "radar": {
+      "title": "Active Radar Telemetry",
+      "searching": "Searching",
+      "queuePos": "Queue Pos",
+      "queueValue": "#4 in pool",
+      "estWait": "Est. Wait",
+      "waitValue": "~18 sec",
+      "region": "Region",
+      "regionValue": "NA-East (Auto)",
+      "instantTest": "Instant Match Test"
+    },
+    "match": {
+      "confirmed": "Match Confirmed! Synchronizing",
+      "deploying": "Deploying in 03s",
+      "you": "You",
+      "winRate": "Win Rate: 64%",
+      "cipherDuel": "Cipher Duel",
+      "streak": "Streak: 4 Wins",
+      "ready": "All players connected and ready",
+      "enter": "Enter Match Arena"
+    }
+  },
+  "guest": {
+    "playingAs": "Playing as <b>Guest Duelist</b>. Your win logs and local deductor cache are stored locally in this browser.",
+    "signIn": "Sign in or Create Free Account",
+    "signInAfter": "to back up stats and claim seasonal avatar ribbons.",
+    "engine": "Game Engine v2.4 Active"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "playHub": "Play Hub",
+    "liveArena": "Live Arena",
+    "howToPlay": "How to Play",
+    "gameModes": "Game Modes",
+    "records": "Records"
+  },
+  "brand": {
+    "tagline": "Tactical Mind-Sport Duel",
+    "footerTagline": "Tactical 1v1 Deduction",
+    "copyright": "© 2024–2026 Pico & Pala. Crafted for mind-sport by Auron Tale Games."
+  },
+  "header": {
+    "matchLive": "Match Live",
+    "nodeSynced": "Node Synced // Tokyo East",
+    "changeLanguage": "Change language",
+    "mute": "Mute game sounds",
+    "unmute": "Unmute game sounds",
+    "modes": "Modes",
+    "playArena": "Play Arena"
+  },
+  "footer": {
+    "howToPlay": "How to Play",
+    "gameModes": "Game Modes",
+    "recordsLedger": "Records Ledger",
+    "duelistProfile": "Duelist Profile",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "termsAlert": "Terms of Service: Fair play deduction protocols. Algorithmic anti-cheat active.",
+    "privacyAlert": "Privacy Policy: All game states and records stored encrypted in local browser cache.",
+    "version": "{{lang}} · v2.4 Live"
+  }
+}

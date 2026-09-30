@@ -1,0 +1,168 @@
+{
+  "breadcrumb": {
+    "hq": "DUELIST HQ",
+    "records": "RECORDS & LEDGER"
+  },
+  "node": {
+    "synced": "NODE SYNCED // TOKYO EAST"
+  },
+  "profile": {
+    "rankTitle": "Diamond Tier ({{elo}} ELO)",
+    "seasonTag": "Season 4 Veteran",
+    "statusText": "Active Deduction Duelist",
+    "editProfile": "Edit Profile",
+    "enterArena": "Enter Ranked Arena"
+  },
+  "stats": {
+    "gamesPlayed": "GAMES PLAYED",
+    "thisWeek": "+{{count}} this week",
+    "totalVictories": "TOTAL VICTORIES",
+    "trueWinrate": "64.1% true winrate",
+    "winRatio": "WIN RATIO",
+    "topPool": "Top 8% global duelist pool",
+    "currentStreak": "CURRENT STREAK",
+    "wins": "Wins",
+    "personalBest": "Personal best: {{count}} matches"
+  },
+  "metrics": {
+    "draws": "Draws",
+    "longestStreak": "Longest Streak",
+    "winsValue": "{{count}} Wins",
+    "avgDecrypt": "Avg. Decrypt",
+    "turnsValue": "{{count}} Turns",
+    "totalPicos": "Total Picos",
+    "totalPalas": "Total Palas",
+    "avgTurnPace": "Avg. Turn Pace"
+  },
+  "history": {
+    "title": "Match History & Deduction Logs",
+    "subtitle": "Full cryptographic round traces, pico strikes, and ELO shift audits."
+  },
+  "filters": {
+    "all": "All",
+    "ai": "vs AI",
+    "private": "private",
+    "global": "global"
+  },
+  "preview": {
+    "label": "State Preview:",
+    "default": "Default History",
+    "offline": "Offline Sync Pending",
+    "empty": "Empty State",
+    "error": "Error State",
+    "loading": "Loading Shimmer"
+  },
+  "offline": {
+    "banner": "⚡ Showing local device cached records — cloud synchronization pending ({{count}} matches unsaved).",
+    "syncNow": "Sync Now"
+  },
+  "table": {
+    "result": "Result",
+    "mode": "Mode",
+    "opponent": "Opponent",
+    "stakes": "Stakes / ELO",
+    "turnsTaken": "Turns Taken",
+    "timestamp": "Timestamp",
+    "logView": "Log View",
+    "showing": "Showing <strong>{{shown}}</strong> of <strong>{{total}}</strong> recorded matches",
+    "loadMore": "Load more records",
+    "loadMoreAlert": "All {{total}} recorded matches are backed up in client buffer."
+  },
+  "results": {
+    "WIN": "WIN",
+    "LOSS": "LOSS",
+    "DRAW": "DRAW"
+  },
+  "modes": {
+    "global": "Global Arena",
+    "ai": "vs AI",
+    "private": "Private Room"
+  },
+  "stakes": {
+    "trainingDrill": "Training Drill",
+    "friendlyMatch": "Friendly Match",
+    "warmup": "Warmup (+0)"
+  },
+  "opponents": {
+    "grandmasterHard": "Grandmaster (Hard)",
+    "noviceWarmup": "Novice (Warmup)"
+  },
+  "timestamps": {
+    "todayAt": "Today, {{time}}",
+    "yesterday": "Yesterday",
+    "oct24": "Oct 24",
+    "oct23": "Oct 23"
+  },
+  "empty": {
+    "title": "No games played yet",
+    "description": "Step into the arena, set your secret 4-digit cipher, and outsmart your opponent with deductive strikes.",
+    "cta": "Play your first match"
+  },
+  "error": {
+    "title": "Sync Connection Timeout",
+    "description": "Unable to retrieve cloud deduction ledger. Network latency or security handshake timed out.",
+    "retry": "Retry Handshake"
+  },
+  "config": {
+    "title": "Duelist Configuration",
+    "subtitle": "Tactile feedback, security credentials, and anti-cheat protocol parameters."
+  },
+  "audio": {
+    "title": "Audio & Feedback",
+    "subtitle": "Haptics & arcade soundscape",
+    "soundEffects": {
+      "title": "Sound Effects",
+      "desc": "Keypad clicks & strike chimes"
+    },
+    "matchAmbientMusic": {
+      "title": "Match Ambient Music",
+      "desc": "Competitive low-fi drone"
+    },
+    "hapticFeedback": {
+      "title": "Haptic / Vibration",
+      "desc": "Tactile click on mobile decks"
+    },
+    "turnAlerts": {
+      "title": "Turn Alerts",
+      "desc": "Countdown chime at 5s"
+    },
+    "footer": "Hardware audio synthesis active."
+  },
+  "account": {
+    "title": "Account & Security",
+    "subtitle": "Authentication credentials",
+    "email": "Duelist Email",
+    "verified": "Verified",
+    "passcode": "Security Passcode",
+    "updated": "Updated 2 weeks ago",
+    "change": "Change",
+    "changeAlert": "Security Passcode update link sent to {{email}}",
+    "delete": "Delete Account...",
+    "deleteWarning": "Irreversible action. Type <strong>{{word}}</strong> to purge ELO, match logs, and cosmetics.",
+    "deletePlaceholder": "Type \"{{word}}\"",
+    "deletePurged": "Account data purged from local ledger.",
+    "deleteMismatch": "Please type {{word}} exactly to confirm.",
+    "purge": "Permanently Purge",
+    "footer": "2-Factor Steam/Discord link enabled."
+  },
+  "about": {
+    "title": "About & Integrity",
+    "subtitle": "Engine build & fair play rules",
+    "clientEngine": "Client Engine",
+    "terms": "Terms of Service",
+    "termsAlert": "Terms of Service: Auron Tale Games",
+    "privacy": "Privacy & Telemetry Policy",
+    "privacyAlert": "Privacy & Telemetry: Local encrypted storage",
+    "fairPlay": "Fair Play Integrity & Anti-Cheat",
+    "fairPlayAlert": "Anti-Cheat: 100% deterministic permutation checker",
+    "crafted": "CRAFTED FOR MIND-SPORT BY AURON TALE GAMES"
+  },
+  "edit": {
+    "title": "Edit Duelist Record",
+    "close": "Close",
+    "callSign": "Display Call-sign",
+    "email": "Registered Email",
+    "cancel": "Cancel",
+    "save": "Save Changes"
+  }
+}

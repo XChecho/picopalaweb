@@ -1,0 +1,104 @@
+{
+  "status": {
+    "title": "⚡ Você está em um nó pronto para offline",
+    "body": "— Contra a IA funciona 100% no seu dispositivo, sem latência. As salas globais e privadas simulam um pareamento real.",
+    "recheck": "Verificar status"
+  },
+  "session": {
+    "badge": "SESSÃO ATIVA",
+    "round": "Fase da rodada #02",
+    "title": "Turno <hl>7 / 12</hl> vs Bot ({{difficulty}})",
+    "cipher": "Código-alvo: 4 dígitos distintos travados. Registro dedutivo sincronizado.",
+    "reset": "Reiniciar partida",
+    "resume": "Continuar partida"
+  },
+  "header": {
+    "eyebrow": "Central de operações táticas",
+    "title": "Escolha sua batalha",
+    "subtitle": "Entre na arena de dedução. Escolha seu modo, defina seu código e decifre o código oculto do seu rival com pura lógica dedutiva."
+  },
+  "tabs": {
+    "standard": "Jogo padrão",
+    "ranked": "Ranqueada T1",
+    "scrims": "Scrims personalizados"
+  },
+  "versusAi": {
+    "title": "Contra a IA",
+    "badge": "Zero latência",
+    "subtitle": "Desafie nosso motor tático de códigos. Funciona offline, com turnos instantâneos.",
+    "offlineReady": "Pronto para offline",
+    "matrixTitle": "Matriz de dificuldade-alvo",
+    "perTurn": "45 s / turno",
+    "digits": "4 dígitos (1–9)",
+    "engage": "Enfrentar o bot ({{difficulty}})"
+  },
+  "difficulty": {
+    "novice": {
+      "name": "Novato",
+      "description": "Lógica básica de eliminação. Limites de tempo flexíveis."
+    },
+    "tactician": {
+      "name": "Tático",
+      "description": "Poda agressiva de ramos. Detecta colisões de dígitos rapidamente."
+    },
+    "grandmaster": {
+      "name": "Grão-Mestre",
+      "description": "Poda quase ótima da árvore. Zero consultas desperdiçadas. Pressão máxima."
+    },
+    "guesses": "{{count}} palpites disponíveis",
+    "level": "Nív. {{level}}",
+    "selected": "Selecionado"
+  },
+  "private": {
+    "title": "Duelo privado",
+    "badge": "1v1 direto",
+    "subtitle": "Crie uma sala de batalha privada ou entre com uma chave de 6 dígitos.",
+    "host": {
+      "title": "Criar sala segura",
+      "waiting": "Aguardando: 0/1 rival",
+      "copyTitle": "Copiar código",
+      "shareTitle": "Compartilhar sala",
+      "shareSubject": "Sala 1v1 de Pico & Pala",
+      "shareText": "Entre na minha batalha de Pico & Pala com o código: {{code}}"
+    },
+    "join": {
+      "title": "Digite o código do seu rival",
+      "error": "Sala não encontrada: verifique o código ou peça ao anfitrião para gerar um novo.",
+      "connect": "Conectar ao lobby"
+    }
+  },
+  "global": {
+    "title": "Arena global ranqueada",
+    "badge": "Antitrapaça verificado",
+    "subtitle": "Dispute a escada global. Duelos de dedução síncronos em tempo real com pontos ELO em jogo.",
+    "bracket": "Sua categoria",
+    "bracketValue": "Nível Diamante · 1,420 ELO",
+    "radar": {
+      "title": "Telemetria de radar ativa",
+      "searching": "Buscando",
+      "queuePos": "Pos. na fila",
+      "queueValue": "#4 no grupo",
+      "estWait": "Espera est.",
+      "waitValue": "~18 s",
+      "region": "Região",
+      "regionValue": "NA-Leste (Auto)",
+      "instantTest": "Teste de partida instantânea"
+    },
+    "match": {
+      "confirmed": "Partida confirmada! Sincronizando",
+      "deploying": "Iniciando em 03 s",
+      "you": "Você",
+      "winRate": "Vitórias: 64%",
+      "cipherDuel": "Duelo de códigos",
+      "streak": "Sequência: 4 vitórias",
+      "ready": "Todos os jogadores conectados e prontos",
+      "enter": "Entrar na arena"
+    }
+  },
+  "guest": {
+    "playingAs": "Jogando como <b>Duelista convidado</b>. Seu histórico de vitórias e o cache local do dedutor ficam salvos neste navegador.",
+    "signIn": "Entre ou crie uma conta grátis",
+    "signInAfter": "para fazer backup das estatísticas e resgatar fitas de avatar da temporada.",
+    "engine": "Motor de jogo v2.4 ativo"
+  }
+}

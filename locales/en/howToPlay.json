@@ -1,0 +1,108 @@
+{
+  "hero": {
+    "eyebrow": "Tactical Rulebook & Tutorial",
+    "title": "How to Play",
+    "subtitle": "Three minutes to learn. A lifetime of bragging rights. Master the mental battlefield of binary deduction and cipher breaking.",
+    "easyToggle": "Easy Example",
+    "advancedToggle": "Advanced Strategy",
+    "advancedAlert": {
+      "title": "Advanced Elimination Logic Activated",
+      "body": "Showing conditional probability trees, permutation math, and strict turn-burn reduction matrices throughout this breakdown."
+    }
+  },
+  "secret": {
+    "title": "The Secret Number",
+    "step": "Step 01",
+    "intro": "Each duelist locks in an undisclosed 4-digit code. Every code must adhere to strict mathematical validity constraints:",
+    "digitsRange": {
+      "title": "Digits 1 to 9",
+      "subtitle": "Zero is illegal"
+    },
+    "noZeros": {
+      "title": "No Zeros [ 0 ]",
+      "subtitle": "Omitted from deck"
+    },
+    "noDuplicates": {
+      "title": "No Duplicates",
+      "subtitle": "[ 3 3 1 9 ] Invalid"
+    },
+    "footer": "4 unique digits kept strictly hidden inside an encrypted vault."
+  },
+  "guess": {
+    "title": "The Guess Protocol",
+    "step": "Step 02",
+    "intro": "Every round, transmit 4 non-repeating digits. You receive instantaneous positional telemetry.",
+    "maxGuesses": "Max 12 Guesses",
+    "turnCap": "Turn Cap",
+    "footer": "Repeat guesses are prohibited by UI. Every probe burns one turn token."
+  },
+  "firstMove": {
+    "title": "Who Moves First?",
+    "body": "System flips an algorithmic 50/50 token. First mover gets initiative; second mover gets retrospective balance."
+  },
+  "matrix": {
+    "eyebrow": "Signal Recognition",
+    "title": "The Deduction Matrix",
+    "intro": "Clues are calculated in real-time after every submitted attempt. Memorize these three tactical signatures:",
+    "pico": {
+      "badge": "Exact Lock",
+      "description": "Correct digit locked in the <b>exact right position</b>.",
+      "advTitle": "Target Isolation",
+      "advBody": "Digit & Slot verified. Do not shift slot."
+    },
+    "pala": {
+      "badge": "Displaced Match",
+      "description": "Digit exists inside the vault, but is currently in the <b>wrong slot</b>.",
+      "advTitle": "Permutation Trap",
+      "advBody": "Keep digit; rotate across remaining 3 slots."
+    },
+    "miss": {
+      "label": "MISS",
+      "badge": "Void",
+      "description": "Digit is totally absent from the secret number. Completely eliminated.",
+      "advTitle": "Matrix Elimination",
+      "advBody": "Permanently discard candidate from keypad."
+    }
+  },
+  "example": {
+    "eyebrow": "Telemetry Breakdown",
+    "title": "A Turn, Dissected",
+    "round": "Round 03 Simulator",
+    "opponentSecret": "Opponent Secret (X-Ray View)",
+    "vaultTarget": "Vault Target",
+    "slot": "Slot {{n}}",
+    "yourTransmission": "Your Transmission",
+    "activeGuess": "Active Guess",
+    "pos": "Pos {{n}}",
+    "position": "Position {{n}}",
+    "step": {
+      "one": "Right digit & right slot. Target anchored.",
+      "two": "1 exists in vault (Slot 3), but transmitted into Slot 2.",
+      "three": "5 is completely unassigned in 3719. Discard it.",
+      "four": "Identical position and value lock. Second Pico."
+    },
+    "telemetryReturned": "Telemetry Returned:",
+    "result": {
+      "picos": "2 Picos",
+      "pala": "1 Pala",
+      "miss": "1 Miss"
+    },
+    "note": "Note: The clue does NOT specify which digit caused which signal!"
+  },
+  "directive": {
+    "title": "Master Deduction Directive",
+    "body": "If your initial guess yields <yellow>1 Pico</yellow> and <pink>2 Palas</pink>, you already possess 3 out of 4 correct vault numbers (75% precision). <white>Never randomize on Turn 2.</white> Keep 3 numbers, permute positions, and swap only the single suspect candidate."
+  },
+  "sudden": {
+    "title": "The 12-Turn Sudden Death Protocol",
+    "capLimit": "Turn 12 Cap Limit",
+    "final": "12 (FINAL)",
+    "body": "If neither duelist decrypts all 4 digits within 12 attempts, the duel terminates in a <white>Tactical Draw</white>. Both secret vaults are unveiled simultaneously for mutual review."
+  },
+  "cta": {
+    "title": "Ready to test your deduction?",
+    "body": "Jump straight into an offline AI duel or invite a rival in seconds. No download required.",
+    "play": "Play Free Now",
+    "explore": "Explore Play Hub"
+  }
+}

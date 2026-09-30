@@ -1,0 +1,95 @@
+{
+  "hero": {
+    "eyebrow": "JUEGO DE DEDUCCIÓN NUMÉRICA 1 VS 1",
+    "titleLine1": "Descifra el",
+    "titleLine2": "código.",
+    "subtitleIntro": "Adivina el número secreto de 4 dígitos de tu rival antes de que adivine el tuyo.",
+    "picoMeaning": "significa posición correcta.",
+    "palaMeaning": "significa posición incorrecta.",
+    "winCondition": "Gana quien llegue primero a 4 Picos.",
+    "playNow": "Juega ya — es gratis",
+    "readRules": "Lee las reglas y la estrategia",
+    "trustLine": "Gratis · Cero anuncios · Hecho por Auron Tale Games"
+  },
+  "mockup": {
+    "liveMatch": "PARTIDA EN VIVO · TURNO {{turn}}/{{max}}",
+    "botHard": "Bot (Difícil)",
+    "yourSecret": "TU SECRETO",
+    "pairsShort": "{{picos}}P · {{palas}}L",
+    "palasCount": "{{n}} Palas",
+    "picosCount": "{{n}} Picos",
+    "win": "GANAS",
+    "victory": "¡VICTORIA · 4 PICOS!",
+    "legendPico": "Pico = Posición exacta",
+    "legendPala": "Pala = Posición incorrecta"
+  },
+  "rivals": {
+    "title": "LOS RIVALES",
+    "subtitle": "Elige tu campo de batalla y pon a prueba tu agilidad mental.",
+    "ai": {
+      "title": "Contra la IA",
+      "description": "Desafía a nuestro bot inteligente con heurísticas de dificultad personalizadas.",
+      "badge": "Funciona sin conexión",
+      "cta": "Jugar duelo"
+    },
+    "private": {
+      "title": "Sala privada",
+      "description": "Crea una sala de batalla privada o únete con una clave de partida de 6 dígitos.",
+      "badge": "Código ABCD12",
+      "cta": "Crear sala"
+    },
+    "global": {
+      "title": "Arena global",
+      "description": "Desafía a duelistas de todo el mundo con puntos ELO en juego en tiempo real.",
+      "badge": "Partida en < 30 s",
+      "cta": "Partida rápida"
+    }
+  },
+  "how": {
+    "title": "Cómo funciona Pico & Pala",
+    "subtitle": "Tres reglas simples. Profundidad táctica infinita.",
+    "step1": {
+      "title": "Define tu número secreto",
+      "description": "Elige 4 números distintos del 1 al 9. El cero está prohibido. No se permiten dígitos repetidos."
+    },
+    "step2": {
+      "title": "Intercambia intentos",
+      "description": "Analiza la respuesta en cada turno. Compara Picos y Palas para aislar las posiciones válidas.",
+      "picoDesc": "Dígito y posición correctos",
+      "palaDesc": "Dígito correcto, posición incorrecta"
+    },
+    "step3": {
+      "title": "Gana quien llegue primero a 4 Picos",
+      "description": "Descifra el código de tu rival con decisión. Una buena deducción premia las victorias rápidas antes de los 12 turnos.",
+      "victory": "VICTORIA"
+    },
+    "readMore": "Lee las reglas completas y el desglose →"
+  },
+  "why": {
+    "title": "Por qué te va a encantar",
+    "fast": {
+      "title": "Partidas rápidas de 2 a 5 minutos",
+      "description": "Duelos cognitivos rápidos, ideales para un descanso con café o para escalar en el ranking competitivo."
+    },
+    "ai": {
+      "title": "3 niveles de dificultad de IA",
+      "description": "Desde calentamientos casuales hasta heurísticas de bot de gran maestro que anticipan tu próxima deducción."
+    },
+    "online": {
+      "title": "Juego en línea en tiempo real y asíncrono",
+      "description": "Turnos de deducción instantáneos y fluidos, con reconexión sin cortes, análisis de repeticiones y registros de partida."
+    },
+    "stats": {
+      "title": "Estadísticas completas y rachas",
+      "description": "Analiza tu porcentaje de victorias, el promedio de turnos para resolver y tu precisión de Picos a lo largo de todas tus partidas."
+    }
+  },
+  "cta": {
+    "eyebrow": "SIN INSTALAR NADA",
+    "title": "Tu número secreto te está esperando.",
+    "description": "Juega directo en tu navegador o lleva la batalla a tu móvil.",
+    "playFree": "Juega gratis",
+    "iosAlert": "Pico & Pala Web PWA / iOS listo",
+    "androidAlert": "Pico & Pala Web PWA / Android listo"
+  }
+}

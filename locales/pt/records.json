@@ -1,0 +1,168 @@
+{
+  "breadcrumb": {
+    "hq": "QG DO DUELISTA",
+    "records": "REGISTROS E HISTÓRICO"
+  },
+  "node": {
+    "synced": "NÓ SINCRONIZADO // TÓQUIO LESTE"
+  },
+  "profile": {
+    "rankTitle": "Nível Diamante ({{elo}} ELO)",
+    "seasonTag": "Veterano da Temporada 4",
+    "statusText": "Duelista de dedução ativo",
+    "editProfile": "Editar perfil",
+    "enterArena": "Entrar na arena ranqueada"
+  },
+  "stats": {
+    "gamesPlayed": "PARTIDAS JOGADAS",
+    "thisWeek": "+{{count}} nesta semana",
+    "totalVictories": "VITÓRIAS TOTAIS",
+    "trueWinrate": "64,1% de aproveitamento real",
+    "winRatio": "TAXA DE VITÓRIAS",
+    "topPool": "Top 8% dos duelistas globais",
+    "currentStreak": "SEQUÊNCIA ATUAL",
+    "wins": "Vitórias",
+    "personalBest": "Melhor marca pessoal: {{count}} partidas"
+  },
+  "metrics": {
+    "draws": "Empates",
+    "longestStreak": "Maior sequência",
+    "winsValue": "{{count}} vitórias",
+    "avgDecrypt": "Decifragem média",
+    "turnsValue": "{{count}} turnos",
+    "totalPicos": "Total de Picos",
+    "totalPalas": "Total de Palas",
+    "avgTurnPace": "Ritmo médio por turno"
+  },
+  "history": {
+    "title": "Histórico de partidas e registros de dedução",
+    "subtitle": "Rastros completos de cada rodada, acertos de Pico e auditoria das mudanças de ELO."
+  },
+  "filters": {
+    "all": "Todas",
+    "ai": "vs IA",
+    "private": "privada",
+    "global": "global"
+  },
+  "preview": {
+    "label": "Pré-visualização de estado:",
+    "default": "Histórico padrão",
+    "offline": "Sincronização offline pendente",
+    "empty": "Estado vazio",
+    "error": "Estado de erro",
+    "loading": "Carregando"
+  },
+  "offline": {
+    "banner": "⚡ Exibindo registros salvos no dispositivo: sincronização com a nuvem pendente ({{count}} partidas não salvas).",
+    "syncNow": "Sincronizar agora"
+  },
+  "table": {
+    "result": "Resultado",
+    "mode": "Modo",
+    "opponent": "Oponente",
+    "stakes": "Aposta / ELO",
+    "turnsTaken": "Turnos usados",
+    "timestamp": "Data e hora",
+    "logView": "Ver registro",
+    "showing": "Exibindo <strong>{{shown}}</strong> de <strong>{{total}}</strong> partidas registradas",
+    "loadMore": "Carregar mais registros",
+    "loadMoreAlert": "As {{total}} partidas registradas estão salvas no buffer do cliente."
+  },
+  "results": {
+    "WIN": "VITÓRIA",
+    "LOSS": "DERROTA",
+    "DRAW": "EMPATE"
+  },
+  "modes": {
+    "global": "Arena Global",
+    "ai": "vs IA",
+    "private": "Sala privada"
+  },
+  "stakes": {
+    "trainingDrill": "Treino",
+    "friendlyMatch": "Partida amistosa",
+    "warmup": "Aquecimento (+0)"
+  },
+  "opponents": {
+    "grandmasterHard": "Grão-Mestre (Difícil)",
+    "noviceWarmup": "Novato (Aquecimento)"
+  },
+  "timestamps": {
+    "todayAt": "Hoje, {{time}}",
+    "yesterday": "Ontem",
+    "oct24": "24 out",
+    "oct23": "23 out"
+  },
+  "empty": {
+    "title": "Você ainda não jogou nenhuma partida",
+    "description": "Entre na arena, defina seu código secreto de 4 dígitos e vença seu oponente com dedução.",
+    "cta": "Jogue sua primeira partida"
+  },
+  "error": {
+    "title": "Tempo de conexão esgotado",
+    "description": "Não foi possível recuperar o histórico de dedução da nuvem. A rede demorou demais ou a verificação de segurança expirou.",
+    "retry": "Tentar conexão novamente"
+  },
+  "config": {
+    "title": "Configuração do duelista",
+    "subtitle": "Resposta tátil, credenciais de segurança e parâmetros do protocolo anti-trapaça."
+  },
+  "audio": {
+    "title": "Áudio e resposta",
+    "subtitle": "Vibração e som arcade",
+    "soundEffects": {
+      "title": "Efeitos sonoros",
+      "desc": "Cliques do teclado e sons de acerto"
+    },
+    "matchAmbientMusic": {
+      "title": "Música ambiente da partida",
+      "desc": "Ambiente lo-fi competitivo"
+    },
+    "hapticFeedback": {
+      "title": "Tátil / Vibração",
+      "desc": "Clique tátil em dispositivos móveis"
+    },
+    "turnAlerts": {
+      "title": "Alertas de turno",
+      "desc": "Som de contagem regressiva aos 5 s"
+    },
+    "footer": "Síntese de áudio por hardware ativa."
+  },
+  "account": {
+    "title": "Conta e segurança",
+    "subtitle": "Credenciais de autenticação",
+    "email": "E-mail do duelista",
+    "verified": "Verificado",
+    "passcode": "Código de segurança",
+    "updated": "Atualizado há 2 semanas",
+    "change": "Alterar",
+    "changeAlert": "Enviamos o link para atualizar seu código de segurança para {{email}}",
+    "delete": "Excluir conta...",
+    "deleteWarning": "Ação irreversível. Digite <strong>{{word}}</strong> para apagar seu ELO, histórico de partidas e cosméticos.",
+    "deletePlaceholder": "Digite \"{{word}}\"",
+    "deletePurged": "Os dados da conta foram apagados do registro local.",
+    "deleteMismatch": "Digite {{word}} exatamente para confirmar.",
+    "purge": "Apagar definitivamente",
+    "footer": "Vinculação de 2 fatores com Steam/Discord ativada."
+  },
+  "about": {
+    "title": "Sobre e integridade",
+    "subtitle": "Versão do motor e regras de jogo limpo",
+    "clientEngine": "Motor do cliente",
+    "terms": "Termos de serviço",
+    "termsAlert": "Termos de serviço: Auron Tale Games",
+    "privacy": "Política de privacidade e telemetria",
+    "privacyAlert": "Privacidade e telemetria: armazenamento local criptografado",
+    "fairPlay": "Jogo limpo e anti-trapaça",
+    "fairPlayAlert": "Anti-trapaça: verificador de permutações 100% determinístico",
+    "crafted": "CRIADO PARA O ESPORTE DA MENTE PELA AURON TALE GAMES"
+  },
+  "edit": {
+    "title": "Editar registro do duelista",
+    "close": "Fechar",
+    "callSign": "Nome de exibição",
+    "email": "E-mail cadastrado",
+    "cancel": "Cancelar",
+    "save": "Salvar alterações"
+  }
+}

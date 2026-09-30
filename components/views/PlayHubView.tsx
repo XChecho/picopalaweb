@@ -20,6 +20,7 @@ import {
   Flame,
   Shield,
 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Difficulty, GameMode } from '@/types/game';
 
 interface PlayHubViewProps {
@@ -33,6 +34,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
   onResumeMatch,
   hasActiveMatch = false,
 }) => {
+  const { t } = useTranslation('playHub');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('grandmaster');
   const [hostRoomCode, setHostRoomCode] = useState('AB7X2Q');
   const [copied, setCopied] = useState(false);
@@ -64,9 +66,9 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e9c400] opacity-75" />
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#e9c400]" />
             </span>
-            <span className="font-bold tracking-wide">⚡ You're in offline-ready node</span>
+            <span className="font-bold tracking-wide">{t('status.title')}</span>
             <span className="hidden sm:inline text-[#e2bdc7] text-xs">
-              — Versus AI operates 100% client-side with zero latency. Global & Private rooms simulate real matchmaking.
+              {t('status.body')}
             </span>
           </div>
           <button
@@ -74,7 +76,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ffe170] hover:text-white uppercase tracking-wider transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRechecking ? 'animate-spin' : ''}`} />
-            <span>Recheck Status</span>
+            <span>{t('status.recheck')}</span>
           </button>
         </div>
       </div>
@@ -90,15 +92,20 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded bg-[#e9c400] text-black font-['Cairo'] text-[11px] font-black uppercase tracking-wider">
-                  SESSION ACTIVE
+                  {t('session.badge')}
                 </span>
-                <span className="text-xs text-[#a98891]">Round Phase #02</span>
+                <span className="text-xs text-[#a98891]">{t('session.round')}</span>
               </div>
               <h3 className="font-['Cairo'] text-white text-lg md:text-xl font-bold tracking-tight mt-0.5">
-                Turn <span className="text-[#ffe170] font-black">7 / 12</span> vs Bot (Grandmaster)
+                <Trans
+                  t={t}
+                  i18nKey="session.title"
+                  values={{ difficulty: t('difficulty.grandmaster.name') }}
+                  components={{ hl: <span className="text-[#ffe170] font-black" /> }}
+                />
               </h3>
               <p className="text-xs text-[#a98891]">
-                Target cipher: 4 distinct digits locked. Deductive ledger synced.
+                {t('session.cipher')}
               </p>
             </div>
           </div>
@@ -107,13 +114,13 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               onClick={() => onStartMatch('ai', 'grandmaster')}
               className="px-4 py-2.5 rounded-full font-bold text-[#e2bdc7] hover:text-white hover:bg-[#282a30] transition-all text-xs tracking-wider uppercase"
             >
-              Reset Match
+              {t('session.reset')}
             </button>
             <button
               onClick={() => (onResumeMatch ? onResumeMatch() : onStartMatch('ai', selectedDifficulty))}
               className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
-              <span>Resume Match</span>
+              <span>{t('session.resume')}</span>
               <Play className="w-4 h-4 fill-white" />
             </button>
           </div>
@@ -125,13 +132,13 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30] text-xs font-bold text-[#a5e7ff] uppercase tracking-widest mb-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
-            <span>Tactical Operations Deck</span>
+            <span>{t('header.eyebrow')}</span>
           </div>
           <h1 className="font-['Cairo'] text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight uppercase">
-            Choose Your Battle
+            {t('header.title')}
           </h1>
           <p className="text-[#e2e2ea]/80 text-sm sm:text-base max-w-2xl mt-1">
-            Step into the deduction arena. Select your mode, lock in your cipher, and decipher your rival's hidden code through pure deduction logic.
+            {t('header.subtitle')}
           </p>
         </div>
 
@@ -144,7 +151,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 : 'text-[#e2bdc7] hover:text-white'
             }`}
           >
-            Standard Play
+            {t('tabs.standard')}
           </button>
           <button
             onClick={() => setActiveCategory('ranked')}
@@ -154,7 +161,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 : 'text-[#e2bdc7] hover:text-white'
             }`}
           >
-            Ranked S1
+            {t('tabs.ranked')}
           </button>
           <button
             onClick={() => setActiveCategory('scrims')}
@@ -164,7 +171,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 : 'text-[#e2bdc7] hover:text-white'
             }`}
           >
-            Custom Scrims
+            {t('tabs.scrims')}
           </button>
         </div>
       </div>
@@ -185,27 +192,27 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-['Cairo'] text-2xl font-black text-white tracking-tight">
-                    Versus AI
+                    {t('versusAi.title')}
                   </h2>
                   <span className="px-2 py-0.5 rounded-full bg-[#00d2ff]/20 text-[#00d2ff] text-[11px] font-bold uppercase tracking-wider">
-                    Zero Latency
+                    {t('versusAi.badge')}
                   </span>
                 </div>
                 <p className="text-xs text-[#a98891] mt-0.5">
-                  Challenge our tactical cipher engine. Works offline with instantaneous round turns.
+                  {t('versusAi.subtitle')}
                 </p>
               </div>
             </div>
             <span className="hidden sm:inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-950/40 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-500/20">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Offline Ready
+              {t('versusAi.offlineReady')}
             </span>
           </div>
 
           {/* Difficulty Matrix */}
           <div className="my-2 flex flex-col gap-2">
             <span className="text-[11px] uppercase tracking-widest text-[#a98891] font-bold">
-              Target Difficulty Matrix
+              {t('versusAi.matrixTitle')}
             </span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Novice */}
@@ -220,15 +227,15 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 <div>
                   <div className="flex items-center justify-between text-emerald-400 mb-1">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-[10px] uppercase font-bold">Lvl 01</span>
+                    <span className="text-[10px] uppercase font-bold">{t('difficulty.level', { level: '01' })}</span>
                   </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-bold">Novice</h4>
+                  <h4 className="font-['Cairo'] text-white text-sm font-bold">{t('difficulty.novice.name')}</h4>
                   <p className="text-[11px] text-[#a98891] leading-tight mt-1">
-                    Basic elimination logic. Forgiving timer constraints.
+                    {t('difficulty.novice.description')}
                   </p>
                 </div>
                 <div className="text-[10px] text-emerald-400 uppercase font-semibold">
-                  12 Guesses Allotted
+                  {t('difficulty.guesses', { count: 12 })}
                 </div>
               </button>
 
@@ -244,15 +251,15 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 <div>
                   <div className="flex items-center justify-between text-[#00d2ff] mb-1">
                     <Flame className="w-4 h-4" />
-                    <span className="text-[10px] uppercase font-bold">Lvl 02</span>
+                    <span className="text-[10px] uppercase font-bold">{t('difficulty.level', { level: '02' })}</span>
                   </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-bold">Tactician</h4>
+                  <h4 className="font-['Cairo'] text-white text-sm font-bold">{t('difficulty.tactician.name')}</h4>
                   <p className="text-[11px] text-[#a98891] leading-tight mt-1">
-                    Aggressive branch pruning. Detects digit collisions fast.
+                    {t('difficulty.tactician.description')}
                   </p>
                 </div>
                 <div className="text-[10px] text-[#00d2ff] uppercase font-semibold">
-                  10 Guesses Allotted
+                  {t('difficulty.guesses', { count: 10 })}
                 </div>
               </button>
 
@@ -270,16 +277,18 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                   <div className="flex items-center justify-between text-[#ff479b] mb-1">
                     <Flame className="w-4 h-4 fill-[#ff479b]" />
                     <span className="text-[10px] uppercase font-bold text-[#ffb0ca]">
-                      {selectedDifficulty === 'grandmaster' ? 'Selected' : 'Lvl 03'}
+                      {selectedDifficulty === 'grandmaster'
+                        ? t('difficulty.selected')
+                        : t('difficulty.level', { level: '03' })}
                     </span>
                   </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-black">Grandmaster</h4>
+                  <h4 className="font-['Cairo'] text-white text-sm font-black">{t('difficulty.grandmaster.name')}</h4>
                   <p className="text-[11px] text-[#e2bdc7] leading-tight mt-1">
-                    Near-optimal tree pruning. Zero wasted queries. Maximum pressure.
+                    {t('difficulty.grandmaster.description')}
                   </p>
                 </div>
                 <div className="text-[10px] text-[#ffb0ca] uppercase font-black tracking-wider">
-                  8 Guesses Allotted
+                  {t('difficulty.guesses', { count: 8 })}
                 </div>
               </button>
             </div>
@@ -290,11 +299,11 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <div className="flex items-center gap-4 text-xs text-[#a98891]">
               <div className="flex items-center gap-1.5">
                 <Timer className="w-4 h-4 text-[#ffe170]" />
-                <span>45s / turn</span>
+                <span>{t('versusAi.perTurn')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-[#00d2ff]" />
-                <span>4 Digits (1–9)</span>
+                <span>{t('versusAi.digits')}</span>
               </div>
             </div>
 
@@ -303,7 +312,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               className="w-full sm:w-auto px-8 py-3 rounded-full bg-gradient-to-r from-purple-600 via-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,210,255,0.4)] hover:shadow-[0_0_35px_rgba(0,210,255,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Play className="w-4 h-4 fill-white" />
-              <span>Engage Bot ({selectedDifficulty.toUpperCase()})</span>
+              <span>{t('versusAi.engage', { difficulty: t(`difficulty.${selectedDifficulty}.name`).toUpperCase() })}</span>
             </button>
           </div>
         </div>
@@ -321,14 +330,14 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-['Cairo'] text-2xl font-black text-white tracking-tight">
-                    Private Duel
+                    {t('private.title')}
                   </h2>
                   <span className="px-2 py-0.5 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-[11px] font-bold uppercase tracking-wider">
-                    Direct 1v1
+                    {t('private.badge')}
                   </span>
                 </div>
                 <p className="text-xs text-[#a98891] mt-0.5">
-                  Host a private battle room or join via 6-digit match key.
+                  {t('private.subtitle')}
                 </p>
               </div>
             </div>
@@ -339,11 +348,11 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <div className="p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#a98891] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#ff479b]" /> Host Secure Room
+                  <Sparkles className="w-4 h-4 text-[#ff479b]" /> {t('private.host.title')}
                 </span>
                 <span className="text-[11px] text-amber-400 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  Waiting: 0/1 Rival
+                  {t('private.host.waiting')}
                 </span>
               </div>
 
@@ -362,20 +371,23 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                   <button
                     onClick={copyRoomCode}
                     className="p-2 rounded-lg bg-[#282a30] hover:bg-[#33353b] text-white hover:text-[#00d2ff] transition-all"
-                    title="Copy Code"
+                    title={t('private.host.copyTitle')}
                   >
                     {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={() => {
                       if (navigator.share) {
-                        navigator.share({ title: 'Pico & Pala 1v1 Room', text: `Join my Pico & Pala battle with code: ${hostRoomCode}` });
+                        navigator.share({
+                          title: t('private.host.shareSubject'),
+                          text: t('private.host.shareText', { code: hostRoomCode }),
+                        });
                       } else {
                         copyRoomCode();
                       }
                     }}
                     className="p-2 rounded-lg bg-[#282a30] hover:bg-[#33353b] text-white hover:text-[#ff479b] transition-all"
-                    title="Share Room"
+                    title={t('private.host.shareTitle')}
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
@@ -386,7 +398,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             {/* Join Room */}
             <div className="p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wider text-[#a98891] flex items-center gap-1.5">
-                <Key className="w-4 h-4 text-[#00d2ff]" /> Enter Rival's Passcode
+                <Key className="w-4 h-4 text-[#00d2ff]" /> {t('private.join.title')}
               </span>
 
               <div className="grid grid-cols-6 gap-1.5 text-center font-['Cairo'] font-black">
@@ -416,7 +428,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               {passcodeError && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 text-red-400 text-xs border border-red-500/20">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>Room not found — verify code or ask host to re-issue session.</span>
+                  <span>{t('private.join.error')}</span>
                 </div>
               )}
 
@@ -428,7 +440,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 }}
                 className="w-full py-2.5 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
               >
-                Connect to Lobby
+                {t('private.join.connect')}
               </button>
             </div>
           </div>
@@ -447,14 +459,14 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-['Cairo'] text-2xl font-black text-white tracking-tight">
-                    Global Ranked Arena
+                    {t('global.title')}
                   </h2>
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold uppercase tracking-wider">
-                    Verified Anti-Cheat
+                    {t('global.badge')}
                   </span>
                 </div>
                 <p className="text-xs text-[#a98891] mt-0.5">
-                  Compete on the global ladder. Real-time synchronous duel deduction with competitive ELO rating stakes.
+                  {t('global.subtitle')}
                 </p>
               </div>
             </div>
@@ -462,10 +474,10 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <div className="flex items-center gap-3 self-start md:self-auto bg-[#111319] border border-[#282a30] px-4 py-2 rounded-2xl">
               <div className="flex flex-col text-right">
                 <span className="text-[10px] text-[#a98891] uppercase tracking-wider font-bold">
-                  Your Bracket
+                  {t('global.bracket')}
                 </span>
                 <span className="font-['Cairo'] text-sm text-[#00d2ff] font-black">
-                  Diamond Tier · 1,420 ELO
+                  {t('global.bracketValue')}
                 </span>
               </div>
               <div className="w-8 h-8 rounded-lg bg-[#00d2ff]/20 flex items-center justify-center text-[#00d2ff]">
@@ -480,10 +492,10 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <div className="lg:col-span-5 rounded-2xl bg-[#111319] border border-[#282a30] p-4 flex flex-col justify-between relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#a98891] flex items-center gap-1.5">
-                  <Radar className="w-4 h-4 text-[#00d2ff]" /> Active Radar Telemetry
+                  <Radar className="w-4 h-4 text-[#00d2ff]" /> {t('global.radar.title')}
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-[#00d2ff]/20 text-[#00d2ff] text-[10px] uppercase font-black">
-                  Searching
+                  {t('global.radar.searching')}
                 </span>
               </div>
 
@@ -510,16 +522,16 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
               {/* Telemetry Stats */}
               <div className="grid grid-cols-3 gap-2 text-center bg-[#0c0e14] p-2.5 rounded-xl border border-[#282a30]">
                 <div>
-                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">Queue Pos</span>
-                  <span className="font-['Cairo'] text-xs text-white font-black">#4 in pool</span>
+                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">{t('global.radar.queuePos')}</span>
+                  <span className="font-['Cairo'] text-xs text-white font-black">{t('global.radar.queueValue')}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">Est. Wait</span>
-                  <span className="font-['Cairo'] text-xs text-[#00d2ff] font-black">~18 sec</span>
+                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">{t('global.radar.estWait')}</span>
+                  <span className="font-['Cairo'] text-xs text-[#00d2ff] font-black">{t('global.radar.waitValue')}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">Region</span>
-                  <span className="font-['Cairo'] text-xs text-white font-black">NA-East (Auto)</span>
+                  <span className="block text-[10px] uppercase text-[#a98891] font-bold">{t('global.radar.region')}</span>
+                  <span className="font-['Cairo'] text-xs text-white font-black">{t('global.radar.regionValue')}</span>
                 </div>
               </div>
 
@@ -527,7 +539,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 onClick={() => onStartMatch('global')}
                 className="w-full mt-3 py-2 rounded-xl bg-[#1d1f26] hover:bg-[#282a30] text-[#e2bdc7] hover:text-white text-xs font-bold uppercase tracking-wider transition-all"
               >
-                Instant Match Test
+                {t('global.radar.instantTest')}
               </button>
             </div>
 
@@ -540,10 +552,10 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                 <div className="flex items-center justify-between mb-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00d2ff]/20 text-[#a5e7ff] text-xs font-bold uppercase tracking-widest">
                     <Check className="w-3.5 h-3.5 text-[#00d2ff]" />
-                    Match Confirmed! Synchronizing
+                    {t('global.match.confirmed')}
                   </div>
                   <div className="font-['Cairo'] text-[#ff479b] text-xs font-black uppercase tracking-wider animate-pulse">
-                    Deploying in 03s
+                    {t('global.match.deploying')}
                   </div>
                 </div>
 
@@ -563,10 +575,10 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                     </div>
                     <div className="flex flex-col">
                       <span className="font-['Cairo'] text-white text-base font-black leading-tight">
-                        You
+                        {t('global.match.you')}
                       </span>
                       <span className="text-xs text-[#00d2ff] font-bold">1,420 ELO</span>
-                      <span className="text-[10px] text-[#a98891]">Win Rate: 64%</span>
+                      <span className="text-[10px] text-[#a98891]">{t('global.match.winRate')}</span>
                     </div>
                   </div>
 
@@ -576,7 +588,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                       VS
                     </span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#a98891]">
-                      Cipher Duel
+                      {t('global.match.cipherDuel')}
                     </span>
                   </div>
 
@@ -597,7 +609,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                         CipherKOBE
                       </span>
                       <span className="text-xs text-[#ffb0ca] font-bold">1,465 ELO</span>
-                      <span className="text-[10px] text-[#a98891]">Streak: 4 Wins</span>
+                      <span className="text-[10px] text-[#a98891]">{t('global.match.streak')}</span>
                     </div>
                   </div>
                 </div>
@@ -609,13 +621,13 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
                   <div className="bg-gradient-to-r from-[#00d2ff] via-[#ff479b] to-[#ffe170] h-full w-3/4 animate-pulse" />
                 </div>
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-[#a98891]">All players connected and ready</span>
+                  <span className="text-[11px] text-[#a98891]">{t('global.match.ready')}</span>
                   <button
                     onClick={() => onStartMatch('global')}
                     className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#00d2ff] via-teal-400 to-emerald-400 text-black font-['Cairo'] font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(0,210,255,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <Swords className="w-4 h-4 text-black" />
-                    <span>Enter Match Arena</span>
+                    <span>{t('global.match.enter')}</span>
                   </button>
                 </div>
               </div>
@@ -631,16 +643,16 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             <User className="w-4 h-4" />
           </div>
           <p className="text-xs sm:text-sm text-[#e2bdc7]">
-            Playing as <strong className="text-white">Guest Duelist</strong>. Your win logs and local deductor cache are stored locally in this browser.{' '}
+            <Trans t={t} i18nKey="guest.playingAs" components={{ b: <strong className="text-white" /> }} />{' '}
             <span className="text-[#ff479b] font-bold underline cursor-pointer hover:text-white transition-colors">
-              Sign in or Create Free Account
+              {t('guest.signIn')}
             </span>{' '}
-            to back up stats and claim seasonal avatar ribbons.
+            {t('guest.signInAfter')}
           </p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0 text-xs text-[#a98891]">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>Game Engine v2.4 Active</span>
+          <span>{t('guest.engine')}</span>
         </div>
       </div>
     </div>

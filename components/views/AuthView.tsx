@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Key,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { AppView } from '@/types/game';
 
 interface AuthViewProps {
@@ -23,6 +24,7 @@ interface AuthViewProps {
 }
 
 export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
+  const { t } = useTranslation('auth');
   const [authTab, setAuthTab] = useState<'register' | 'login' | 'preview'>('register');
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('short');
@@ -38,11 +40,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30] mb-3">
           <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
           <span className="text-xs font-bold text-[#00d2ff] uppercase tracking-widest">
-            Live Mind-Sport Arena
+            {t('mobile.badge')}
           </span>
         </div>
         <h1 className="font-['Cairo'] text-3xl sm:text-4xl font-black text-white uppercase">
-          Crack The <span className="text-[#ff479b]">Code.</span>
+          {t('mobile.titlePrefix')} <span className="text-[#ff479b]">{t('mobile.titleHighlight')}</span>
         </h1>
       </div>
 
@@ -64,19 +66,19 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#111319] border border-[#282a30] mb-6">
               <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-ping" />
               <span className="text-xs font-bold text-[#a5e7ff] uppercase tracking-wider">
-                Ranked Season IV · Live Matchup
+                {t('left.season')}
               </span>
             </div>
 
             <h2 className="font-['Cairo'] text-5xl font-black text-white uppercase tracking-tight leading-none mb-3">
-              Crack the <br />
+              {t('left.titleLine1')} <br />
               <span className="bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(255,46,149,0.4)]">
-                Cipher.
+                {t('left.titleLine2')}
               </span>
             </h2>
 
             <p className="text-sm text-[#e2bdc7] max-w-md leading-relaxed">
-              The high-stakes 4-digit mental duel. Read your opponent's deduction trail, isolate permutations, and strike before the timer expires.
+              {t('left.description')}
             </p>
           </div>
 
@@ -85,7 +87,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#282a30]">
               <div className="flex items-center gap-2">
                 <span className="font-['Cairo'] text-xs font-bold text-white uppercase tracking-wider">
-                  Live Duel · Turn 04/08
+                  {t('left.liveDuel', { turn: '04', max: '08' })}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#191b21] border border-white/5">
@@ -113,11 +115,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    <span className="text-xs text-[#ffe170] font-bold">1 Pico</span>
+                    <span className="text-xs text-[#ffe170] font-bold">{t('left.picoCount', { n: 1 })}</span>
                   </div>
                   <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
                     <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                    <span className="text-xs text-[#ffb0ca] font-bold">1 Pala</span>
+                    <span className="text-xs text-[#ffb0ca] font-bold">{t('left.palaCount', { n: 1 })}</span>
                   </div>
                 </div>
               </div>
@@ -141,11 +143,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
                     <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    <span className="text-xs text-[#ffe170] font-bold ml-1">2 Pico</span>
+                    <span className="text-xs text-[#ffe170] font-bold ml-1">{t('left.picoCount', { n: 2 })}</span>
                   </div>
                   <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
                     <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                    <span className="text-xs text-[#ffb0ca] font-bold">1 Pala</span>
+                    <span className="text-xs text-[#ffb0ca] font-bold">{t('left.palaCount', { n: 1 })}</span>
                   </div>
                 </div>
               </div>
@@ -166,7 +168,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 bg-[#e9c400]/30 px-2.5 py-0.5 rounded text-xs font-black text-[#ffe170] uppercase">
-                  <span>●●●● DECRYPTED!</span>
+                  <span>●●●● {t('left.decrypted')}</span>
                 </div>
               </div>
             </div>
@@ -189,17 +191,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
               <div className="flex items-center gap-1.5 text-xs text-[#e2e2ea]">
                 <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
                 <span>
-                  Join <strong className="text-[#ff479b]">48,200+ duelists</strong> breaking ciphers today.
+                  {t('left.joinPrefix')} <strong className="text-[#ff479b]">{t('left.joinHighlight')}</strong> {t('left.joinSuffix')}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-xs text-[#a98891]">
-              <span>Free to play</span>
+              <span>{t('left.freeToPlay')}</span>
               <span>•</span>
-              <span>Zero ads</span>
+              <span>{t('left.zeroAds')}</span>
               <span>•</span>
-              <span>Instant browser matchmaking</span>
+              <span>{t('left.matchmaking')}</span>
             </div>
           </div>
         </section>
@@ -217,7 +219,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     : 'text-[#a98891] hover:text-white'
                 }`}
               >
-                Create Account
+                {t('tabs.register')}
               </button>
               <button
                 onClick={() => setAuthTab('login')}
@@ -227,7 +229,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     : 'text-[#a98891] hover:text-white'
                 }`}
               >
-                Sign In
+                {t('tabs.login')}
               </button>
               <button
                 onClick={() => setAuthTab('preview')}
@@ -237,7 +239,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     : 'text-[#a98891] hover:text-white'
                 }`}
               >
-                <span>Preview</span>
+                <span>{t('tabs.preview')}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
               </button>
             </div>
@@ -247,10 +249,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
               <div className="space-y-4 animate-in fade-in">
                 <div>
                   <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-                    Create your <span className="text-[#ff479b]">account</span>
+                    {t('register.titlePrefix')} <span className="text-[#ff479b]">{t('register.titleHighlight')}</span>
                   </h2>
                   <p className="text-xs text-[#a98891] mt-1">
-                    Free. Instant access. No ads. Climb the ranked ladder.
+                    {t('register.subtitle')}
                   </p>
                 </div>
 
@@ -265,9 +267,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-xs font-bold text-white uppercase tracking-wider">
-                        Duelist Handle
+                        {t('register.handleLabel')}
                       </label>
-                      <span className="text-[11px] text-[#a98891]">4–16 characters</span>
+                      <span className="text-[11px] text-[#a98891]">{t('register.handleHint')}</span>
                     </div>
                     <div className="relative flex items-center">
                       <User className="w-4 h-4 absolute left-3.5 text-[#a98891]" />
@@ -276,7 +278,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                         value={handle}
                         onChange={(e) => setHandle(e.target.value)}
                         className="w-full bg-[#111319] text-white text-xs font-bold pl-10 pr-10 py-3 rounded-xl border border-[#282a30] focus:outline-none focus:border-[#ff479b] transition-all"
-                        placeholder="Enter unique callsign"
+                        placeholder={t('register.handlePlaceholder')}
                         required
                       />
                       <CheckCircle2 className="w-4 h-4 absolute right-3.5 text-[#00d2ff]" />
@@ -286,7 +288,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   {/* Email */}
                   <div>
                     <label className="block text-xs font-bold text-white uppercase tracking-wider mb-1">
-                      Email Address
+                      {t('register.emailLabel')}
                     </label>
                     <div className="relative flex items-center">
                       <Mail className="w-4 h-4 absolute left-3.5 text-[#a98891]" />
@@ -306,9 +308,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-xs font-bold text-white uppercase tracking-wider">
-                        Cipher Key (Password)
+                        {t('register.passwordLabel')}
                       </label>
-                      <span className="text-[11px] text-[#a98891]">Min. 8 characters</span>
+                      <span className="text-[11px] text-[#a98891]">{t('register.passwordHint')}</span>
                     </div>
                     <div className="relative flex items-center">
                       <Lock className="w-4 h-4 absolute left-3.5 text-[#a98891]" />
@@ -333,7 +335,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   {/* Confirm Password (Error state demo) */}
                   <div>
                     <label className="block text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">
-                      Confirm Cipher Key
+                      {t('register.confirmLabel')}
                     </label>
                     <div className="relative flex items-center">
                       <Lock className="w-4 h-4 absolute left-3.5 text-rose-400" />
@@ -347,7 +349,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     </div>
                     <div className="flex items-center gap-1.5 mt-1.5 text-rose-400 text-xs">
                       <AlertCircle className="w-3.5 h-3.5" />
-                      <span>Password must be at least 8 characters</span>
+                      <span>{t('register.passwordError')}</span>
                     </div>
                   </div>
 
@@ -361,8 +363,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                       className="mt-1 h-4 w-4 rounded accent-[#ff479b] cursor-pointer"
                     />
                     <label htmlFor="tos-check" className="text-xs text-[#a98891] cursor-pointer">
-                      I agree to the <span className="text-[#00d2ff] underline">Terms of Service</span> and{' '}
-                      <span className="text-[#00d2ff] underline">Privacy Policy</span>. No spam, ever.
+                      {t('register.tosPrefix')} <span className="text-[#00d2ff] underline">{t('register.tosTerms')}</span> {t('register.tosAnd')}{' '}
+                      <span className="text-[#00d2ff] underline">{t('register.tosPrivacy')}</span>{t('register.tosSuffix')}
                     </label>
                   </div>
 
@@ -371,7 +373,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     type="submit"
                     className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#ff479b] text-white font-['Cairo'] font-black text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:shadow-[0_0_30px_rgba(255,46,149,0.7)] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
                   >
-                    <span>Create Account</span>
+                    <span>{t('register.submit')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
@@ -380,7 +382,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 <div className="relative flex items-center justify-center my-4">
                   <div className="w-full h-px bg-[#282a30]" />
                   <span className="absolute bg-[#191b21] px-3 text-[10px] uppercase font-bold text-[#a98891] tracking-widest">
-                    or continue with
+                    {t('register.orContinue')}
                   </span>
                 </div>
 
@@ -402,13 +404,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 </div>
 
                 <p className="text-center text-xs text-[#a98891] pt-2">
-                  Already have an account?{' '}
+                  {t('register.haveAccount')}{' '}
                   <button
                     type="button"
                     onClick={() => setAuthTab('login')}
                     className="text-[#00d2ff] font-bold hover:underline ml-1"
                   >
-                    Log in here
+                    {t('register.loginLink')}
                   </button>
                 </p>
               </div>
@@ -419,10 +421,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
               <div className="space-y-4 animate-in fade-in">
                 <div>
                   <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-                    Welcome <span className="text-[#00d2ff]">back</span>
+                    {t('login.titlePrefix')} <span className="text-[#00d2ff]">{t('login.titleHighlight')}</span>
                   </h2>
                   <p className="text-xs text-[#a98891] mt-1">
-                    Enter your credentials to rejoin your ranked duel queue.
+                    {t('login.subtitle')}
                   </p>
                 </div>
 
@@ -430,9 +432,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 <div className="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3.5 flex items-start gap-3 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
                   <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-xs font-bold text-rose-400 block">Authentication Error</span>
+                    <span className="text-xs font-bold text-rose-400 block">{t('login.errorTitle')}</span>
                     <span className="text-xs text-rose-300">
-                      Invalid email or password — please verify your credentials and try again.
+                      {t('login.errorMessage')}
                     </span>
                   </div>
                 </div>
@@ -446,7 +448,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 >
                   <div>
                     <label className="block text-xs font-bold text-white uppercase tracking-wider mb-1">
-                      Email or Duelist Handle
+                      {t('login.identifierLabel')}
                     </label>
                     <div className="relative flex items-center">
                       <User className="w-4 h-4 absolute left-3.5 text-[#a98891]" />
@@ -462,10 +464,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-xs font-bold text-white uppercase tracking-wider">
-                        Cipher Key
+                        {t('login.passwordLabel')}
                       </label>
-                      <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('Password reset dispatched.'); }} className="text-xs text-[#00d2ff] hover:underline">
-                        Forgot Key?
+                      <a href="#forgot" onClick={(e) => { e.preventDefault(); alert(t('login.forgotAlert')); }} className="text-xs text-[#00d2ff] hover:underline">
+                        {t('login.forgot')}
                       </a>
                     </div>
                     <div className="relative flex items-center">
@@ -482,10 +484,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <input type="checkbox" id="remember" defaultChecked className="h-4 w-4 rounded accent-[#00d2ff]" />
-                      <label htmlFor="remember" className="text-[#a98891]">Remember this rig</label>
+                      <label htmlFor="remember" className="text-[#a98891]">{t('login.remember')}</label>
                     </div>
                     <span className="text-[#ffe170] flex items-center gap-1 font-bold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#e9c400]" /> Safe Node
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#e9c400]" /> {t('login.safeNode')}
                     </span>
                   </div>
 
@@ -493,18 +495,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     type="submit"
                     className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#00d2ff] to-emerald-400 text-black font-['Cairo'] font-black text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(0,210,255,0.4)] hover:brightness-110 active:scale-[0.99] transition-all"
                   >
-                    Authenticate & Duel
+                    {t('login.submit')}
                   </button>
                 </form>
 
                 <p className="text-center text-xs text-[#a98891] pt-2">
-                  New to the cipher arena?{' '}
+                  {t('login.newHere')}{' '}
                   <button
                     type="button"
                     onClick={() => setAuthTab('register')}
                     className="text-[#ff479b] font-bold hover:underline ml-1"
                   >
-                    Create an account
+                    {t('login.registerLink')}
                   </button>
                 </p>
               </div>
@@ -524,28 +526,28 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111319] border border-[#282a30]">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#00d2ff]" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#00d2ff]">
-                      Decryption Rig Activated
+                      {t('preview.badge')}
                     </span>
                   </div>
                   <h2 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase">
-                    Welcome, <span className="text-[#ffe170]">{handle}!</span>
+                    {t('preview.welcome')} <span className="text-[#ffe170]">{handle}!</span>
                   </h2>
                   <p className="text-xs text-[#a98891] max-w-sm mx-auto">
-                    Your tactical profile is synchronized. Matchmaking ratings, progression cards, and tournament seeds are ready.
+                    {t('preview.description')}
                   </p>
                 </div>
 
                 <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-4 max-w-md mx-auto grid grid-cols-3 gap-2 text-left">
                   <div className="bg-[#191b21] p-3 rounded-xl">
-                    <span className="text-[10px] text-[#a98891] block uppercase">Tier Rank</span>
-                    <span className="font-['Cairo'] text-lg text-[#ffe170] font-black">Cadet #01</span>
+                    <span className="text-[10px] text-[#a98891] block uppercase">{t('preview.tierRank')}</span>
+                    <span className="font-['Cairo'] text-lg text-[#ffe170] font-black">{t('preview.tierValue')}</span>
                   </div>
                   <div className="bg-[#191b21] p-3 rounded-xl">
-                    <span className="text-[10px] text-[#a98891] block uppercase">Starting XP</span>
+                    <span className="text-[10px] text-[#a98891] block uppercase">{t('preview.startingXp')}</span>
                     <span className="font-['Cairo'] text-lg text-[#00d2ff] font-black">+500</span>
                   </div>
                   <div className="bg-[#191b21] p-3 rounded-xl">
-                    <span className="text-[10px] text-[#a98891] block uppercase">Elo Baseline</span>
+                    <span className="text-[10px] text-[#a98891] block uppercase">{t('preview.eloBaseline')}</span>
                     <span className="font-['Cairo'] text-lg text-[#ffb0ca] font-black">1000</span>
                   </div>
                 </div>
@@ -555,14 +557,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('arena')}
                     className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#00d2ff] via-[#ff479b] to-[#e9c400] text-black font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,210,255,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
-                    <span>Play Your First Match</span>
+                    <span>{t('preview.playFirst')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => onNavigate('records')}
                     className="w-full py-2 text-center text-xs font-bold text-[#a98891] hover:text-white transition-colors"
                   >
-                    View Duelist Ledger & Records
+                    {t('preview.viewRecords')}
                   </button>
                 </div>
               </div>
@@ -572,7 +574,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
           <div className="mt-8 pt-4 border-t border-[#282a30] flex items-center justify-between text-[#a98891] text-xs">
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-[#00d2ff]" />
-              <span>256-bit Cryptographic Match Protocol</span>
+              <span>{t('footer.protocol')}</span>
             </div>
             <span>v4.1.8-pro</span>
           </div>
