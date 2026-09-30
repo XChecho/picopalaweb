@@ -1,6 +1,9 @@
 # Changelog
 
+## 0.2.0
+- Migración del prototipo Vite `exampleWeb` a Next.js: landing, Play Hub, Arena, Records, How to Play y Auth como rutas.
+- Estado global en Zustand (`useAppStore`) y navegación con `useAppNavigation`.
+- Se retira la landing inicial de 0.1.0.
+
 ## 0.1.0
-- Landing inicial: hero, cómo se juega, modos, características y lista de espera.
-- i18n es/en, Zustand para idioma, TanStack Query para waitlist y stats públicas.
-- Plan de endpoints del backend en `docs/web-endpoints-plan.md`.
+- Landing inicial y plan de endpoints del backend en `docs/web-endpoints-plan.md`.

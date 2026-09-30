@@ -1,23 +1,15 @@
-import { Features } from "@/components/Features";
-import { Footer } from "@/components/Footer";
-import { Hero } from "@/components/Hero";
-import { HowToPlay } from "@/components/HowToPlay";
-import { Modes } from "@/components/Modes";
-import { Navbar } from "@/components/Navbar";
-import { Waitlist } from "@/components/Waitlist";
+"use client";
 
-export default function Home() {
+import { LandingView } from "@/components/views/LandingView";
+import { useAppNavigation } from "@/hooks/useAppNavigation";
+
+export default function LandingPage() {
+  const { navigate, startMatch } = useAppNavigation();
+
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <HowToPlay />
-        <Modes />
-        <Features />
-        <Waitlist />
-      </main>
-      <Footer />
-    </>
+    <LandingView
+      onNavigate={navigate}
+      onLaunchMatch={(mode) => startMatch(mode, "grandmaster")}
+    />
   );
 }

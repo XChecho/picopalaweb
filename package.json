@@ -1,6 +1,6 @@
 {
   "name": "picopalaweb",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -11,7 +11,6 @@
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
     "lucide-react": "^1.49.0",
-    "motion": "^13.4.6",
     "next": "^16.3.7",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

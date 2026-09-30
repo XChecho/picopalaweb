@@ -1,10 +1,11 @@
 # AGENTS.md — Pico & Pala Web
 
-- Stack: Next.js App Router, TypeScript estricto, Tailwind 4 (`@theme` en `app/globals.css`), Zustand, TanStack Query.
-- Server Components por defecto; `"use client"` solo donde haya estado, efectos o `motion`.
+- Stack: Next.js App Router, TypeScript estricto, Tailwind 4, Zustand, TanStack Query.
+- Las vistas de `components/views/` vienen del prototipo Vite `exampleWeb` y son Client Components. Cada `app/<ruta>/page.tsx` conecta una vista con `useAppNavigation` y `useAppStore`.
+- Navegación entre vistas: siempre con `useAppNavigation` (mapa `VIEW_ROUTES`), no con estado local.
+- La arena se carga con `dynamic(..., { ssr: false })` porque genera el número secreto al azar.
 - Nombres: archivos camelCase, componentes PascalCase, interfaces `I<Pascal>`, stores `use<Domain>Store`.
-- Textos de UI solo vía `lib/i18n.ts`; sin strings hardcodeados, sin `console.log`, sin `throw 'string'`.
-- Llamadas a la API solo con `apiFetch` (`lib/api.ts`), dentro de hooks de TanStack Query.
+- Llamadas a la API solo con `apiFetch` (`lib/api.ts`) dentro de hooks de TanStack Query.
 - Pico = dígito correcto en su posición; Pala = dígito correcto en otra posición.
-- No prometer en la web funciones no implementadas (login, ranking real, push, tiempo real).
-- Nunca commitear `.env*`.
+- No prometer funciones no implementadas (login real, ranking real, salas, push, tiempo real).
+- Sin `console.log`, sin `throw 'string'`. Nunca commitear `.env*`.
