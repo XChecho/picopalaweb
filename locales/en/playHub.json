@@ -30,7 +30,8 @@
     "matrixTitle": "Target Difficulty Matrix",
     "perTurn": "45s / turn",
     "digits": "4 Digits (1–9)",
-    "engage": "Engage Bot ({{difficulty}})"
+    "engage": "Engage Bot ({{difficulty}})",
+    "play": "Play"
   },
   "difficulty": {
     "novice": {
@@ -100,5 +101,10 @@
     "signIn": "Sign in or Create Free Account",
     "signInAfter": "to back up stats and claim seasonal avatar ribbons.",
     "engine": "Game Engine v2.4 Active"
+  },
+  "modal": {
+    "title": "Choose difficulty",
+    "subtitle": "Select the bot level to start",
+    "cancel": "Cancel"
   }
 }

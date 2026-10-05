@@ -30,7 +30,8 @@
     "matrixTitle": "Matriz de dificultad objetivo",
     "perTurn": "45 s / turno",
     "digits": "4 dígitos (1–9)",
-    "engage": "Enfrentar al bot ({{difficulty}})"
+    "engage": "Enfrentar al bot ({{difficulty}})",
+    "play": "Jugar"
   },
   "difficulty": {
     "novice": {
@@ -100,5 +101,10 @@
     "signIn": "Inicia sesión o crea una cuenta gratis",
     "signInAfter": "para respaldar tus estadísticas y reclamar listones de avatar de temporada.",
     "engine": "Motor de juego v2.4 activo"
+  },
+  "modal": {
+    "title": "Elige la dificultad",
+    "subtitle": "Selecciona el nivel del bot para comenzar",
+    "cancel": "Cancelar"
   }
 }

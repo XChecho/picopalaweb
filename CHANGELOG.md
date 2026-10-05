@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.3
+- Play Hub: la dificultad del bot se elige en un modal al pulsar "Jugar" en Versus IA (como en la app), con textos más grandes; se elimina la matriz inline.
+
 ## 0.4.2
 - Botones primarios unificados con el degradé de la app (`#FF5959` a `#FF2E95`); se elimina el degradé rosado-azul.
 

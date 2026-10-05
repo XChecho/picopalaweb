@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   RefreshCw,
   Play,
@@ -23,6 +23,12 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { Difficulty, GameMode } from '@/types/game';
 
+const DIFFICULTY_OPTIONS = [
+  { id: 'novice', level: '01', guesses: 12, Icon: Sparkles, text: 'text-emerald-400', border: 'hover:border-emerald-400', glow: 'hover:shadow-[0_0_20px_rgba(52,211,153,0.3)]', iconBg: 'bg-emerald-400/15' },
+  { id: 'tactician', level: '02', guesses: 10, Icon: Flame, text: 'text-[#00d2ff]', border: 'hover:border-[#00d2ff]', glow: 'hover:shadow-[0_0_20px_rgba(0,210,255,0.3)]', iconBg: 'bg-[#00d2ff]/15' },
+  { id: 'grandmaster', level: '03', guesses: 8, Icon: Flame, text: 'text-[#ff479b]', border: 'hover:border-[#ff479b]', glow: 'hover:shadow-[0_0_20px_rgba(255,71,155,0.35)]', iconBg: 'bg-[#ff479b]/15' },
+] as const satisfies readonly { id: Difficulty; [key: string]: unknown }[];
+
 interface PlayHubViewProps {
   onStartMatch: (mode: GameMode, difficulty?: Difficulty) => void;
   onResumeMatch?: () => void;
@@ -35,13 +41,27 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
   hasActiveMatch = false,
 }) => {
   const { t } = useTranslation('playHub');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('grandmaster');
+  const [difficultyOpen, setDifficultyOpen] = useState(false);
   const [hostRoomCode, setHostRoomCode] = useState('AB7X2Q');
   const [copied, setCopied] = useState(false);
   const [passcodeSlots, setPasscodeSlots] = useState(['K', '9', 'Z', '', '', '']);
   const [passcodeError, setPasscodeError] = useState(true);
   const [isRechecking, setIsRechecking] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'standard' | 'ranked' | 'scrims'>('standard');
+
+  useEffect(() => {
+    if (!difficultyOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDifficultyOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [difficultyOpen]);
+
+  const pickDifficulty = (difficulty: Difficulty) => {
+    setDifficultyOpen(false);
+    onStartMatch('ai', difficulty);
+  };
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(hostRoomCode);
@@ -111,13 +131,13 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
           </div>
           <div className="flex items-center gap-3 self-end md:self-auto shrink-0">
             <button
-              onClick={() => onStartMatch('ai', 'grandmaster')}
+              onClick={() => setDifficultyOpen(true)}
               className="px-4 py-2.5 rounded-full font-bold text-[#e2bdc7] hover:text-white hover:bg-[#282a30] transition-all text-xs tracking-wider uppercase"
             >
               {t('session.reset')}
             </button>
             <button
-              onClick={() => (onResumeMatch ? onResumeMatch() : onStartMatch('ai', selectedDifficulty))}
+              onClick={() => (onResumeMatch ? onResumeMatch() : setDifficultyOpen(true))}
               className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <span>{t('session.resume')}</span>
@@ -209,110 +229,25 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             </span>
           </div>
 
-          {/* Difficulty Matrix */}
-          <div className="my-2 flex flex-col gap-2">
-            <span className="text-[11px] uppercase tracking-widest text-[#a98891] font-bold">
-              {t('versusAi.matrixTitle')}
-            </span>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* Novice */}
-              <button
-                onClick={() => setSelectedDifficulty('novice')}
-                className={`text-left p-3.5 rounded-xl border transition-all flex flex-col justify-between h-36 ${
-                  selectedDifficulty === 'novice'
-                    ? 'bg-[#282a30] border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)] ring-1 ring-emerald-400'
-                    : 'bg-[#111319] border-[#282a30] hover:bg-[#1d1f26]'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between text-emerald-400 mb-1">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-[10px] uppercase font-bold">{t('difficulty.level', { level: '01' })}</span>
-                  </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-bold">{t('difficulty.novice.name')}</h4>
-                  <p className="text-[11px] text-[#a98891] leading-tight mt-1">
-                    {t('difficulty.novice.description')}
-                  </p>
-                </div>
-                <div className="text-[10px] text-emerald-400 uppercase font-semibold">
-                  {t('difficulty.guesses', { count: 12 })}
-                </div>
-              </button>
-
-              {/* Tactician */}
-              <button
-                onClick={() => setSelectedDifficulty('tactician')}
-                className={`text-left p-3.5 rounded-xl border transition-all flex flex-col justify-between h-36 ${
-                  selectedDifficulty === 'tactician'
-                    ? 'bg-[#282a30] border-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.3)] ring-1 ring-[#00d2ff]'
-                    : 'bg-[#111319] border-[#282a30] hover:bg-[#1d1f26]'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between text-[#00d2ff] mb-1">
-                    <Flame className="w-4 h-4" />
-                    <span className="text-[10px] uppercase font-bold">{t('difficulty.level', { level: '02' })}</span>
-                  </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-bold">{t('difficulty.tactician.name')}</h4>
-                  <p className="text-[11px] text-[#a98891] leading-tight mt-1">
-                    {t('difficulty.tactician.description')}
-                  </p>
-                </div>
-                <div className="text-[10px] text-[#00d2ff] uppercase font-semibold">
-                  {t('difficulty.guesses', { count: 10 })}
-                </div>
-              </button>
-
-              {/* Grandmaster */}
-              <button
-                onClick={() => setSelectedDifficulty('grandmaster')}
-                className={`text-left p-3.5 rounded-xl border transition-all flex flex-col justify-between h-36 relative overflow-hidden ${
-                  selectedDifficulty === 'grandmaster'
-                    ? 'bg-[#282a30] border-[#ff479b] shadow-[0_0_20px_rgba(255,71,155,0.3)] ring-2 ring-[#ff479b]'
-                    : 'bg-[#111319] border-[#282a30] hover:bg-[#1d1f26]'
-                }`}
-              >
-                <div className="absolute -top-6 -right-6 w-12 h-12 bg-[#ff479b]/20 rounded-full blur-md" />
-                <div>
-                  <div className="flex items-center justify-between text-[#ff479b] mb-1">
-                    <Flame className="w-4 h-4 fill-[#ff479b]" />
-                    <span className="text-[10px] uppercase font-bold text-[#ffb0ca]">
-                      {selectedDifficulty === 'grandmaster'
-                        ? t('difficulty.selected')
-                        : t('difficulty.level', { level: '03' })}
-                    </span>
-                  </div>
-                  <h4 className="font-['Cairo'] text-white text-sm font-black">{t('difficulty.grandmaster.name')}</h4>
-                  <p className="text-[11px] text-[#e2bdc7] leading-tight mt-1">
-                    {t('difficulty.grandmaster.description')}
-                  </p>
-                </div>
-                <div className="text-[10px] text-[#ffb0ca] uppercase font-black tracking-wider">
-                  {t('difficulty.guesses', { count: 8 })}
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Launch Controls */}
-          <div className="mt-5 pt-4 border-t border-[#282a30] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4 text-xs text-[#a98891]">
-              <div className="flex items-center gap-1.5">
+          <div className="mt-2 pt-4 border-t border-[#282a30] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#a98891]">
+              <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-[#ffe170]" />
                 <span>{t('versusAi.perTurn')}</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#00d2ff]" />
                 <span>{t('versusAi.digits')}</span>
               </div>
             </div>
 
             <button
-              onClick={() => onStartMatch('ai', selectedDifficulty)}
+              onClick={() => setDifficultyOpen(true)}
               className="w-full sm:w-auto px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.4)] hover:shadow-[0_0_35px_rgba(255,46,149,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Play className="w-4 h-4 fill-white" />
-              <span>{t('versusAi.engage', { difficulty: t(`difficulty.${selectedDifficulty}.name`).toUpperCase() })}</span>
+              <span>{t('versusAi.play')}</span>
             </button>
           </div>
         </div>
@@ -655,6 +590,60 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
           <span>{t('guest.engine')}</span>
         </div>
       </div>
+
+      {/* DIFFICULTY MODAL */}
+      {difficultyOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={() => setDifficultyOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="difficulty-modal-title"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-xl max-h-[92vh] overflow-y-auto bg-[#191b21] border border-[#33353b] rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl flex flex-col gap-4"
+          >
+            <div className="flex flex-col gap-1 text-center">
+              <h2 id="difficulty-modal-title" className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white">
+                {t('modal.title')}
+              </h2>
+              <p className="text-sm sm:text-base text-[#a98891]">{t('modal.subtitle')}</p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {DIFFICULTY_OPTIONS.map(({ id, level, guesses, Icon, text, border, glow, iconBg }) => (
+                <button
+                  key={id}
+                  onClick={() => pickDifficulty(id)}
+                  className={`text-left p-4 sm:p-5 rounded-2xl border border-[#282a30] bg-[#111319] hover:bg-[#1d1f26] active:scale-[0.99] transition-all flex items-center gap-4 ${border} ${glow}`}
+                >
+                  <div className={`w-14 h-14 rounded-xl ${iconBg} ${text} flex items-center justify-center shrink-0`}>
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-['Cairo'] text-xl font-black text-white">{t(`difficulty.${id}.name`)}</h3>
+                      <span className={`text-xs font-bold uppercase ${text}`}>{t('difficulty.level', { level })}</span>
+                    </div>
+                    <p className="text-sm sm:text-base text-[#e2bdc7] leading-snug">{t(`difficulty.${id}.description`)}</p>
+                    <span className={`text-xs sm:text-sm font-bold uppercase tracking-wide ${text}`}>
+                      {t('difficulty.guesses', { count: guesses })}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setDifficultyOpen(false)}
+              className="mt-1 py-3 rounded-xl text-sm sm:text-base font-bold text-[#e2bdc7] hover:text-white hover:bg-[#282a30] transition-all"
+            >
+              {t('modal.cancel')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
