@@ -371,7 +371,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                   {/* Submit CTA */}
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#ff479b] text-white font-['Cairo'] font-black text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:shadow-[0_0_30px_rgba(255,46,149,0.7)] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:shadow-[0_0_30px_rgba(255,46,149,0.7)] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
                   >
                     <span>{t('register.submit')}</span>
                     <ArrowRight className="w-4 h-4" />
@@ -555,7 +555,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                 <div className="pt-2 max-w-md mx-auto space-y-2">
                   <button
                     onClick={() => onNavigate('arena')}
-                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#00d2ff] via-[#ff479b] to-[#e9c400] text-black font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,210,255,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
                     <span>{t('preview.playFirst')}</span>
                     <ArrowRight className="w-4 h-4" />

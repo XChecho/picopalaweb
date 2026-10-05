@@ -118,7 +118,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
             </button>
             <button
               onClick={() => (onResumeMatch ? onResumeMatch() : onStartMatch('ai', selectedDifficulty))}
-              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <span>{t('session.resume')}</span>
               <Play className="w-4 h-4 fill-white" />
@@ -309,7 +309,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
 
             <button
               onClick={() => onStartMatch('ai', selectedDifficulty)}
-              className="w-full sm:w-auto px-8 py-3 rounded-full bg-gradient-to-r from-purple-600 via-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,210,255,0.4)] hover:shadow-[0_0_35px_rgba(0,210,255,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.4)] hover:shadow-[0_0_35px_rgba(255,46,149,0.7)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Play className="w-4 h-4 fill-white" />
               <span>{t('versusAi.engage', { difficulty: t(`difficulty.${selectedDifficulty}.name`).toUpperCase() })}</span>

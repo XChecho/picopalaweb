@@ -212,7 +212,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* Avatar & Duelist Bio */}
           <div className="flex items-center gap-5 relative z-10">
             <div className="relative shrink-0">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#ff479b] via-[#ff2e95] to-[#00d2ff] blur-md opacity-75 animate-pulse" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#ff5959] to-[#ff2e95] blur-md opacity-75 animate-pulse" />
               <div className="relative w-20 h-20 rounded-2xl bg-[#282a30] p-1 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10">
                 <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#111319] to-[#282a30] flex items-center justify-center text-3xl font-black text-[#ffb0ca]">
                   CM
@@ -262,7 +262,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </button>
             <button
               onClick={() => onNavigate('arena')}
-              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.45)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.45)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" />
               <span>{t('profile.enterArena')}</span>
@@ -667,7 +667,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </p>
             <button
               onClick={() => onNavigate('arena')}
-              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" /> {t('empty.cta')}
             </button>

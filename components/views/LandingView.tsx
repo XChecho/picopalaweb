@@ -68,7 +68,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
             <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
               <button
                 onClick={() => onLaunchMatch('ai')}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#ff479b] text-white font-bold text-base uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.55)] hover:shadow-[0_0_35px_rgba(255,46,149,0.8)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-base uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.55)] hover:shadow-[0_0_35px_rgba(255,46,149,0.8)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t('hero.playNow')}</span>
                 <ArrowRight className="w-5 h-5" />

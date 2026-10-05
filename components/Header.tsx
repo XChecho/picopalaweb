@@ -44,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => onNavigate('landing')}
           className="flex items-center gap-3 shrink-0 text-left group focus:outline-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff5959] via-[#ff2e95] to-[#ff479b] p-[2px] shadow-[0_0_18px_rgba(255,46,149,0.45)] group-hover:shadow-[0_0_24px_rgba(255,46,149,0.7)] transition-all">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff5959] to-[#ff2e95] p-[2px] shadow-[0_0_18px_rgba(255,46,149,0.45)] group-hover:shadow-[0_0_24px_rgba(255,46,149,0.7)] transition-all">
             <div className="w-full h-full bg-[#111319] rounded-[10px] flex items-center justify-center">
               <span className="font-['Cairo'] font-black text-xs tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,46,149,0.8)]">
                 P&P
@@ -177,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Direct CTA */}
           <button
             onClick={() => onNavigate(currentView === 'arena' ? 'play-hub' : 'arena')}
-            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#ff479b] via-[#ff2e95] to-[#b90067] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_18px_rgba(255,46,149,0.4)] hover:shadow-[0_0_24px_rgba(255,46,149,0.7)] hover:scale-105 active:scale-95 transition-all"
+            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_18px_rgba(255,46,149,0.4)] hover:shadow-[0_0_24px_rgba(255,46,149,0.7)] hover:scale-105 active:scale-95 transition-all"
           >
             {currentView === 'arena' ? t('header.modes') : t('header.playArena')}
           </button>

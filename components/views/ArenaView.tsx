@@ -307,7 +307,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
         <p className="text-sm text-[#a98891]">{t('unavailable.text')}</p>
         <button
           onClick={onExitArena}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider"
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider"
         >
           {t('unavailable.back')}
         </button>
@@ -479,7 +479,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             disabled={!canPlay}
             className={`w-full h-14 rounded-2xl font-['Cairo'] font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
               canPlay
-                ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-[0.99]'
+                ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-[0.99]'
                 : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
             }`}
           >
@@ -584,7 +584,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
               disabled={currentDraft.length < 4}
               className={`h-14 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                 currentDraft.length === 4
-                  ? 'bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-95'
+                  ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-95'
                   : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
               }`}
             >
@@ -633,7 +633,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             </div>
             <button
               onClick={() => useMatchStore.getState().beginPlay()}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
             >
               {t('toss.enter')}
             </button>
@@ -908,7 +908,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
           <button
             onClick={onNext}
-            className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> {t('result.playNext')}
           </button>
@@ -1043,7 +1043,7 @@ const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ botName, levelLabel
           disabled={draft.length < 4}
           className={`w-full py-3 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all ${
             draft.length === 4
-              ? 'bg-gradient-to-r from-[#ff479b] to-[#00d2ff] text-white shadow-lg hover:brightness-110 active:scale-95'
+              ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-lg hover:brightness-110 active:scale-95'
               : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
           }`}
         >

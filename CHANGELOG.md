@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.2
+- Botones primarios unificados con el degradé de la app (`#FF5959` a `#FF2E95`); se elimina el degradé rosado-azul.
+
 ## 0.4.1
 - Los botones "Jugar ya" y "Versus IA" de la landing llevan al Play Hub para elegir dificultad (antes entraban directo en Grandmaster).
 - How to Play: el modo "Estrategia avanzada" muestra una deducción de 3 turnos; el ejemplo fácil no cambia.
