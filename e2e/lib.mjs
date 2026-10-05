@@ -57,8 +57,8 @@ export const result = (page) => page.getAttribute('[data-testid="result-title"]'
 
 export async function openArena(page, level, secret) {
   await page.goto(BASE + "/play", { waitUntil: "networkidle" });
-  await page.locator("main").getByText(new RegExp(`^${level}$`, "i")).first().click().catch(() => {});
-  await page.getByRole("button", { name: new RegExp(`Engage Bot \\(${level}\\)`, "i") }).click();
+  await page.getByRole("button", { name: /^Play$/i }).first().click();
+  await page.getByRole("dialog").getByRole("button", { name: new RegExp(level, "i") }).click();
   await page.waitForURL("**/arena");
   await page.getByText("Choose your secret cipher").waitFor();
   for (const c of secret) await page.keyboard.press(c);

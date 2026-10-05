@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.4
+- Arena: textos, dígitos, círculos de feedback y botones del HUD más grandes (se eliminan los textos de 10-11 px). E2E actualizado al selector de dificultad en modal.
+
 ## 0.4.3
 - Play Hub: la dificultad del bot se elige en un modal al pulsar "Jugar" en Versus IA (como en la app), con textos más grandes; se elimina la matriz inline.
 
