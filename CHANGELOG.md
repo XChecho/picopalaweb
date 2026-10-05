@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+- Los botones "Jugar ya" y "Versus IA" de la landing llevan al Play Hub para elegir dificultad (antes entraban directo en Grandmaster).
+- How to Play: el modo "Estrategia avanzada" muestra una deducción de 3 turnos; el ejemplo fácil no cambia.
+- Arena: la pista del turno usa F (fija/pico) y P (pala) en lugar de P y L.
+
 ## 0.4.0
 - Batalla rediseñada para móvil: indicador de turno y estado arriba, dos columnas (oponente izquierda, jugador derecha) alineadas por ronda, y teclado numérico en un modal abierto con el botón "Escribir turno". Se eliminan los paneles laterales y el teclado fijo.
 - i18n con `i18next`/`react-i18next` en español, inglés y portugués para todas las vistas; detección por navegador, persistencia y `<html lang>`.

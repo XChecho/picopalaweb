@@ -793,8 +793,8 @@ const BoardCell: React.FC<BoardCellProps> = ({ actor, move, round, pending }) =>
           ))}
         </div>
         <span className="text-[11px] font-bold text-[#e2bdc7] tabular-nums whitespace-nowrap">
-          {picos > 0 && `${picos}P `}
-          {palas > 0 && `${palas}L`}
+          {picos > 0 && `${picos}F `}
+          {palas > 0 && `${palas}P`}
           {picos === 0 && palas === 0 && '0'}
         </span>
       </div>

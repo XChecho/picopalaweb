@@ -104,5 +104,15 @@
     "body": "Entre direto em um duelo offline contra a IA ou convide um rival em segundos. Sem downloads.",
     "play": "Jogue grátis agora",
     "explore": "Explorar o Play Hub"
+  },
+  "advancedExample": {
+    "intro": "Segredo do oponente: 3719 (oculto para você). Deduza apenas com as pistas.",
+    "turn": "Turno {{n}}",
+    "deduction": {
+      "1": "São 3 acertos: o 3, o 1 e o 9 estão no segredo. O 5 erra, descarte-o.",
+      "2": "Só a posição 3 mudou (5 por 7). As Fixas continuam em 2 e surge mais uma Pala: o 7 está no segredo, mas não na posição 3. Os dígitos são 3, 1, 7 e 9.",
+      "3": "Pelo turno 1, o 1 não está na posição 2. Como o 7 não vai na 3, o 7 vai na 2 e o 1 na 3. Resultado: 4 Fixas."
+    },
+    "note": "Cada pista elimina combinações: compare dois palpites que diferem em uma única posição."
   }
 }

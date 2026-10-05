@@ -20,6 +20,12 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { AppView } from '@/types/game';
 
+const ADVANCED_TURNS = [
+  { guess: '3159', picos: 2, palas: 1 },
+  { guess: '3179', picos: 2, palas: 2 },
+  { guess: '3719', picos: 4, palas: 0 },
+] as const;
+
 interface HowToPlayViewProps {
   onNavigate: (view: AppView) => void;
 }
@@ -363,138 +369,175 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Board Comparison */}
-        <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Opponent Secret (X-Ray) */}
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#a98891] uppercase">
-                  {t('example.opponentSecret')}
-                </span>
-                <span className="text-xs font-bold text-[#ffe170]">{t('example.vaultTarget')}</span>
+        {tutorialMode === 'easy' && (
+          <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Opponent Secret (X-Ray) */}
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#a98891] uppercase">
+                    {t('example.opponentSecret')}
+                  </span>
+                  <span className="text-xs font-bold text-[#ffe170]">{t('example.vaultTarget')}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { pos: 1, val: 3 },
+                    { pos: 2, val: 7 },
+                    { pos: 3, val: 1 },
+                    { pos: 4, val: 9 },
+                  ].map((s, i) => (
+                    <div
+                      key={i}
+                      className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
+                    >
+                      <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
+                      <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { pos: 1, val: 3 },
-                  { pos: 2, val: 7 },
-                  { pos: 3, val: 1 },
-                  { pos: 4, val: 9 },
-                ].map((s, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
-                  >
-                    <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
-                    <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
+
+              {/* Your Transmission */}
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#a98891] uppercase">{t('example.yourTransmission')}</span>
+                  <span className="text-xs font-bold text-[#ff479b]">{t('example.activeGuess')}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { pos: 1, val: 3, color: 'text-[#ffe170]' },
+                    { pos: 2, val: 1, color: 'text-[#ffb0ca]' },
+                    { pos: 3, val: 5, color: 'text-gray-500' },
+                    { pos: 4, val: 9, color: 'text-[#ffe170]' },
+                  ].map((s, i) => (
+                    <div
+                      key={i}
+                      className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
+                    >
+                      <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
+                      <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 4-Position Dissected Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                    PICO
+                  </span>
+                </div>
+                <div className="font-['Cairo'] text-base font-bold text-white">3 == 3</div>
+                <p className="text-xs text-[#a98891]">{t('example.step.one')}</p>
+              </div>
+
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
+                    PALA
+                  </span>
+                </div>
+                <div className="font-['Cairo'] text-base font-bold text-white">1 vs 7</div>
+                <p className="text-xs text-[#a98891]">
+                  {t('example.step.two')}
+                </p>
+              </div>
+
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
+                    {t('matrix.miss.label')}
+                  </span>
+                </div>
+                <div className="font-['Cairo'] text-base font-bold text-white">5 vs 1</div>
+                <p className="text-xs text-[#a98891]">{t('example.step.three')}</p>
+              </div>
+
+              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                    PICO
+                  </span>
+                </div>
+                <div className="font-['Cairo'] text-base font-bold text-white">9 == 9</div>
+                <p className="text-xs text-[#a98891]">
+                  {t('example.step.four')}
+                </p>
+              </div>
+            </div>
+
+            {/* Telemetry Strip */}
+            <div className="bg-[#0c0e14] border border-[#282a30] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="text-xs font-black text-white uppercase tracking-wider">
+                  {t('example.telemetryReturned')}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
+                    {t('example.result.picos')}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Your Transmission */}
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#a98891] uppercase">{t('example.yourTransmission')}</span>
-                <span className="text-xs font-bold text-[#ff479b]">{t('example.activeGuess')}</span>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { pos: 1, val: 3, color: 'text-[#ffe170]' },
-                  { pos: 2, val: 1, color: 'text-[#ffb0ca]' },
-                  { pos: 3, val: 5, color: 'text-gray-500' },
-                  { pos: 4, val: 9, color: 'text-[#ffe170]' },
-                ].map((s, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
-                  >
-                    <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
-                    <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
+                    <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
+                    {t('example.result.pala')}
                   </div>
-                ))}
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a30] text-[#a98891] text-xs font-bold">
+                    <span className="w-2 h-2 rounded-full bg-[#33353b]" />
+                    {t('example.result.miss')}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* 4-Position Dissected Flow */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
-                  PICO
-                </span>
-              </div>
-              <div className="font-['Cairo'] text-base font-bold text-white">3 == 3</div>
-              <p className="text-xs text-[#a98891]">{t('example.step.one')}</p>
-            </div>
-
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
-                  PALA
-                </span>
-              </div>
-              <div className="font-['Cairo'] text-base font-bold text-white">1 vs 7</div>
-              <p className="text-xs text-[#a98891]">
-                {t('example.step.two')}
-              </p>
-            </div>
-
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
-                  {t('matrix.miss.label')}
-                </span>
-              </div>
-              <div className="font-['Cairo'] text-base font-bold text-white">5 vs 1</div>
-              <p className="text-xs text-[#a98891]">{t('example.step.three')}</p>
-            </div>
-
-            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
-                  PICO
-                </span>
-              </div>
-              <div className="font-['Cairo'] text-base font-bold text-white">9 == 9</div>
-              <p className="text-xs text-[#a98891]">
-                {t('example.step.four')}
-              </p>
-            </div>
-          </div>
-
-          {/* Telemetry Strip */}
-          <div className="bg-[#0c0e14] border border-[#282a30] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-xs font-black text-white uppercase tracking-wider">
-                {t('example.telemetryReturned')}
+              <span className="text-xs text-[#a98891]">
+                {t('example.note')}
               </span>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                  {t('example.result.picos')}
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
-                  <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                  {t('example.result.pala')}
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a30] text-[#a98891] text-xs font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#33353b]" />
-                  {t('example.result.miss')}
-                </div>
-              </div>
             </div>
-
-            <span className="text-xs text-[#a98891]">
-              {t('example.note')}
-            </span>
           </div>
-        </div>
+        )}
+
+        {tutorialMode === 'advanced' && (
+          <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
+            <span className="text-xs text-[#a98891]">{t('advancedExample.intro')}</span>
+            {ADVANCED_TURNS.map((turn, i) => (
+              <div
+                key={turn.guess}
+                className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4"
+              >
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-[11px] font-bold text-[#a98891] uppercase w-14">
+                    {t('advancedExample.turn', { n: i + 1 })}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {turn.guess.split('').map((d, k) => (
+                      <span
+                        key={k}
+                        className="w-9 h-10 rounded-md bg-[#0c0e14] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-lg text-white"
+                      >
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170]">{turn.picos}F</span>
+                    <span className="px-2.5 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca]">{turn.palas}P</span>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-[#e2e2ea] leading-relaxed">
+                  {t(`advancedExample.deduction.${i + 1}`)}
+                </p>
+              </div>
+            ))}
+            <p className="text-xs text-[#a98891]">{t('advancedExample.note')}</p>
+          </div>
+        )}
 
         {/* Master Deduction Directive */}
         <div className="bg-[#111319] border border-[#00d2ff]/30 rounded-2xl p-4 sm:p-5 flex items-start gap-4">

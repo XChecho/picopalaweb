@@ -9,7 +9,9 @@ export default function LandingPage() {
   return (
     <LandingView
       onNavigate={navigate}
-      onLaunchMatch={(mode) => startMatch(mode, "grandmaster")}
+      onLaunchMatch={(mode) =>
+        mode === "ai" ? navigate("play-hub") : startMatch(mode, "grandmaster")
+      }
     />
   );
 }
