@@ -9,6 +9,18 @@
     font-family: 'Cairo', system-ui, -apple-system, sans-serif;
   }
   
+  /* Tailwind 4 preflight resets buttons to the default cursor; restore the affordance. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   /* Hide scrollbars cleanly for slick gaming interface */
   ::-webkit-scrollbar {
     width: 6px;
@@ -41,3 +53,84 @@
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
 
+
+/* Coin toss: 3D coin that spins ~2s and lands on the face of whoever starts. */
+.coin-scene {
+  perspective: 700px;
+}
+.coin {
+  position: relative;
+  width: 6.5rem;
+  height: 6.5rem;
+  margin-bottom: 1rem;
+  transform-style: preserve-3d;
+}
+.coin--player {
+  animation: coinFlipPlayer 2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards;
+}
+.coin--bot {
+  animation: coinFlipBot 2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards;
+}
+.coin-edge,
+.coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+}
+.coin-edge {
+  background: #b8860b;
+}
+.coin-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  backface-visibility: hidden;
+  border: 4px solid #e9c400;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+}
+.coin-face--front {
+  background: radial-gradient(circle at 30% 30%, #ffe170, #e9c400 60%, #b8860b);
+  color: #5c3d00;
+}
+.coin-face--back {
+  background: radial-gradient(circle at 30% 30%, #a5e7ff, #00d2ff 60%, #0086a8);
+  border-color: #6fe3ff;
+  color: #003847;
+}
+.coin-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 5rem;
+  height: 0.6rem;
+  margin-left: -2.5rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.5);
+  filter: blur(6px);
+  animation: coinShadow 2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes coinFlipPlayer {
+  0% { transform: translateY(0) rotateX(0) rotateY(0); }
+  45% { transform: translateY(-64px) rotateX(18deg) rotateY(810deg); }
+  100% { transform: translateY(0) rotateX(0) rotateY(1800deg); }
+}
+@keyframes coinFlipBot {
+  0% { transform: translateY(0) rotateX(0) rotateY(0); }
+  45% { transform: translateY(-64px) rotateX(18deg) rotateY(900deg); }
+  100% { transform: translateY(0) rotateX(0) rotateY(1980deg); }
+}
+@keyframes coinShadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.5; }
+  45% { transform: scaleX(0.6); opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin--player,
+  .coin--bot,
+  .coin-shadow {
+    animation-duration: 0.01s;
+  }
+}

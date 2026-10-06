@@ -19,11 +19,20 @@ import {
   Flame,
   Shuffle,
   X,
+  Eye,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import { Difficulty, GameMode, ILocalMove, MatchResult } from '@/types/game';
 import { countRemainingCandidates, generateSecretNumber } from '@/lib/gameLogic';
 import { MAX_ATTEMPTS, useMatchStore } from '@/store/useMatchStore';
 import { soundEngine } from '@/lib/audio';
+import { buildMatchRecord } from '@/lib/matchRecord';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useSaveMatch } from '@/hooks/useSaveMatch';
+import { CoinFlip } from '@/components/arena/CoinFlip';
+import { TurnComposer } from '@/components/arena/TurnComposer';
 
 interface ArenaViewProps {
   mode?: GameMode;
@@ -94,6 +103,11 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   const [writeOpen, setWriteOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  const [tossLanded, setTossLanded] = useState(false);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const saveMatch = useSaveMatch();
+  const savedMatchIdRef = useRef('');
   const boardRef = useRef<HTMLDivElement>(null);
   const previousPhaseRef = useRef(phase);
   const maxTurns = MAX_ATTEMPTS;
@@ -166,6 +180,33 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
       }
     }
   }, [phase, result, onMatchStart, onMatchComplete]);
+
+  // Every web match is stored (the web always has a connection); the backend dedupes by match id.
+  useEffect(() => {
+    if (phase !== 'finished' || !result) return;
+    const snapshot = useMatchStore.getState();
+    if (!snapshot.matchId || savedMatchIdRef.current === snapshot.matchId) return;
+    const record = buildMatchRecord(snapshot, result);
+    if (!record) return;
+    savedMatchIdRef.current = snapshot.matchId;
+    saveMatch.mutate(record);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, result]);
+
+  const retrySave = () => {
+    const snapshot = useMatchStore.getState();
+    if (!snapshot.result) return;
+    const record = buildMatchRecord(snapshot, snapshot.result);
+    if (record) saveMatch.mutate(record);
+  };
+
+  // Abandoning a started match counts as a loss (same rule the forfeit confirmation states).
+  const recordForfeit = () => {
+    const snapshot = useMatchStore.getState();
+    if (snapshot.phase !== 'playing') return;
+    const record = buildMatchRecord({ ...snapshot, finishedAt: Date.now() }, 'lose', { forfeit: true });
+    if (record) saveMatch.mutate(record);
+  };
 
   // One-second clock (only runs a countdown for the Grandmaster level).
   useEffect(() => {
@@ -245,20 +286,24 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
+      // On wide screens the composer is always visible, so there is no modal to open first.
+      const composerOpen = isDesktop || writeOpen;
+
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
-        setWriteOpen(true);
+        if (!isDesktop) setWriteOpen(true);
         pressKey(parseInt(e.key, 10));
       } else if (e.key === 'Backspace') {
-        if (!writeOpen) return;
+        if (!composerOpen) return;
         e.preventDefault();
         handleBackspace();
       } else if (e.key === 'Escape') {
-        setWriteOpen(false);
+        if (isDesktop) handleClear();
+        else setWriteOpen(false);
       } else if (e.key === 'Enter') {
         // Stop Enter from also "clicking" whichever button currently has focus.
         e.preventDefault();
-        if (writeOpen) submitDraftGuess();
+        if (composerOpen) submitDraftGuess();
         else openWrite();
       }
     };
@@ -266,10 +311,13 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canPlay, currentDraft, writeOpen]);
+  }, [canPlay, currentDraft, writeOpen, isDesktop]);
 
   const handleNewDuel = () => {
     if (phase === 'playing' && !confirm(t('menu.confirmNewDuel'))) return;
+    recordForfeit();
+    saveMatch.reset();
+    setReviewing(false);
     useMatchStore.getState().openSetup(storeDifficulty);
     setCurrentDraft([]);
     setErrorMsg(null);
@@ -278,12 +326,14 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   };
 
   const handleLeave = () => {
+    if (saveMatch.isError && !confirm(t('result.confirmLeaveUnsaved'))) return;
     useMatchStore.getState().reset();
     onExitArena?.();
   };
 
   const handleForfeit = () => {
     if (!confirm(t('menu.confirmForfeit'))) return;
+    recordForfeit();
     useMatchStore.getState().reset();
     onMatchComplete?.('lose');
     onExitArena?.();
@@ -318,7 +368,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   const roundRows = Array.from({ length: rowCount }, (_, i) => i);
 
   return (
-    <div className="w-full flex flex-col select-none h-[calc(100dvh-5rem)] min-h-[520px]">
+    <div className="w-full flex flex-col select-none h-[calc(100dvh-5rem)] overflow-hidden [@media(max-height:560px)]:h-auto [@media(max-height:560px)]:min-h-[calc(100dvh-5rem)] [@media(max-height:560px)]:overflow-visible">
       {/* TOP BAR: turn indicator, status, clock and match actions */}
       <div className="shrink-0 border-b border-[#282a30] bg-[#0c0e14]/70 backdrop-blur">
         <div className="max-w-5xl w-full mx-auto px-3 sm:px-4 py-2.5 flex flex-col gap-2">
@@ -406,7 +456,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
             title={t('columns.opponent')}
             subtitle={`${BOT_NAME} · ${levelLabel}`}
             icon={<Bot className="w-4 h-4 text-[#00d2ff]" />}
-            digits={null}
+            digits={phase === 'finished' && opponentSecret.length === 4 ? opponentSecret : null}
             secretLabel={t('columns.secretHidden')}
             attemptsLabel={t('columns.guessesLeft', { n: aiAttemptsLeft })}
           />
@@ -424,7 +474,7 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
         <div
           ref={boardRef}
           data-testid="board"
-          className="flex-1 min-h-0 overflow-y-auto pr-0.5 pb-2 grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-2 content-start"
+          className="flex-1 min-h-0 overflow-y-auto [@media(max-height:560px)]:overflow-visible pr-0.5 pb-2 grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-2 content-start"
         >
           {roundRows.map((i) => (
             <React.Fragment key={i}>
@@ -469,28 +519,64 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
               {t('hud.legendPala')}
             </span>
           </div>
-          {errorMsg && !writeOpen && (
-            <span role="alert" className="text-xs font-bold text-rose-400 text-center">
-              {errorMsg}
-            </span>
+          {phase === 'finished' ? (
+            <div className="flex flex-col sm:flex-row items-stretch gap-2">
+              <button
+                onClick={() => setReviewing(false)}
+                className="h-12 sm:flex-1 px-5 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+              >
+                <Trophy className="w-4 h-4" /> {t('result.showResult')}
+              </button>
+              <button
+                onClick={handleNewDuel}
+                className="h-12 sm:flex-1 px-5 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" /> {t('result.playNext')}
+              </button>
+              <button
+                onClick={handleLeave}
+                className="h-12 sm:flex-1 px-5 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
+              >
+                {t('result.hub')}
+              </button>
+            </div>
+          ) : isDesktop ? (
+            <TurnComposer
+              draft={currentDraft}
+              canPlay={canPlay}
+              errorMsg={errorMsg}
+              turnLabel={t('write.title', { n: pad2(turnCount) })}
+              onPress={pressKey}
+              onBackspace={handleBackspace}
+              onClear={handleClear}
+              onSubmit={submitDraftGuess}
+            />
+          ) : (
+            <>
+              {errorMsg && !writeOpen && (
+                <span role="alert" className="text-xs font-bold text-rose-400 text-center">
+                  {errorMsg}
+                </span>
+              )}
+              <button
+                onClick={openWrite}
+                disabled={!canPlay}
+                className={`w-full h-14 rounded-2xl font-['Cairo'] font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                  canPlay
+                    ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-[0.99]'
+                    : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
+                }`}
+              >
+                <Send className="w-5 h-5" />
+                {canPlay ? t('write.button') : t('write.waiting')}
+              </button>
+            </>
           )}
-          <button
-            onClick={openWrite}
-            disabled={!canPlay}
-            className={`w-full h-14 rounded-2xl font-['Cairo'] font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-              canPlay
-                ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-[0.99]'
-                : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
-            }`}
-          >
-            <Send className="w-5 h-5" />
-            {canPlay ? t('write.button') : t('write.waiting')}
-          </button>
         </div>
       </div>
 
       {/* WRITE-TURN MODAL (number pad) */}
-      {writeOpen && canPlay && (
+      {!isDesktop && writeOpen && canPlay && (
         <div
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center"
           onClick={() => setWriteOpen(false)}
@@ -607,42 +693,59 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
         />
       )}
 
-      {/* COIN TOSS MODAL */}
-      {phase === 'toss' && (
+      {/* COIN TOSS MODAL: a 2 s coin flip, then the result is revealed */}
+      {phase === 'toss' && starter && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-[#191b21] border border-[#33353b] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.4)] animate-bounce">
-              <Flame className="w-10 h-10 text-[#ffe170]" />
-            </div>
+            <CoinFlip
+              starter={starter}
+              playerLabel={t('toss.coinYou')}
+              botLabel={t('toss.coinBot')}
+              onLanded={() => setTossLanded(true)}
+            />
             <div className="flex flex-col gap-1">
               <span className="font-['Cairo'] text-2xl font-black uppercase text-white">
                 {t('toss.title')}
               </span>
-              <span className="text-sm text-[#a98891]">
-                {starter === 'PLAYER' ? t('toss.playerWon') : t('toss.botWon', { name: BOT_NAME })}
+              <span className="text-sm text-[#a98891] min-h-5" aria-live="polite">
+                {tossLanded
+                  ? starter === 'PLAYER'
+                    ? t('toss.playerWon')
+                    : t('toss.botWon', { name: BOT_NAME })
+                  : t('toss.flipping')}
               </span>
             </div>
-            <div className="w-full py-3 bg-[#111319] rounded-2xl flex items-center justify-around text-xs font-bold">
-              <span className="text-[#ff479b]">
-                {t('toss.yourMove', { order: starter === 'PLAYER' ? t('toss.first') : t('toss.second') })}
-              </span>
-              <span className="text-[#33353b]">|</span>
-              <span className="text-[#00d2ff]">
-                {t('toss.botMove', { order: starter === 'PLAYER' ? t('toss.second') : t('toss.first') })}
-              </span>
-            </div>
-            <button
-              onClick={() => useMatchStore.getState().beginPlay()}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
+            <div
+              className={`w-full flex flex-col gap-4 transition-all duration-500 ${
+                tossLanded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+              }`}
             >
-              {t('toss.enter')}
-            </button>
+              <div className="w-full py-3 bg-[#111319] rounded-2xl flex items-center justify-around text-xs font-bold">
+                <span className="text-[#ff479b]">
+                  {t('toss.yourMove', { order: starter === 'PLAYER' ? t('toss.first') : t('toss.second') })}
+                </span>
+                <span className="text-[#33353b]">|</span>
+                <span className="text-[#00d2ff]">
+                  {t('toss.botMove', { order: starter === 'PLAYER' ? t('toss.second') : t('toss.first') })}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setTossLanded(false);
+                  useMatchStore.getState().beginPlay();
+                }}
+                disabled={!tossLanded}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-lg hover:brightness-110 active:scale-95 transition-all"
+              >
+                {t('toss.enter')}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* RESULT MODAL (victory / defeat / draw) */}
-      {phase === 'finished' && result && (
+      {phase === 'finished' && result && !reviewing && (
         <ResultModal
           result={result}
           botName={BOT_NAME}
@@ -653,6 +756,9 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
           totalPicos={totalPicos}
           totalPalas={totalPalas}
           shareCopied={shareCopied}
+          saveStatus={saveMatch.isError ? 'error' : saveMatch.isSuccess ? 'saved' : saveMatch.isIdle ? 'idle' : 'saving'}
+          onRetrySave={retrySave}
+          onReview={() => setReviewing(true)}
           onNext={handleNewDuel}
           onShare={handleShare}
           onLeave={handleLeave}
@@ -814,6 +920,9 @@ interface ResultModalProps {
   totalPicos: number;
   totalPalas: number;
   shareCopied: boolean;
+  saveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  onRetrySave: () => void;
+  onReview: () => void;
   onNext: () => void;
   onShare: () => void;
   onLeave: () => void;
@@ -829,6 +938,9 @@ const ResultModal: React.FC<ResultModalProps> = ({
   totalPicos,
   totalPalas,
   shareCopied,
+  saveStatus,
+  onRetrySave,
+  onReview,
   onNext,
   onShare,
   onLeave,
@@ -905,27 +1017,64 @@ const ResultModal: React.FC<ResultModalProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+        <div className="flex flex-col gap-3 w-full">
           <button
             onClick={onNext}
-            className="w-full sm:flex-1 h-12 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+            disabled={saveStatus === 'saving'}
+            className="w-full h-14 px-6 rounded-2xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-base uppercase tracking-wider whitespace-nowrap shadow-[0_0_24px_rgba(255,46,149,0.45)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <RotateCcw className="w-4 h-4" /> {t('result.playNext')}
+            <RotateCcw className="w-5 h-5 shrink-0" /> {t('result.playNext')}
           </button>
-          {result === 'win' && (
+          <div className={`grid gap-3 ${result === 'win' ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <button
-              onClick={onShare}
-              className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+              onClick={onReview}
+              className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2"
             >
-              <Share2 className="w-4 h-4" /> {shareCopied ? t('result.copied') : t('result.share')}
+              <Eye className="w-4 h-4 shrink-0" /> {t('result.viewMatch')}
             </button>
-          )}
-          <button
-            onClick={onLeave}
-            className="w-full sm:w-auto px-5 h-12 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider transition-all"
+            {result === 'win' && (
+              <button
+                onClick={onShare}
+                className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2"
+              >
+                <Share2 className="w-4 h-4 shrink-0" /> {shareCopied ? t('result.copied') : t('result.share')}
+              </button>
+            )}
+            <button
+              onClick={onLeave}
+              disabled={saveStatus === 'saving'}
+              className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {t('result.hub')}
+            </button>
+          </div>
+
+          <div
+            data-testid="save-status"
+            data-state={saveStatus}
+            role="status"
+            className="min-h-5 flex items-center justify-center gap-1.5 text-xs text-[#a98891]"
           >
-            {t('result.hub')}
-          </button>
+            {saveStatus === 'saving' && (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('result.saving')}
+              </>
+            )}
+            {saveStatus === 'saved' && (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {t('result.saved')}
+              </>
+            )}
+            {saveStatus === 'error' && (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                <span className="text-rose-400">{t('result.saveFailed')}</span>
+                <button onClick={onRetrySave} className="underline font-bold text-white hover:text-[#ffb0ca]">
+                  {t('result.retry')}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
