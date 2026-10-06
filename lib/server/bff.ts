@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getClientIp } from "@/lib/server/clientIp";
 
 export const ACCESS_COOKIE = "pp_at";
 export const REFRESH_COOKIE = "pp_rt";
@@ -26,6 +27,32 @@ interface IBackendRequest {
   method?: string;
   headers?: Record<string, string>;
   body?: string | ArrayBuffer | null;
+}
+
+/** Per-request data the BFF forwards to the backend. */
+export interface IBackendContext {
+  userAgent: string | null;
+  clientIp: string | null;
+}
+
+/** Builds the backend context (User-Agent + real client IP) from the incoming request headers. */
+export function getBackendContext(headers: Headers): IBackendContext {
+  return { userAgent: headers.get("user-agent"), clientIp: getClientIp(headers) };
+}
+
+/**
+ * Shared secret that authenticates the BFF to the backend (`X-BFF-Key`). Server-only.
+ * Required in production; optional in development.
+ */
+function getBffSecret(): string | null {
+  const secret = process.env.BFF_SHARED_SECRET;
+  if (secret && secret.length > 0) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "BFF_SHARED_SECRET is not set. It is required in production so the backend trusts X-Client-IP; set it to the same value as the backend.",
+    );
+  }
+  return null;
 }
 
 export function getBackendUrl(): string {
@@ -80,10 +107,17 @@ export function extractMessage(body: unknown, fallback: string): string | string
 
 export async function backendFetch(
   request: IBackendRequest,
-  userAgent: string | null,
+  context: IBackendContext,
 ): Promise<Response> {
+  const secret = getBffSecret();
   const headers: Record<string, string> = { Accept: "application/json", ...request.headers };
-  if (userAgent) headers["User-Agent"] = userAgent;
+  if (context.userAgent) headers["User-Agent"] = context.userAgent;
+  // Set after the caller's headers so they can never be overridden. Without the key the backend
+  // ignores X-Client-IP and rate-limits every user under the Next server's IP.
+  if (secret) {
+    headers["X-BFF-Key"] = secret;
+    if (context.clientIp) headers["X-Client-IP"] = context.clientIp;
+  }
   try {
     return await fetch(`${getBackendUrl()}${request.path}`, {
       method: request.method ?? "GET",
@@ -136,15 +170,15 @@ export async function clearAuthCookies(): Promise<void> {
 
 const inflightRefreshes = new Map<string, Promise<TRefreshOutcome>>();
 
-async function requestRefresh(refreshToken: string, userAgent: string | null): Promise<TRefreshOutcome> {
+async function requestRefresh(refreshToken: string, context: IBackendContext): Promise<TRefreshOutcome> {
   const response = await backendFetch(
     {
-      path: "/auth/refresh",
+      path: "/web/auth/refresh",
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${refreshToken}` },
       body: JSON.stringify({ refreshToken }),
     },
-    userAgent,
+    context,
   );
   const body = await readJson(response);
 
@@ -159,11 +193,11 @@ async function requestRefresh(refreshToken: string, userAgent: string | null): P
   return { kind: "ok", tokens: { accessToken: data.accessToken, refreshToken: data.refreshToken } };
 }
 
-export function refreshTokens(refreshToken: string, userAgent: string | null): Promise<TRefreshOutcome> {
+export function refreshTokens(refreshToken: string, context: IBackendContext): Promise<TRefreshOutcome> {
   const existing = inflightRefreshes.get(refreshToken);
   if (existing) return existing;
 
-  const promise = requestRefresh(refreshToken, userAgent);
+  const promise = requestRefresh(refreshToken, context);
   inflightRefreshes.set(refreshToken, promise);
   void promise.then((outcome) => {
     if (outcome.kind === "error") {
@@ -188,7 +222,7 @@ export function refreshTokens(refreshToken: string, userAgent: string | null): P
  */
 export async function authedBackendFetch(
   request: IBackendRequest,
-  userAgent: string | null,
+  context: IBackendContext,
 ): Promise<Response> {
   const jar = await cookies();
   const accessToken = jar.get(ACCESS_COOKIE)?.value;
@@ -197,7 +231,7 @@ export async function authedBackendFetch(
   /** Refreshes once; resolves to the new access token or a failure response. */
   const refresh = async (): Promise<string | Response> => {
     if (!refreshToken) return errorResponse(401, "Unauthorized");
-    const outcome = await refreshTokens(refreshToken, userAgent);
+    const outcome = await refreshTokens(refreshToken, context);
     if (outcome.kind === "invalid") {
       await clearAuthCookies();
       return errorResponse(401, "Unauthorized");
@@ -210,7 +244,7 @@ export async function authedBackendFetch(
   const send = (token: string) =>
     backendFetch(
       { ...request, headers: { ...request.headers, Authorization: `Bearer ${token}` } },
-      userAgent,
+      context,
     );
 
   if (!accessToken) {

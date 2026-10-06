@@ -5,12 +5,13 @@ import {
   REFRESH_COOKIE,
   backendFetch,
   clearAuthCookies,
+  getBackendContext,
   refreshTokens,
 } from "@/lib/server/bff";
 
 /** Best effort: revokes the token family in the backend, then always clears the cookies. */
 export async function POST(request: NextRequest) {
-  const userAgent = request.headers.get("user-agent");
+  const context = getBackendContext(request.headers);
   const jar = await cookies();
   let accessToken = jar.get(ACCESS_COOKIE)?.value;
   let refreshToken = jar.get(REFRESH_COOKIE)?.value;
@@ -18,18 +19,18 @@ export async function POST(request: NextRequest) {
   const revoke = (access: string, refresh: string) =>
     backendFetch(
       {
-        path: "/auth/logout",
+        path: "/web/auth/logout",
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${access}` },
         body: JSON.stringify({ refreshToken: refresh }),
       },
-      userAgent,
+      context,
     );
 
   if (refreshToken) {
     // The logout endpoint needs a valid access token; get one if the cookie expired.
     if (!accessToken) {
-      const outcome = await refreshTokens(refreshToken, userAgent);
+      const outcome = await refreshTokens(refreshToken, context);
       if (outcome.kind === "ok") {
         accessToken = outcome.tokens.accessToken;
         refreshToken = outcome.tokens.refreshToken;
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     if (accessToken) {
       const first = await revoke(accessToken, refreshToken);
       if (first.status === 401) {
-        const outcome = await refreshTokens(refreshToken, userAgent);
+        const outcome = await refreshTokens(refreshToken, context);
         if (outcome.kind === "ok") {
           await revoke(outcome.tokens.accessToken, outcome.tokens.refreshToken);
         }

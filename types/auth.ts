@@ -26,6 +26,8 @@ export interface IRegisterPayload {
   email: string;
   password: string;
   language?: "en" | "es" | "pt";
+  /** Turnstile token (single use). Omitted only when no site key is configured (dev). */
+  captchaToken?: string;
 }
 
 export type TAuthStatus = "unknown" | "authenticated" | "anonymous";

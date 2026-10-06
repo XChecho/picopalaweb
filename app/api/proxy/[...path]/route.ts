@@ -1,5 +1,11 @@
 import type { NextRequest } from "next/server";
-import { authedBackendFetch, backendFetch, errorResponse, passthrough } from "@/lib/server/bff";
+import {
+  authedBackendFetch,
+  backendFetch,
+  errorResponse,
+  getBackendContext,
+  passthrough,
+} from "@/lib/server/bff";
 
 // Only these backend areas are reachable from the browser. `auth/*` is deliberately absent:
 // token handling lives in /api/auth/*.
@@ -29,13 +35,14 @@ async function handle(request: NextRequest, context: IRouteContext): Promise<Res
     headers: contentType ? { "Content-Type": contentType } : undefined,
     body: body && body.byteLength > 0 ? body : null,
   };
-  const userAgent = request.headers.get("user-agent");
+  const backendContext = getBackendContext(request.headers);
 
-  // `public/*` is anonymous by design: it must work without a session and never trigger a refresh.
+  // `public/*` is anonymous by design: no user credentials and no refresh, but it still carries
+  // X-BFF-Key + X-Client-IP so the backend rate-limits (and captcha-checks) the real visitor.
   const response =
     path[0] === "public"
-      ? await backendFetch(backendRequest, userAgent)
-      : await authedBackendFetch(backendRequest, userAgent);
+      ? await backendFetch(backendRequest, backendContext)
+      : await authedBackendFetch(backendRequest, backendContext);
   return passthrough(response);
 }
 

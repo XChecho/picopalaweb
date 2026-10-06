@@ -3,12 +3,13 @@ import {
   authedBackendFetch,
   errorResponse,
   extractMessage,
+  getBackendContext,
   readJson,
   unwrapEnvelope,
 } from "@/lib/server/bff";
 
 export async function GET(request: NextRequest) {
-  const response = await authedBackendFetch({ path: "/player/me" }, request.headers.get("user-agent"));
+  const response = await authedBackendFetch({ path: "/player/me" }, getBackendContext(request.headers));
   const body = await readJson(response);
 
   // No (valid) session is a normal state for visitors, not an error worth a 401 in the console.
