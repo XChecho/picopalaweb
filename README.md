@@ -17,18 +17,26 @@ pnpm build
 | `/` | Landing / modos de juego |
 | `/play` | Play Hub (elegir modo y dificultad) |
 | `/arena` | Arena: partida jugable contra la IA (`ssr: false`) |
-| `/records` | Récords, perfil y ajustes de audio |
+| `/records` | Perfil, estadísticas e historial reales del usuario autenticado, y ajustes de audio |
 | `/how-to-play` | Reglas y estrategia |
-| `/auth` | Acceso / registro (UI, sin backend todavía) |
+| `/auth` | Acceso / registro reales (BFF + cookies HttpOnly) |
 
 ## Estructura
 - `app/` layout, estilos globales y una página por ruta
 - `components/` `Header`, `Footer`, `AppShell`, `Providers` y `views/` (las seis vistas del prototipo)
 - `store/useAppStore.ts` estado global (Zustand): modo, dificultad, partida activa, idioma y audio
 - `store/useMatchStore.ts` estado de la partida Versus IA
-- `hooks/useAppNavigation.ts` mapea las vistas a rutas de Next; `usePublicStats` y `useWaitlist` (TanStack Query) esperan endpoints del backend
+- `hooks/useAppNavigation.ts` mapea las vistas a rutas de Next; `usePublicStats` y `useWaitlist` (TanStack Query) esperan endpoints `public/*` del backend que aún no existen (y que el proxy no permite todavía)
 - `lib/` reglas y bots (`gameLogic.ts`), sintetizador de audio (`audio.ts`), cliente API y `QueryClient`
 - `docs/web-endpoints-plan.md` endpoints que faltan en el backend
+
+## Autenticación (BFF)
+El navegador nunca ve los tokens. Los route handlers de Next hablan con el backend (`BACKEND_URL`, solo servidor) y guardan los tokens en cookies HttpOnly.
+- `pp_at` (access, 15 min, `path=/`) y `pp_rt` (refresh, 7 días, `path=/api`); `SameSite=Lax`, `Secure` solo en producción.
+- `POST /api/auth/login|register|logout` y `GET /api/auth/session`: responden `{ player }` o `{ ok: true }`, sin tokens.
+- `/api/proxy/[...path]`: reenvía solo `player/*`, `match/*` y `stats/*`, añade `Authorization` desde `pp_at`, y ante un 401 (o sin `pp_at`) hace un único refresh (serializado por valor de `pp_rt` dentro del proceso) y reintenta una vez.
+- Cliente: `lib/api.ts` (`apiFetch`), `store/useAuthStore.ts`, `hooks/useSession|useLogin|useRegister|useLogout|usePlayerStats|useMatchHistory`.
+- Código servidor: `lib/server/bff.ts`, `lib/server/validation.ts`, `lib/server/authRoute.ts`.
 
 ## Idiomas (i18n)
 Español, inglés y portugués con `i18next` + `react-i18next`. El idioma se toma del guardado (`localStorage: appLanguage`) o del navegador, y si no está soportado usa inglés. Se cambia desde el selector del header y actualiza `<html lang>`.
@@ -47,7 +55,7 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 
 ## Estado
 - Salas privada y global: solo interfaz; la arena muestra "coming soon".
-- Récords, perfil y auth usan datos mock hasta conectar el backend.
+- Auth, perfil, estadísticas e historial usan el backend real vía BFF. No hay ranking global, recuperación de contraseña, edición de perfil ni borrado de cuenta.
 - Las partidas de la web no se guardan ni se sincronizan estadísticas todavía.
 - El header no tiene menú de navegación en móvil (los enlaces solo aparecen desde `lg`).
 

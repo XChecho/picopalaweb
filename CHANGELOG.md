@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+- Login, registro, sesión persistente, logout e historial/estadísticas reales con un BFF en Next (`app/api/auth/*` y `app/api/proxy/[...path]`): tokens en cookies HttpOnly (`pp_at`, `pp_rt`), refresh con rotación serializado y un único reintento.
+- `apiFetch` ahora usa rutas same-origin y lanza `ApiError` con el mensaje real del backend. Nuevo `BACKEND_URL` (solo servidor) en `.env.example`; se elimina `NEXT_PUBLIC_API_URL`.
+- AuthView, Header y RecordsView conectados: estados de carga/error mapeados a i18n (en, es, pt). Se retiran del UI los elementos no implementados (login social, recuperar clave, editar/borrar cuenta, ranking global, vista previa de estados).
+
 ## 0.4.4
 - Arena: textos, dígitos, círculos de feedback y botones del HUD más grandes (se eliminan los textos de 10-11 px). E2E actualizado al selector de dificultad en modal.
 
