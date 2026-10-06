@@ -24,13 +24,25 @@ import { useMatchHistory } from '@/hooks/useMatchHistory';
 import { usePlayerStats } from '@/hooks/usePlayerStats';
 import { useAuthStore } from '@/store/useAuthStore';
 import { AudioSettings, AppView } from '@/types/game';
-import type { IMatchHistoryItem, IMatchParticipant, TApiGameMode, TMatchModeFilter } from '@/types/player';
+import type {
+  IMatchHistoryItem,
+  IMatchParticipant,
+  TApiDifficulty,
+  TApiGameMode,
+  TMatchModeFilter,
+} from '@/types/player';
 
 interface RecordsViewProps {
   onNavigate: (view: AppView) => void;
   audioSettings: AudioSettings;
   onUpdateAudio: (key: keyof AudioSettings, val: boolean) => void;
 }
+
+const DIFFICULTY_COLOR: Record<TApiDifficulty, string> = {
+  EASY: 'text-emerald-400',
+  MEDIUM: 'text-[#00d2ff]',
+  HARD: 'text-[#ff479b]',
+};
 
 const MODE_KEY: Record<TApiGameMode, 'ai' | 'private' | 'global'> = {
   VERSUS_AI: 'ai',
@@ -44,6 +56,7 @@ interface IMatchRow {
   mode: 'ai' | 'private' | 'global';
   opponentName: string | null;
   opponentIsAi: boolean;
+  aiDifficulty: TApiDifficulty | null;
   eloDelta: number | null;
   turnsTaken: number;
   maxTurns: number;
@@ -61,6 +74,7 @@ function toMatchRow(match: IMatchHistoryItem, playerId: string): IMatchRow {
     mode: MODE_KEY[match.mode],
     opponentName: opponent?.player?.username ?? null,
     opponentIsAi: opponent?.isAi ?? false,
+    aiDifficulty: match.aiDifficulty ?? null,
     eloDelta: eloBefore !== null && eloAfter !== null ? eloAfter - eloBefore : null,
     turnsTaken: me?.attemptsUsed ?? 0,
     maxTurns: match.maxTurns,
@@ -183,7 +197,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* Action Controls */}
           <div className="flex items-center gap-3 shrink-0 relative z-10 flex-wrap">
             <button
-              onClick={() => onNavigate('arena')}
+              onClick={() => onNavigate('play-hub')}
               className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.45)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" />
@@ -481,7 +495,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('empty.description')}
             </p>
             <button
-              onClick={() => onNavigate('arena')}
+              onClick={() => onNavigate('play-hub')}
               className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" /> {t('empty.cta')}
@@ -547,9 +561,19 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                           <div className="w-8 h-8 rounded-full bg-[#282a30] flex items-center justify-center font-bold text-xs text-[#ffb0ca]">
                             {m.opponentIsAi ? 'AI' : opponentName.slice(0, 2).toUpperCase()}
                           </div>
-                          <span className="font-['Cairo'] text-sm font-bold text-white">
-                            {opponentName}
-                          </span>
+                          <div className="flex flex-col leading-tight">
+                            <span className="font-['Cairo'] text-sm font-bold text-white">
+                              {opponentName}
+                            </span>
+                            {m.opponentIsAi && m.aiDifficulty && (
+                              <span
+                                data-testid="ai-difficulty"
+                                className={`text-[11px] font-bold uppercase tracking-wide ${DIFFICULTY_COLOR[m.aiDifficulty]}`}
+                              >
+                                {t(`difficulty.${m.aiDifficulty}`)}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 

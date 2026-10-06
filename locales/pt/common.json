@@ -1,9 +1,8 @@
 {
   "nav": {
     "playHub": "Central de Jogo",
-    "liveArena": "Arena ao Vivo",
+    "live": "Ao vivo",
     "howToPlay": "Como Jogar",
-    "gameModes": "Modos de Jogo",
     "records": "Recordes"
   },
   "brand": {
@@ -13,25 +12,24 @@
   },
   "header": {
     "matchLive": "Partida ao Vivo",
-    "nodeSynced": "Nó Sincronizado // Tóquio Leste",
     "changeLanguage": "Alterar idioma",
-    "mute": "Silenciar sons do jogo",
-    "unmute": "Ativar sons do jogo",
-    "modes": "Modos",
-    "playArena": "Jogar na Arena",
     "signIn": "Entrar",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "play": "Jogar",
+    "signOutConfirm": {
+      "title": "Sair da conta?",
+      "body": "Você sairá da sua conta neste dispositivo. Poderá entrar de novo quando quiser.",
+      "bodyActiveMatch": "Você tem uma partida em andamento. Se sair, ela será perdida e não será salva.",
+      "confirm": "Sair",
+      "cancel": "Cancelar"
+    }
   },
   "footer": {
     "howToPlay": "Como Jogar",
-    "gameModes": "Modos de Jogo",
     "recordsLedger": "Registro de Recordes",
     "duelistProfile": "Perfil de Duelista",
     "terms": "Termos de Serviço",
-    "privacy": "Política de Privacidade",
-    "termsAlert": "Termos de Serviço: protocolos de dedução com jogo limpo. Antitrapaça algorítmico ativo.",
-    "privacyAlert": "Política de Privacidade: todos os estados de jogo e recordes ficam armazenados criptografados no cache local do navegador.",
-    "version": "{{lang}} · v2.4 Ao Vivo"
+    "privacy": "Política de Privacidade"
   },
   "ranks": {
     "BRONCE": "Bronze",
@@ -39,5 +37,11 @@
     "ORO": "Ouro",
     "PLATINO": "Platina",
     "DIAMANTE": "Diamante"
+  },
+  "live": {
+    "eyebrow": "Modo espectador",
+    "title": "Partidas ao vivo",
+    "body": "Assistir aos duelos de outros jogadores em tempo real ainda não está disponível. Quando estiver, as partidas em andamento aparecerão aqui.",
+    "cta": "Ver como jogar"
   }
 }

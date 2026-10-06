@@ -1,4 +1,4 @@
-export type AppView = 'landing' | 'play-hub' | 'arena' | 'records' | 'how-to-play' | 'auth';
+export type AppView = 'landing' | 'play-hub' | 'live' | 'arena' | 'records' | 'terms' | 'privacy' | 'how-to-play' | 'strategy' | 'auth';
 
 export type GameMode = 'ai' | 'private' | 'global';
 export type Difficulty = 'novice' | 'tactician' | 'grandmaster';

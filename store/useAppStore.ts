@@ -7,13 +7,15 @@ interface IAppState {
   matchMode: GameMode;
   matchDifficulty: Difficulty;
   hasActiveMatch: boolean;
+  /** True only when the user entered the arena through a start/resume action, never by a bare URL. */
+  arenaRequested: boolean;
   lang: TLanguage;
   audioSettings: AudioSettings;
   startMatch: (mode: GameMode, difficulty?: Difficulty) => void;
+  requestArena: (requested: boolean) => void;
   setMatchActive: (active: boolean) => void;
   finishMatch: () => void;
   setLang: (lang: string) => void;
-  toggleSound: () => void;
   updateAudio: (key: keyof AudioSettings, value: boolean) => void;
 }
 
@@ -21,6 +23,7 @@ export const useAppStore = create<IAppState>((set) => ({
   matchMode: "ai",
   matchDifficulty: "grandmaster",
   hasActiveMatch: false,
+  arenaRequested: false,
   lang: "en",
   audioSettings: {
     soundEffects: true,
@@ -32,7 +35,9 @@ export const useAppStore = create<IAppState>((set) => ({
     set((state) => ({
       matchMode: mode,
       matchDifficulty: difficulty ?? state.matchDifficulty,
+      arenaRequested: true,
     })),
+  requestArena: (requested) => set({ arenaRequested: requested }),
   setMatchActive: (active) => set({ hasActiveMatch: active }),
   finishMatch: () => set({ hasActiveMatch: false }),
   setLang: (lang) => {
@@ -43,12 +48,6 @@ export const useAppStore = create<IAppState>((set) => ({
     } catch {}
     set({ lang });
   },
-  toggleSound: () =>
-    set((state) => {
-      const soundEffects = !state.audioSettings.soundEffects;
-      soundEngine.enabled = soundEffects;
-      return { audioSettings: { ...state.audioSettings, soundEffects } };
-    }),
   updateAudio: (key, value) =>
     set((state) => {
       if (key === "soundEffects") soundEngine.enabled = value;

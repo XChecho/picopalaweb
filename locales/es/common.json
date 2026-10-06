@@ -1,9 +1,8 @@
 {
   "nav": {
     "playHub": "Centro de Juego",
-    "liveArena": "Arena en Vivo",
+    "live": "En vivo",
     "howToPlay": "Cómo Jugar",
-    "gameModes": "Modos de Juego",
     "records": "Récords"
   },
   "brand": {
@@ -13,25 +12,24 @@
   },
   "header": {
     "matchLive": "Partida en Vivo",
-    "nodeSynced": "Nodo Sincronizado // Tokio Este",
     "changeLanguage": "Cambiar idioma",
-    "mute": "Silenciar sonidos del juego",
-    "unmute": "Activar sonidos del juego",
-    "modes": "Modos",
-    "playArena": "Jugar en la Arena",
     "signIn": "Iniciar sesión",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "play": "Jugar",
+    "signOutConfirm": {
+      "title": "¿Cerrar sesión?",
+      "body": "Saldrás de tu cuenta en este dispositivo. Podrás volver a entrar cuando quieras.",
+      "bodyActiveMatch": "Tienes una partida en curso. Si cierras sesión, se perderá y no se guardará.",
+      "confirm": "Cerrar sesión",
+      "cancel": "Cancelar"
+    }
   },
   "footer": {
     "howToPlay": "Cómo Jugar",
-    "gameModes": "Modos de Juego",
     "recordsLedger": "Registro de Récords",
     "duelistProfile": "Perfil de Duelista",
     "terms": "Términos de Servicio",
-    "privacy": "Política de Privacidad",
-    "termsAlert": "Términos de Servicio: protocolos de deducción con juego limpio. Antitrampas algorítmico activo.",
-    "privacyAlert": "Política de Privacidad: todos los estados de juego y récords se guardan cifrados en la caché local del navegador.",
-    "version": "{{lang}} · v2.4 En Vivo"
+    "privacy": "Política de Privacidad"
   },
   "ranks": {
     "BRONCE": "Bronce",
@@ -39,5 +37,11 @@
     "ORO": "Oro",
     "PLATINO": "Platino",
     "DIAMANTE": "Diamante"
+  },
+  "live": {
+    "eyebrow": "Modo espectador",
+    "title": "Partidas en vivo",
+    "body": "Ver los duelos de otros jugadores en tiempo real aún no está disponible. Cuando lo esté, las partidas en curso aparecerán aquí.",
+    "cta": "Ver cómo se juega"
   }
 }

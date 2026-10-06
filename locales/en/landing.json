@@ -23,28 +23,6 @@
     "legendPico": "Pico = Exact Spot",
     "legendPala": "Pala = Wrong Spot"
   },
-  "rivals": {
-    "title": "THE RIVALS",
-    "subtitle": "Choose your battlefield and test your mental agility.",
-    "ai": {
-      "title": "Versus AI",
-      "description": "Challenge our smart bot with custom difficulty heuristics.",
-      "badge": "Works offline",
-      "cta": "Play Duel"
-    },
-    "private": {
-      "title": "Private Room",
-      "description": "Host a private battle room or join via 6-digit match key.",
-      "badge": "Code ABCD12",
-      "cta": "Create Room"
-    },
-    "global": {
-      "title": "Global Arena",
-      "description": "Challenge worldwide duelists with real-time ELO rating stakes.",
-      "badge": "Match in < 30s",
-      "cta": "Quick Match"
-    }
-  },
   "how": {
     "title": "How Pico & Pala Works",
     "subtitle": "Three simple rules. Infinite tactical depth.",

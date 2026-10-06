@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ShieldCheck,
   Eye,
@@ -17,9 +17,12 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { TurnstileWidget, type ITurnstileHandle } from '@/components/TurnstileWidget';
+import { VIEW_ROUTES } from '@/hooks/useAppNavigation';
 import { useLogin } from '@/hooks/useLogin';
 import { useRegister } from '@/hooks/useRegister';
 import { ApiError } from '@/lib/api';
+import { TURNSTILE_SITE_KEY } from '@/lib/turnstile';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { AppView } from '@/types/game';
@@ -31,8 +34,9 @@ interface AuthViewProps {
 const USERNAME_PATTERN = /^[A-Za-z0-9]{3,20}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function errorMessageKey(error: unknown): string {
+function errorMessageKey(error: unknown, captcha = false): string {
   if (error instanceof ApiError) {
+    if (error.status === 403 && captcha) return 'errors.captchaRejected';
     if (error.status === 401) return 'errors.invalidCredentials';
     if (error.status === 409) return 'errors.conflict';
     if (error.status === 429) return 'errors.rateLimited';
@@ -90,6 +94,19 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
   const [registerSubmitted, setRegisterSubmitted] = useState(false);
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  // Turnstile tokens are single use: held only in memory, cleared on every attempt.
+  const captchaRef = useRef<ITurnstileHandle>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaIssue, setCaptchaIssue] = useState<'expired' | 'failed' | null>(null);
+  const captchaEnabled = TURNSTILE_SITE_KEY.length > 0;
+  const captchaMissing = captchaEnabled && !captchaToken;
+  const captchaHintKey = captchaIssue ? `captcha.${captchaIssue}` : 'captcha.pending';
+
+  const resetCaptcha = () => {
+    setCaptchaToken(null);
+    setCaptchaIssue(null);
+    captchaRef.current?.reset();
+  };
 
   const handleValid = USERNAME_PATTERN.test(handle);
   const emailValid = EMAIL_PATTERN.test(email);
@@ -113,12 +130,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     setRegisterSubmitted(true);
-    if (!registerFormValid || register.isPending) return;
+    if (!registerFormValid || register.isPending || captchaMissing) return;
+    const token = captchaToken;
+    // The token is consumed by this attempt whatever the outcome.
+    setCaptchaToken(null);
     try {
-      await register.mutateAsync({ username: handle, email, password, language: lang });
+      await register.mutateAsync({
+        username: handle,
+        email,
+        password,
+        language: lang,
+        captchaToken: captchaEnabled && token ? token : undefined,
+      });
       onNavigate('play-hub');
     } catch {
-      // The error is rendered from `register.error`.
+      // The error is rendered from `register.error`; a new token is needed to retry.
+      resetCaptcha();
     }
   };
 
@@ -135,155 +162,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
 
   return (
     <div className="w-full max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-8">
-      {/* Mobile brand header (shown on small screens) */}
-      <div className="lg:hidden flex flex-col items-center mb-8 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30] mb-3">
-          <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
-          <span className="text-xs font-bold text-[#00d2ff] uppercase tracking-widest">
-            {t('mobile.badge')}
-          </span>
-        </div>
-        <h1 className="font-['Cairo'] text-3xl sm:text-4xl font-black text-white uppercase">
-          {t('mobile.titlePrefix')} <span className="text-[#ff479b]">{t('mobile.titleHighlight')}</span>
-        </h1>
-      </div>
-
-      {/* Dual Panel Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        {/* LEFT PANEL: Lore & Live Board Mockup */}
-        <section className="hidden lg:flex lg:col-span-6 bg-[#191b21] border border-[#282a30] rounded-3xl p-8 relative overflow-hidden flex-col justify-between shadow-2xl">
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#ff479b]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#00d2ff]/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-10 right-8 font-['Cairo'] text-[170px] leading-none font-black text-white/[0.03] select-none pointer-events-none">
-            7
-          </div>
-          <div className="absolute bottom-16 left-6 font-['Cairo'] text-[190px] leading-none font-black text-white/[0.03] select-none pointer-events-none">
-            1
-          </div>
-
-          {/* Top Status & Lore */}
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#111319] border border-[#282a30] mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-ping" />
-              <span className="text-xs font-bold text-[#a5e7ff] uppercase tracking-wider">
-                {t('left.season')}
-              </span>
-            </div>
-
-            <h2 className="font-['Cairo'] text-5xl font-black text-white uppercase tracking-tight leading-none mb-3">
-              {t('left.titleLine1')} <br />
-              <span className="bg-gradient-to-r from-[#ff5959] via-[#ff2e95] to-[#00d2ff] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(255,46,149,0.4)]">
-                {t('left.titleLine2')}
-              </span>
-            </h2>
-
-            <p className="text-sm text-[#e2bdc7] max-w-md leading-relaxed">
-              {t('left.description')}
-            </p>
-          </div>
-
-          {/* Live Game Board Mockup Card */}
-          <div className="relative z-10 my-6 bg-[#111319] border border-[#282a30] rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#282a30]">
-              <div className="flex items-center gap-2">
-                <span className="font-['Cairo'] text-xs font-bold text-white uppercase tracking-wider">
-                  {t('left.liveDuel', { turn: '04', max: '08' })}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#191b21] border border-white/5">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <span className="text-xs font-mono text-[#a98891]">00:14</span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {/* Row 1 */}
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-[#a98891] w-5">01</span>
-                  <div className="flex gap-1">
-                    {[5, 2, 8, 3].map((d, i) => (
-                      <span
-                        key={i}
-                        className="w-7 h-7 rounded bg-[#0c0e14] flex items-center justify-center font-['Cairo'] text-sm font-black text-white"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    <span className="text-xs text-[#ffe170] font-bold">{t('left.picoCount', { n: 1 })}</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
-                    <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                    <span className="text-xs text-[#ffb0ca] font-bold">{t('left.palaCount', { n: 1 })}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2 */}
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-[#a98891] w-5">02</span>
-                  <div className="flex gap-1">
-                    {[7, 2, 1, 9].map((d, i) => (
-                      <span
-                        key={i}
-                        className="w-7 h-7 rounded bg-[#0c0e14] flex items-center justify-center font-['Cairo'] text-sm font-black text-white"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    <span className="text-xs text-[#ffe170] font-bold ml-1">{t('left.picoCount', { n: 2 })}</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-[#0c0e14] px-2 py-0.5 rounded">
-                    <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                    <span className="text-xs text-[#ffb0ca] font-bold">{t('left.palaCount', { n: 1 })}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3 Winning */}
-              <div className="bg-[#e9c400]/15 border border-[#e9c400] rounded-xl p-2.5 flex items-center justify-between shadow-[0_0_15px_rgba(233,196,0,0.25)]">
-                <div className="flex items-center gap-3">
-                  <Trophy className="w-4 h-4 text-[#ffe170]" />
-                  <div className="flex gap-1 font-['Cairo'] text-sm font-black text-[#ffe170]">
-                    {[7, 1, 8, 4].map((d, i) => (
-                      <span
-                        key={i}
-                        className="w-7 h-7 rounded bg-[#0c0e14] flex items-center justify-center shadow-sm"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 bg-[#e9c400]/30 px-2.5 py-0.5 rounded text-xs font-black text-[#ffe170] uppercase">
-                  <span>●●●● {t('left.decrypted')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Perks */}
-          <div className="relative z-10 flex items-center gap-3 text-xs text-[#a98891]">
-            <span>{t('left.freeToPlay')}</span>
-            <span>•</span>
-            <span>{t('left.zeroAds')}</span>
-          </div>
-        </section>
-
+      <div className="max-w-xl mx-auto">
         {/* RIGHT PANEL: Auth Suite */}
-        <section className="lg:col-span-6 bg-[#191b21] border border-[#282a30] rounded-3xl p-6 sm:p-8 relative shadow-2xl flex flex-col justify-between overflow-hidden">
+        <section className="bg-[#191b21] border border-[#282a30] rounded-3xl p-6 sm:p-8 relative shadow-2xl flex flex-col justify-between overflow-hidden">
           <div>
             {authStatus === 'authenticated' && player ? (
               /* SIGNED-IN VIEW */
@@ -378,7 +259,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                     </div>
 
                     {register.isError && (
-                      <ErrorBanner title={t('errors.title')} message={t(errorMessageKey(register.error))} />
+                      <ErrorBanner title={t('errors.title')} message={t(errorMessageKey(register.error, true))} />
                     )}
 
                     <form onSubmit={handleRegister} noValidate className="space-y-4">
@@ -422,7 +303,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-[#111319] text-white text-xs font-bold pl-10 pr-10 py-3 rounded-xl border border-[#282a30] focus:outline-none focus:border-[#ff479b] transition-all"
-                            placeholder="you@domain.gg"
+                            placeholder={t('register.emailPlaceholder')}
                             required
                           />
                           {emailValid && <Check className="w-4 h-4 absolute right-3.5 text-[#00d2ff]" />}
@@ -504,17 +385,49 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
                             className="mt-1 h-4 w-4 rounded accent-[#ff479b] cursor-pointer"
                           />
                           <label htmlFor="tos-check" className="text-xs text-[#a98891] cursor-pointer">
-                            {t('register.tosPrefix')} <span className="text-[#00d2ff] underline">{t('register.tosTerms')}</span> {t('register.tosAnd')}{' '}
-                            <span className="text-[#00d2ff] underline">{t('register.tosPrivacy')}</span>{t('register.tosSuffix')}
+                            {t('register.tosPrefix')} <a href={VIEW_ROUTES.terms} target="_blank" rel="noopener noreferrer" className="text-[#00d2ff] underline">{t('register.tosTerms')}</a> {t('register.tosAnd')}{' '}
+                            <a href={VIEW_ROUTES.privacy} target="_blank" rel="noopener noreferrer" className="text-[#00d2ff] underline">{t('register.tosPrivacy')}</a>{t('register.tosSuffix')}
                           </label>
                         </div>
                         {registerSubmitted && <FieldError message={registerErrors.tos} />}
                       </div>
 
+                      {captchaEnabled && (
+                        <div className="space-y-2">
+                          <TurnstileWidget
+                            ref={captchaRef}
+                            siteKey={TURNSTILE_SITE_KEY}
+                            theme="dark"
+                            language={lang === 'pt' ? 'pt-br' : lang}
+                            onToken={(token) => {
+                              setCaptchaToken(token);
+                              setCaptchaIssue(null);
+                            }}
+                            onExpire={() => {
+                              setCaptchaToken(null);
+                              setCaptchaIssue('expired');
+                            }}
+                            onError={() => {
+                              setCaptchaToken(null);
+                              setCaptchaIssue('failed');
+                            }}
+                          />
+                          {captchaMissing && (
+                            <p
+                              data-testid="captcha-hint"
+                              role={captchaIssue ? 'alert' : 'status'}
+                              className={`text-center text-xs ${captchaIssue ? 'text-rose-400' : 'text-[#a98891]'}`}
+                            >
+                              {t(captchaHintKey)}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       {/* Submit CTA */}
                       <button
                         type="submit"
-                        disabled={register.isPending}
+                        disabled={register.isPending || captchaMissing}
                         className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,46,149,0.4)] hover:shadow-[0_0_30px_rgba(255,46,149,0.7)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {register.isPending ? (
@@ -627,13 +540,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onNavigate }) => {
             )}
           </div>
 
-          <div className="mt-8 pt-4 border-t border-[#282a30] flex items-center justify-between text-[#a98891] text-xs">
-            <div className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#00d2ff]" />
-              <span>{t('footer.protocol')}</span>
-            </div>
-            <span>v4.1.8-pro</span>
-          </div>
         </section>
       </div>
     </div>

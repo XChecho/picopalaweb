@@ -123,5 +123,10 @@
     "title": "Entre para ver seus recordes",
     "description": "Seu histórico de partidas, ELO e estatísticas estão ligados à sua conta. Entre ou crie uma para vê-los aqui.",
     "cta": "Entre ou crie uma conta"
+  },
+  "difficulty": {
+    "EASY": "Novato",
+    "MEDIUM": "Tático",
+    "HARD": "Grão-Mestre"
   }
 }

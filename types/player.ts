@@ -1,5 +1,6 @@
 export type TApiGameMode = "VERSUS_AI" | "PRIVATE" | "GLOBAL";
 export type TMatchStatus = "WAITING" | "PLAYING" | "FINISHED" | "CANCELLED";
+export type TApiDifficulty = "EASY" | "MEDIUM" | "HARD";
 export type TMatchResult = "WIN" | "LOSS" | "DRAW";
 
 export interface IPlayerStatsByMode {
@@ -51,6 +52,8 @@ export interface IMatchHistoryItem {
   endReason: string | null;
   isRanked: boolean;
   maxTurns: number;
+  /** Only set for VERSUS_AI matches (and only on backends that already expose it). */
+  aiDifficulty?: TApiDifficulty | null;
   startedAt: string | null;
   finishedAt: string | null;
   createdAt: string;

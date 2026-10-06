@@ -123,5 +123,10 @@
     "title": "Inicia sesión para ver tus récords",
     "description": "Tu historial de partidas, ELO y estadísticas están ligados a tu cuenta. Inicia sesión o crea una para verlos aquí.",
     "cta": "Inicia sesión o crea una cuenta"
+  },
+  "difficulty": {
+    "EASY": "Novato",
+    "MEDIUM": "Táctico",
+    "HARD": "Gran Maestro"
   }
 }

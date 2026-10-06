@@ -123,5 +123,10 @@
     "title": "Sign in to see your records",
     "description": "Your match history, ELO and stats are tied to your account. Sign in or create one to see them here.",
     "cta": "Sign in or create an account"
+  },
+  "difficulty": {
+    "EASY": "Novice",
+    "MEDIUM": "Tactician",
+    "HARD": "Grandmaster"
   }
 }

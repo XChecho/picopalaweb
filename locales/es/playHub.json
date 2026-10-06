@@ -1,37 +1,42 @@
 {
-  "status": {
-    "title": "⚡ Estás en un nodo listo para offline",
-    "body": "— Contra la IA funciona 100 % en tu dispositivo, sin latencia. Las salas globales y privadas simulan un emparejamiento real.",
-    "recheck": "Verificar estado"
+  "header": {
+    "eyebrow": "Centro de juego",
+    "title": "Bienvenido, {{username}}",
+    "subtitle": "Elige un modo, fija tu código y descifra el código oculto de tu rival con pura lógica deductiva."
+  },
+  "stats": {
+    "games": "Partidas",
+    "wins": "Victorias",
+    "streak": "Racha",
+    "bestStreak": "Mejor racha",
+    "winsByMode": "Victorias por modo",
+    "winsOf": "de {{games}} partidas",
+    "modes": {
+      "ai": "Contra la IA",
+      "private": "Sala privada",
+      "global": "Arena global"
+    }
   },
   "session": {
-    "badge": "SESIÓN ACTIVA",
-    "round": "Fase de ronda #02",
-    "title": "Turno <hl>7 / 12</hl> vs Bot ({{difficulty}})",
-    "cipher": "Código objetivo: 4 dígitos distintos fijados. Registro deductivo sincronizado.",
-    "reset": "Reiniciar partida",
+    "badge": "PARTIDA EN CURSO",
+    "title": "Turno <hl>{{turn}} / {{max}}</hl> vs Bot ({{difficulty}})",
     "resume": "Continuar partida"
-  },
-  "header": {
-    "eyebrow": "Centro de operaciones tácticas",
-    "title": "Elige tu batalla",
-    "subtitle": "Entra a la arena de deducción. Elige tu modo, fija tu código y descifra el código oculto de tu rival con pura lógica deductiva."
-  },
-  "tabs": {
-    "standard": "Juego estándar",
-    "ranked": "Ranked T1",
-    "scrims": "Scrims personalizados"
   },
   "versusAi": {
     "title": "Contra la IA",
-    "badge": "Cero latencia",
-    "subtitle": "Desafía a nuestro motor táctico de códigos. Funciona sin conexión, con turnos instantáneos.",
-    "offlineReady": "Listo para offline",
-    "matrixTitle": "Matriz de dificultad objetivo",
-    "perTurn": "45 s / turno",
+    "subtitle": "Desafía a nuestro motor táctico de códigos en tres niveles de dificultad.",
+    "perTurn": "{{seconds}} s / turno",
     "digits": "4 dígitos (1–9)",
-    "engage": "Enfrentar al bot ({{difficulty}})",
     "play": "Jugar"
+  },
+  "comingSoon": "Próximamente",
+  "private": {
+    "title": "Duelo privado",
+    "subtitle": "Enfréntate a un amigo con una clave de partida."
+  },
+  "global": {
+    "title": "Arena global",
+    "subtitle": "Duelos 1v1 ranked contra jugadores de todo el mundo."
   },
   "difficulty": {
     "novice": {
@@ -47,60 +52,7 @@
       "description": "Poda casi óptima del árbol. Cero consultas desperdiciadas. Máxima presión."
     },
     "guesses": "{{count}} intentos asignados",
-    "level": "Nvl {{level}}",
-    "selected": "Seleccionado"
-  },
-  "private": {
-    "title": "Duelo privado",
-    "badge": "1v1 directo",
-    "subtitle": "Crea una sala de batalla privada o únete con una clave de 6 dígitos.",
-    "host": {
-      "title": "Crear sala segura",
-      "waiting": "Esperando: 0/1 rival",
-      "copyTitle": "Copiar código",
-      "shareTitle": "Compartir sala",
-      "shareSubject": "Sala 1v1 de Pico & Pala",
-      "shareText": "Únete a mi batalla de Pico & Pala con el código: {{code}}"
-    },
-    "join": {
-      "title": "Ingresa el código de tu rival",
-      "error": "Sala no encontrada: verifica el código o pide al anfitrión que genere uno nuevo.",
-      "connect": "Conectar al lobby"
-    }
-  },
-  "global": {
-    "title": "Arena global ranked",
-    "badge": "Anti-trampas verificado",
-    "subtitle": "Compite en la escalera global. Duelos de deducción sincrónicos en tiempo real con puntos ELO en juego.",
-    "bracket": "Tu categoría",
-    "bracketValue": "Nivel Diamante · 1,420 ELO",
-    "radar": {
-      "title": "Telemetría de radar activa",
-      "searching": "Buscando",
-      "queuePos": "Pos. en cola",
-      "queueValue": "#4 en el grupo",
-      "estWait": "Espera est.",
-      "waitValue": "~18 s",
-      "region": "Región",
-      "regionValue": "NA-Este (Auto)",
-      "instantTest": "Prueba de partida instantánea"
-    },
-    "match": {
-      "confirmed": "¡Partida confirmada! Sincronizando",
-      "deploying": "Iniciando en 03 s",
-      "you": "Tú",
-      "winRate": "Victorias: 64 %",
-      "cipherDuel": "Duelo de códigos",
-      "streak": "Racha: 4 victorias",
-      "ready": "Todos los jugadores conectados y listos",
-      "enter": "Entrar a la arena"
-    }
-  },
-  "guest": {
-    "playingAs": "Jugando como <b>Duelista invitado</b>. Tu historial de victorias y la caché local del deductor se guardan en este navegador.",
-    "signIn": "Inicia sesión o crea una cuenta gratis",
-    "signInAfter": "para respaldar tus estadísticas y reclamar listones de avatar de temporada.",
-    "engine": "Motor de juego v2.4 activo"
+    "level": "Nvl {{level}}"
   },
   "modal": {
     "title": "Elige la dificultad",
