@@ -1,0 +1,224 @@
+{
+  "lastUpdated": "Last updated: {{date}}",
+  "terms": {
+    "title": "Terms and conditions of use",
+    "intro": "These terms govern access to and use of the Pico & Pala website and services. Read them before creating your account: by signing up or using the service you declare that you accept them.",
+    "sections": [
+      {
+        "title": "Who provides the service",
+        "paragraphs": [
+          "Pico & Pala is a 1v1 number deduction game operated by {{owner}} (the \"Operator\"), tax ID {{taxId}}, domiciled at {{address}}. You can reach us at {{email}}.",
+          "Accepting these terms by electronic means (ticking the sign-up checkbox or using the service) is fully valid as a data message under Colombian Law 527 of 1999."
+        ]
+      },
+      {
+        "title": "Who can use the service",
+        "paragraphs": [
+          "You must have the legal capacity to enter into agreements. People under 18 may only sign up with the authorization of their parents or legal guardian, who are responsible for the use made of the account. Sign-ups by people under 14 are not allowed.",
+          "If we detect an account that does not meet these requirements we may suspend it and delete the associated data."
+        ]
+      },
+      {
+        "title": "Your account",
+        "items": [
+          "You must provide truthful information and keep it up to date.",
+          "Your username must be 3 to 20 letters or numbers and must not impersonate anyone or be offensive.",
+          "You are responsible for keeping your password safe and for all activity under your account. Tell us if you suspect unauthorized use.",
+          "Each person may have one account and may not transfer it to others."
+        ]
+      },
+      {
+        "title": "What the service offers today",
+        "paragraphs": [
+          "The service is free. Currently available: the mode against artificial intelligence, match and statistics history, and the ELO points and ranks tied to your account.",
+          "Other features you may see mentioned, such as private rooms, the global arena or watching other players' matches, are not available yet. We do not guarantee release dates. ELO and rank are internal game indicators; they have no monetary value and cannot be redeemed."
+        ]
+      },
+      {
+        "title": "Rules of conduct",
+        "paragraphs": [
+          "You agree to use the service in good faith. The following is prohibited:"
+        ],
+        "items": [
+          "Cheating, or using automated programs, bots or any tool that gives an unfair advantage.",
+          "Trying to access systems or accounts without authorization, bypassing security measures, reverse engineering or overloading the service.",
+          "Using the service for unlawful activities, including conduct defined in Colombian Law 1273 of 2009 on computer crimes.",
+          "Harassing, threatening or impersonating other users, or using usernames or profile pictures that infringe third-party rights."
+        ]
+      },
+      {
+        "title": "Intellectual property",
+        "paragraphs": [
+          "The software, the \"Pico & Pala\" brand, the design, texts, illustrations and other elements of the service belong to the Operator or its licensors and are protected by Colombian Law 23 of 1982, Andean Decision 351 of 1993 and Andean Decision 486 of 2000, among other rules.",
+          "We grant you a limited, personal, non-exclusive, non-transferable and revocable license to use the service for personal, non-commercial purposes. No other rights are transferred to you."
+        ]
+      },
+      {
+        "title": "Content you provide",
+        "paragraphs": [
+          "Your username and, where the feature is available, your profile picture may be visible to other users. You warrant that you have the right to use them and authorize us to display them within the service while your account is active. You are responsible for that content."
+        ]
+      },
+      {
+        "title": "Availability, changes and suspension",
+        "paragraphs": [
+          "We aim to keep the service available, but interruptions may occur due to maintenance, failures or causes beyond our control. We may modify, suspend or withdraw features.",
+          "We may suspend or cancel your account if you breach these terms, stating the reason where possible. You may stop using the service at any time and request deletion of your data under the Privacy Policy."
+        ]
+      },
+      {
+        "title": "Liability",
+        "paragraphs": [
+          "To the extent permitted by law, the service is provided \"as is\", without warranty of uninterrupted or error-free operation, and the Operator is not liable for indirect damages arising from its use.",
+          "Nothing in these terms excludes or limits the warranties, rights or liabilities that Colombian law grants consumers on a non-waivable basis, nor any liability that cannot lawfully be limited."
+        ]
+      },
+      {
+        "title": "Consumer rights",
+        "paragraphs": [
+          "The service is free and involves no payments. If paid features are enabled in the future, before you purchase them we will tell you the price, the conditions and the rights granted by the Consumer Statute (Law 1480 of 2011), including the right of withdrawal and payment reversal where applicable.",
+          "You may submit requests, complaints or claims through the contact channel above. You may also go to the Superintendence of Industry and Commerce (SIC), the consumer protection authority."
+        ]
+      },
+      {
+        "title": "Personal data",
+        "paragraphs": [
+          "The processing of your personal data is governed by the Privacy Policy, which forms part of these terms and complies with Law 1581 of 2012."
+        ]
+      },
+      {
+        "title": "Changes to these terms",
+        "paragraphs": [
+          "We may update these terms. We will publish the current version on this page with its update date and, if the change is substantial, give you reasonable advance notice. If you keep using the service after the change takes effect, you are deemed to accept it; if you disagree, you may stop using it."
+        ]
+      },
+      {
+        "title": "Governing law and jurisdiction",
+        "paragraphs": [
+          "These terms are governed by the laws of the Republic of Colombia. Any dispute will be submitted to the competent Colombian authorities, without prejudice to the rights and actions you have as a consumer."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Personal data processing policy",
+    "intro": "This policy explains which personal data we process in Pico & Pala, why, and how you can exercise your rights. It is issued in compliance with Article 15 of the Colombian Constitution, Law 1581 of 2012, Decree 1074 of 2015 (which compiles Decrees 1377 of 2013 and 886 of 2014) and the instructions of the Superintendence of Industry and Commerce (SIC).",
+    "sections": [
+      {
+        "title": "Data controller",
+        "paragraphs": [
+          "{{owner}}, tax ID {{taxId}}, domiciled at {{address}}. Email for queries, claims and exercising your rights: {{email}}."
+        ]
+      },
+      {
+        "title": "Data we process",
+        "items": [
+          "Account data: username, email, preferred language and password (stored only as a hash, never in readable form). Profile picture where the feature is available.",
+          "Game data: matches, moves, results, statistics, ELO points and rank.",
+          "Session and security data: session identifier (stored as a hash), platform, browser or device used and usage dates. Your IP address is processed to limit abuse and protect the service; in contact forms we only store a hash of the IP.",
+          "Mobile app data: if you enable notifications, your device's push notification token.",
+          "Contact data: if you write to us or join the waitlist, your name, email, subject and message.",
+          "We do not request sensitive data (health, racial origin, political or religious orientation, biometric data, among others)."
+        ]
+      },
+      {
+        "title": "Purposes",
+        "items": [
+          "Creating and managing your account and authenticating you.",
+          "Providing the game service, saving your history and computing statistics and ELO.",
+          "Ensuring security and preventing fraud, cheating and abuse.",
+          "Sending you service communications, such as email verification, password reset and match notifications.",
+          "Handling your queries, requests, complaints and claims.",
+          "Improving the service using aggregated information that does not identify you.",
+          "Complying with legal obligations and responding to requests from competent authorities.",
+          "Sending you game news only if you expressly and separately authorize it, such as when joining the waitlist. You can withdraw that authorization at any time."
+        ]
+      },
+      {
+        "title": "Authorization",
+        "paragraphs": [
+          "We process your data with your prior, express and informed authorization (Law 1581 of 2012, art. 9), which you give by accepting this policy when creating your account. We keep proof of that authorization. We do not need authorization in cases the law exempts, for example when a competent authority requires it."
+        ]
+      },
+      {
+        "title": "Your rights as a data subject",
+        "paragraphs": [
+          "Under Article 8 of Law 1581 of 2012, you may:"
+        ],
+        "items": [
+          "Know, update and correct your data.",
+          "Request proof of the authorization you gave.",
+          "Be informed about how your data has been used.",
+          "File complaints with the SIC for violations of the law.",
+          "Revoke the authorization and request deletion of your data when legal principles and guarantees are not respected or there is no legal or contractual duty to keep it.",
+          "Access your personal data free of charge."
+        ]
+      },
+      {
+        "title": "How to exercise your rights",
+        "paragraphs": [
+          "Write to us at {{email}} stating your username, your sign-up email and what you request. We may ask for additional information to verify your identity.",
+          "We will answer queries within a maximum of 10 business days, extendable by 5 more business days if we tell you why (art. 14). Claims for correction, update or deletion will be resolved within a maximum of 15 business days, extendable by 8 more business days (art. 15).",
+          "You may only go to the SIC after exhausting this procedure with us (art. 16). For now, account deletion and data edits are not done from the app but through this channel."
+        ]
+      },
+      {
+        "title": "Who we share data with",
+        "paragraphs": [
+          "We do not sell your personal data. We use providers that process data on our behalf (processors) solely to provide the service:"
+        ],
+        "items": [
+          "Infrastructure, hosting and database.",
+          "Cloudflare, for anti-bot verification (Turnstile) and network protection, when active.",
+          "Cloudinary, to store profile pictures, when the feature is active.",
+          "Expo, to send push notifications to the mobile app.",
+          "Google Fonts, which serves the site's typefaces and receives your IP address when loading them."
+        ]
+      },
+      {
+        "title": "International transmission and transfer",
+        "paragraphs": [
+          "Some of these providers may store or process data outside Colombia. By accepting this policy you expressly authorize that transmission or transfer. We require providers to apply adequate security and confidentiality measures, in line with Article 26 of Law 1581 of 2012 and SIC instructions."
+        ]
+      },
+      {
+        "title": "Cookies and local storage",
+        "items": [
+          "Session cookies (HttpOnly): used only to keep you signed in. They are necessary for the service to work and cannot be read by the page's code.",
+          "Browser local storage: stores your preferred language.",
+          "We use no advertising cookies or third-party analytics tools. The anti-bot verification service may use its own technical signals to tell people from programs."
+        ]
+      },
+      {
+        "title": "Security",
+        "paragraphs": [
+          "We apply reasonable technical and organizational measures: passwords stored as hashes, session tokens stored as hashes and rotated, HttpOnly cookies, request limits and anti-bot verification. No measure is infallible. If an incident affecting your data occurs, we will handle it and inform the SIC and affected data subjects as required by regulation."
+        ]
+      },
+      {
+        "title": "Retention",
+        "paragraphs": [
+          "We keep your data while your account is active and afterwards only for as long as needed for the purposes described and to meet legal obligations. When you request deletion and there is no legal duty to keep the data, we will delete or anonymize it."
+        ]
+      },
+      {
+        "title": "Minors",
+        "paragraphs": [
+          "The service is not directed at children under 14. Teenagers aged 14 to 17 may only sign up with the authorization of their parents or legal guardian, and the processing of their data respects the best interests of the minor and their prevailing rights (Law 1581 of 2012, art. 7, and Law 1098 of 2006). If we detect a minor's data without the required authorization, we will delete it."
+        ]
+      },
+      {
+        "title": "National Database Registry",
+        "paragraphs": [
+          "Where the law requires it, we will register the databases containing personal data in the National Database Registry (RNBD) administered by the SIC."
+        ]
+      },
+      {
+        "title": "Effective date and changes",
+        "paragraphs": [
+          "This policy applies from the update date shown above. If we change it substantially we will let you know and, where the law requires, ask for your authorization again."
+        ]
+      }
+    ]
+  }
+}

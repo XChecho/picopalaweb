@@ -1,0 +1,224 @@
+{
+  "lastUpdated": "Última atualização: {{date}}",
+  "terms": {
+    "title": "Termos e condições de uso",
+    "intro": "Estes termos regulam o acesso e o uso do site e dos serviços do Pico & Pala. Leia-os antes de criar sua conta: ao se cadastrar ou usar o serviço, você declara que os aceita.",
+    "sections": [
+      {
+        "title": "Quem oferece o serviço",
+        "paragraphs": [
+          "O Pico & Pala é um jogo de dedução numérica 1 contra 1 operado por {{owner}} (o \"Operador\"), identificado com {{taxId}}, com domicílio em {{address}}. Você pode falar conosco em {{email}}.",
+          "A aceitação destes termos por meios eletrônicos (marcando a caixa do cadastro ou usando o serviço) tem plena validade como mensagem de dados, conforme a Lei colombiana 527 de 1999."
+        ]
+      },
+      {
+        "title": "Quem pode usar o serviço",
+        "paragraphs": [
+          "Para usar o serviço você deve ter capacidade legal para se obrigar. Menores de 18 anos só podem se cadastrar com autorização dos pais ou do representante legal, que respondem pelo uso da conta. Não é permitido o cadastro de menores de 14 anos.",
+          "Se detectarmos uma conta que não cumpra esses requisitos, poderemos suspendê-la e excluir os dados associados."
+        ]
+      },
+      {
+        "title": "Sua conta",
+        "items": [
+          "Você deve fornecer informações verdadeiras e mantê-las atualizadas.",
+          "Seu apelido deve ter de 3 a 20 letras ou números e não pode se passar por outra pessoa nem ser ofensivo.",
+          "Você é responsável por guardar sua senha e pela atividade realizada com sua conta. Avise-nos se suspeitar de uso não autorizado.",
+          "Cada pessoa pode ter uma única conta e não pode cedê-la a terceiros."
+        ]
+      },
+      {
+        "title": "O que o serviço oferece hoje",
+        "paragraphs": [
+          "O serviço é gratuito. Atualmente estão disponíveis o modo contra a inteligência artificial, o registro de partidas e estatísticas, e os pontos ELO e ranks associados à sua conta.",
+          "Outras funções que você possa ver mencionadas, como salas privadas, arena global ou assistir a partidas de outros jogadores, ainda não estão disponíveis. Não garantimos datas de lançamento. O ELO e o rank são indicadores internos do jogo; não têm valor econômico nem podem ser trocados."
+        ]
+      },
+      {
+        "title": "Regras de conduta",
+        "paragraphs": [
+          "Você se compromete a usar o serviço de boa-fé. É proibido:"
+        ],
+        "items": [
+          "Trapacear ou usar programas automáticos, bots ou qualquer ferramenta que dê vantagem injusta.",
+          "Tentar acessar sistemas ou contas sem autorização, violar medidas de segurança, fazer engenharia reversa ou sobrecarregar o serviço.",
+          "Usar o serviço para atividades ilícitas, incluindo as condutas previstas na Lei colombiana 1273 de 2009 sobre crimes informáticos.",
+          "Assediar, ameaçar ou se passar por outros usuários, ou usar apelidos ou imagens de perfil que violem direitos de terceiros."
+        ]
+      },
+      {
+        "title": "Propriedade intelectual",
+        "paragraphs": [
+          "O software, a marca \"Pico & Pala\", o design, os textos, as ilustrações e demais elementos do serviço pertencem ao Operador ou a seus licenciantes e são protegidos pela Lei colombiana 23 de 1982, pela Decisão Andina 351 de 1993 e pela Decisão Andina 486 de 2000, entre outras normas.",
+          "Concedemos a você uma licença limitada, pessoal, não exclusiva, intransferível e revogável para usar o serviço para fins pessoais e não comerciais. Nenhum outro direito é transferido a você."
+        ]
+      },
+      {
+        "title": "Conteúdo que você fornece",
+        "paragraphs": [
+          "Seu apelido e, se a função estiver disponível, sua imagem de perfil podem ficar visíveis para outros usuários. Você garante ter o direito de usá-los e nos autoriza a exibi-los dentro do serviço enquanto sua conta estiver ativa. Você é responsável por esse conteúdo."
+        ]
+      },
+      {
+        "title": "Disponibilidade, mudanças e suspensão",
+        "paragraphs": [
+          "Procuramos manter o serviço disponível, mas pode haver interrupções por manutenção, falhas ou causas fora do nosso controle. Podemos modificar, suspender ou retirar funções.",
+          "Poderemos suspender ou cancelar sua conta se você descumprir estes termos, informando o motivo quando possível. Você pode deixar de usar o serviço a qualquer momento e solicitar a exclusão de seus dados conforme a Política de Privacidade."
+        ]
+      },
+      {
+        "title": "Responsabilidade",
+        "paragraphs": [
+          "Na medida permitida pela lei, o serviço é oferecido \"como está\", sem garantia de funcionamento ininterrupto ou livre de erros, e o Operador não responde por danos indiretos decorrentes de seu uso.",
+          "Nada nestes termos exclui ou limita as garantias, direitos ou responsabilidades que a lei colombiana reconhece de forma irrenunciável aos consumidores, nem a responsabilidade que não possa ser legalmente limitada."
+        ]
+      },
+      {
+        "title": "Direitos do consumidor",
+        "paragraphs": [
+          "O serviço é gratuito e não envolve pagamentos. Se funções pagas forem habilitadas no futuro, antes de contratá-las informaremos o preço, as condições e os direitos reconhecidos pelo Estatuto do Consumidor (Lei 1480 de 2011), incluindo o direito de arrependimento e a reversão do pagamento quando cabível.",
+          "Você pode apresentar petições, reclamações ou queixas pelo canal de contato indicado acima. Também pode recorrer à Superintendência de Indústria e Comércio (SIC), autoridade de proteção ao consumidor."
+        ]
+      },
+      {
+        "title": "Dados pessoais",
+        "paragraphs": [
+          "O tratamento de seus dados pessoais é regido pela Política de Privacidade, que faz parte destes termos e cumpre a Lei 1581 de 2012."
+        ]
+      },
+      {
+        "title": "Mudanças nestes termos",
+        "paragraphs": [
+          "Podemos atualizar estes termos. Publicaremos a versão vigente nesta página com sua data de atualização e, se a mudança for substancial, avisaremos com antecedência razoável. Se você continuar usando o serviço depois da entrada em vigor da mudança, entende-se que a aceita; se não concordar, pode deixar de usá-lo."
+        ]
+      },
+      {
+        "title": "Lei aplicável e jurisdição",
+        "paragraphs": [
+          "Estes termos são regidos pelas leis da República da Colômbia. Qualquer controvérsia será submetida às autoridades colombianas competentes, sem prejuízo dos direitos e ações que lhe cabem como consumidor."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Política de tratamento de dados pessoais",
+    "intro": "Esta política explica quais dados pessoais tratamos no Pico & Pala, para quê e como você pode exercer seus direitos. É emitida em cumprimento ao artigo 15 da Constituição Política da Colômbia, à Lei 1581 de 2012, ao Decreto 1074 de 2015 (que compila os decretos 1377 de 2013 e 886 de 2014) e às instruções da Superintendência de Indústria e Comércio (SIC).",
+    "sections": [
+      {
+        "title": "Responsável pelo tratamento",
+        "paragraphs": [
+          "{{owner}}, identificado com {{taxId}}, com domicílio em {{address}}. E-mail para consultas, reclamações e exercício de direitos: {{email}}."
+        ]
+      },
+      {
+        "title": "Dados que tratamos",
+        "items": [
+          "Dados da conta: apelido, e-mail, idioma preferido e senha (guardada apenas como hash, nunca em texto legível). Imagem de perfil, se a função estiver disponível.",
+          "Dados de jogo: partidas, jogadas, resultados, estatísticas, pontos ELO e rank.",
+          "Dados de sessão e segurança: identificador de sessão (guardado como hash), plataforma, navegador ou dispositivo usado e datas de uso. Seu endereço IP é processado para limitar abusos e proteger o serviço; nos formulários de contato guardamos apenas um hash do IP.",
+          "Dados do app móvel: se você ativar as notificações, o token de notificações push do seu dispositivo.",
+          "Dados de contato: se você nos escrever ou entrar na lista de espera, seu nome, e-mail, assunto e mensagem.",
+          "Não solicitamos dados sensíveis (saúde, origem racial, orientação política ou religiosa, dados biométricos, entre outros)."
+        ]
+      },
+      {
+        "title": "Finalidades",
+        "items": [
+          "Criar e administrar sua conta e autenticar você.",
+          "Prestar o serviço de jogo, guardar seu histórico e calcular estatísticas e ELO.",
+          "Garantir a segurança e prevenir fraudes, trapaças e abusos.",
+          "Enviar comunicações do serviço, como verificação de e-mail, redefinição de senha e notificações de partida.",
+          "Atender suas consultas, petições, queixas e reclamações.",
+          "Melhorar o serviço com informações agregadas que não identificam você.",
+          "Cumprir obrigações legais e atender requisições de autoridades competentes.",
+          "Enviar novidades do jogo somente se você autorizar de forma expressa e separada, como ao entrar na lista de espera. Você pode retirar essa autorização quando quiser."
+        ]
+      },
+      {
+        "title": "Autorização",
+        "paragraphs": [
+          "Tratamos seus dados com sua autorização prévia, expressa e informada (Lei 1581 de 2012, art. 9), que você concede ao aceitar esta política ao criar sua conta. Guardamos prova dessa autorização. Não precisamos de autorização nos casos que a lei excetua, por exemplo quando uma autoridade competente exige."
+        ]
+      },
+      {
+        "title": "Seus direitos como titular",
+        "paragraphs": [
+          "Conforme o artigo 8 da Lei 1581 de 2012, você pode:"
+        ],
+        "items": [
+          "Conhecer, atualizar e retificar seus dados.",
+          "Solicitar prova da autorização concedida.",
+          "Ser informado sobre o uso dado aos seus dados.",
+          "Apresentar queixas à SIC por infrações à lei.",
+          "Revogar a autorização e solicitar a exclusão dos seus dados quando não forem respeitados os princípios e garantias legais ou não houver dever legal ou contratual de conservá-los.",
+          "Acessar gratuitamente seus dados pessoais."
+        ]
+      },
+      {
+        "title": "Como exercer seus direitos",
+        "paragraphs": [
+          "Escreva para {{email}} informando seu apelido, seu e-mail de cadastro e o que solicita. Poderemos pedir informações adicionais para verificar sua identidade.",
+          "Atenderemos as consultas em no máximo 10 dias úteis, prorrogáveis por mais 5 dias úteis se informarmos o motivo (art. 14). As reclamações de retificação, atualização ou exclusão serão resolvidas em no máximo 15 dias úteis, prorrogáveis por mais 8 dias úteis (art. 15).",
+          "Você só pode recorrer à SIC depois de esgotar este trâmite conosco (art. 16). Por enquanto, a exclusão da conta e a edição de dados não são feitas pelo aplicativo, mas por este canal."
+        ]
+      },
+      {
+        "title": "Com quem compartilhamos dados",
+        "paragraphs": [
+          "Não vendemos seus dados pessoais. Usamos provedores que tratam dados em nosso nome (operadores) apenas para prestar o serviço:"
+        ],
+        "items": [
+          "Infraestrutura, hospedagem e banco de dados.",
+          "Cloudflare, para a verificação anti-bots (Turnstile) e proteção da rede, quando ativos.",
+          "Cloudinary, para armazenar imagens de perfil, quando a função está ativa.",
+          "Expo, para enviar notificações push ao app móvel.",
+          "Google Fonts, que serve as fontes do site e recebe seu endereço IP ao carregá-las."
+        ]
+      },
+      {
+        "title": "Transmissão e transferência internacional",
+        "paragraphs": [
+          "Alguns desses provedores podem armazenar ou processar dados fora da Colômbia. Ao aceitar esta política, você autoriza expressamente essa transmissão ou transferência. Exigimos dos provedores medidas adequadas de segurança e confidencialidade, conforme o artigo 26 da Lei 1581 de 2012 e as instruções da SIC."
+        ]
+      },
+      {
+        "title": "Cookies e armazenamento local",
+        "items": [
+          "Cookies de sessão (HttpOnly): usados apenas para manter sua sessão iniciada. São necessários para o funcionamento do serviço e não podem ser lidos pelo código da página.",
+          "Armazenamento local do navegador: guarda seu idioma preferido.",
+          "Não usamos cookies de publicidade nem ferramentas de análise de terceiros. O serviço de verificação anti-bots pode usar seus próprios sinais técnicos para distinguir pessoas de programas."
+        ]
+      },
+      {
+        "title": "Segurança",
+        "paragraphs": [
+          "Aplicamos medidas técnicas e organizacionais razoáveis: senhas guardadas com hash, tokens de sessão guardados como hash e rotacionados, cookies HttpOnly, limites de requisições e verificação anti-bots. Nenhuma medida é infalível. Se ocorrer um incidente que afete seus dados, o trataremos e informaremos a SIC e os titulares afetados conforme a regulamentação."
+        ]
+      },
+      {
+        "title": "Conservação",
+        "paragraphs": [
+          "Conservamos seus dados enquanto sua conta estiver ativa e, depois, apenas pelo tempo necessário para as finalidades descritas e para cumprir obrigações legais. Quando você solicitar a exclusão e não houver dever legal de conservá-los, excluiremos ou anonimizaremos seus dados."
+        ]
+      },
+      {
+        "title": "Menores de idade",
+        "paragraphs": [
+          "O serviço não é direcionado a menores de 14 anos. Adolescentes de 14 a 17 anos só podem se cadastrar com autorização dos pais ou do representante legal, e o tratamento de seus dados respeita o interesse superior do menor e seus direitos prevalentes (Lei 1581 de 2012, art. 7, e Lei 1098 de 2006). Se detectarmos dados de um menor sem a autorização exigida, os excluiremos."
+        ]
+      },
+      {
+        "title": "Registro Nacional de Bancos de Dados",
+        "paragraphs": [
+          "Quando a lei exigir, registraremos os bancos de dados que contenham dados pessoais no Registro Nacional de Bancos de Dados (RNBD) administrado pela SIC."
+        ]
+      },
+      {
+        "title": "Vigência e mudanças",
+        "paragraphs": [
+          "Esta política vale a partir da data de atualização indicada acima. Se a modificarmos de forma substancial, comunicaremos você e, quando a lei exigir, pediremos novamente sua autorização."
+        ]
+      }
+    ]
+  }
+}
