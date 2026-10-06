@@ -18,7 +18,9 @@
     "mute": "Silenciar sonidos del juego",
     "unmute": "Activar sonidos del juego",
     "modes": "Modos",
-    "playArena": "Jugar en la Arena"
+    "playArena": "Jugar en la Arena",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión"
   },
   "footer": {
     "howToPlay": "Cómo Jugar",
@@ -30,5 +32,12 @@
     "termsAlert": "Términos de Servicio: protocolos de deducción con juego limpio. Antitrampas algorítmico activo.",
     "privacyAlert": "Política de Privacidad: todos los estados de juego y récords se guardan cifrados en la caché local del navegador.",
     "version": "{{lang}} · v2.4 En Vivo"
+  },
+  "ranks": {
+    "BRONCE": "Bronce",
+    "PLATA": "Plata",
+    "ORO": "Oro",
+    "PLATINO": "Platino",
+    "DIAMANTE": "Diamante"
   }
 }

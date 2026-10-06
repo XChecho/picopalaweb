@@ -3,26 +3,20 @@
     "hq": "QG DO DUELISTA",
     "records": "REGISTROS E HISTÓRICO"
   },
-  "node": {
-    "synced": "NÓ SINCRONIZADO // TÓQUIO LESTE"
-  },
   "profile": {
-    "rankTitle": "Nível Diamante ({{elo}} ELO)",
-    "seasonTag": "Veterano da Temporada 4",
-    "statusText": "Duelista de dedução ativo",
-    "editProfile": "Editar perfil",
-    "enterArena": "Entrar na arena ranqueada"
+    "rankTitle": "{{rank}} ({{elo}} ELO)",
+    "enterArena": "Entrar na arena"
   },
   "stats": {
     "gamesPlayed": "PARTIDAS JOGADAS",
-    "thisWeek": "+{{count}} nesta semana",
     "totalVictories": "VITÓRIAS TOTAIS",
-    "trueWinrate": "64,1% de aproveitamento real",
     "winRatio": "TAXA DE VITÓRIAS",
-    "topPool": "Top 8% dos duelistas globais",
     "currentStreak": "SEQUÊNCIA ATUAL",
     "wins": "Vitórias",
-    "personalBest": "Melhor marca pessoal: {{count}} partidas"
+    "personalBest": "Melhor marca pessoal: {{count}} partidas",
+    "record": "{{wins}}V · {{losses}}D · {{draws}}E",
+    "winRateOf": "{{rate}}% das partidas vencidas",
+    "currentElo": "ELO atual: {{elo}}"
   },
   "metrics": {
     "draws": "Empates",
@@ -44,18 +38,6 @@
     "private": "privada",
     "global": "global"
   },
-  "preview": {
-    "label": "Pré-visualização de estado:",
-    "default": "Histórico padrão",
-    "offline": "Sincronização offline pendente",
-    "empty": "Estado vazio",
-    "error": "Estado de erro",
-    "loading": "Carregando"
-  },
-  "offline": {
-    "banner": "⚡ Exibindo registros salvos no dispositivo: sincronização com a nuvem pendente ({{count}} partidas não salvas).",
-    "syncNow": "Sincronizar agora"
-  },
   "table": {
     "result": "Resultado",
     "mode": "Modo",
@@ -63,10 +45,11 @@
     "stakes": "Aposta / ELO",
     "turnsTaken": "Turnos usados",
     "timestamp": "Data e hora",
-    "logView": "Ver registro",
     "showing": "Exibindo <strong>{{shown}}</strong> de <strong>{{total}}</strong> partidas registradas",
     "loadMore": "Carregar mais registros",
-    "loadMoreAlert": "As {{total}} partidas registradas estão salvas no buffer do cliente."
+    "eloDelta": "{{delta}} ELO",
+    "unranked": "Sem ranking",
+    "loadingMore": "Carregando…"
   },
   "results": {
     "WIN": "VITÓRIA",
@@ -78,20 +61,9 @@
     "ai": "vs IA",
     "private": "Sala privada"
   },
-  "stakes": {
-    "trainingDrill": "Treino",
-    "friendlyMatch": "Partida amistosa",
-    "warmup": "Aquecimento (+0)"
-  },
   "opponents": {
-    "grandmasterHard": "Grão-Mestre (Difícil)",
-    "noviceWarmup": "Novato (Aquecimento)"
-  },
-  "timestamps": {
-    "todayAt": "Hoje, {{time}}",
-    "yesterday": "Ontem",
-    "oct24": "24 out",
-    "oct23": "23 out"
+    "ai": "Oponente IA",
+    "unknown": "Duelista desconhecido"
   },
   "empty": {
     "title": "Você ainda não jogou nenhuma partida",
@@ -99,9 +71,9 @@
     "cta": "Jogue sua primeira partida"
   },
   "error": {
-    "title": "Tempo de conexão esgotado",
-    "description": "Não foi possível recuperar o histórico de dedução da nuvem. A rede demorou demais ou a verificação de segurança expirou.",
-    "retry": "Tentar conexão novamente"
+    "title": "Não foi possível carregar suas partidas",
+    "description": "Algo deu errado ao buscar seus dados. Tente novamente.",
+    "retry": "Tentar novamente"
   },
   "config": {
     "title": "Configuração do duelista",
@@ -132,18 +104,8 @@
     "title": "Conta e segurança",
     "subtitle": "Credenciais de autenticação",
     "email": "E-mail do duelista",
-    "verified": "Verificado",
-    "passcode": "Código de segurança",
-    "updated": "Atualizado há 2 semanas",
-    "change": "Alterar",
-    "changeAlert": "Enviamos o link para atualizar seu código de segurança para {{email}}",
-    "delete": "Excluir conta...",
-    "deleteWarning": "Ação irreversível. Digite <strong>{{word}}</strong> para apagar seu ELO, histórico de partidas e cosméticos.",
-    "deletePlaceholder": "Digite \"{{word}}\"",
-    "deletePurged": "Os dados da conta foram apagados do registro local.",
-    "deleteMismatch": "Digite {{word}} exatamente para confirmar.",
-    "purge": "Apagar definitivamente",
-    "footer": "Vinculação de 2 fatores com Steam/Discord ativada."
+    "memberSince": "Membro desde",
+    "username": "Apelido de duelista"
   },
   "about": {
     "title": "Sobre e integridade",
@@ -157,12 +119,9 @@
     "fairPlayAlert": "Anti-trapaça: verificador de permutações 100% determinístico",
     "crafted": "CRIADO PARA O ESPORTE DA MENTE PELA AURON TALE GAMES"
   },
-  "edit": {
-    "title": "Editar registro do duelista",
-    "close": "Fechar",
-    "callSign": "Nome de exibição",
-    "email": "E-mail cadastrado",
-    "cancel": "Cancelar",
-    "save": "Salvar alterações"
+  "anonymous": {
+    "title": "Entre para ver seus recordes",
+    "description": "Seu histórico de partidas, ELO e estatísticas estão ligados à sua conta. Entre ou crie uma para vê-los aqui.",
+    "cta": "Entre ou crie uma conta"
   }
 }

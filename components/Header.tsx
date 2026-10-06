@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Settings, Globe, Shield, Swords } from 'lucide-react';
+import { Volume2, VolumeX, Globe, LogIn, LogOut, Swords } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from '@/lib/i18n/config';
 import { AppView } from '@/types/game';
+import type { IPlayer, TAuthStatus } from '@/types/auth';
 
 interface HeaderProps {
   currentView: AppView;
@@ -14,6 +15,10 @@ interface HeaderProps {
   lang: string;
   onChangeLang: (lang: string) => void;
   activeMatchInProgress?: boolean;
+  player: IPlayer | null;
+  authStatus: TAuthStatus;
+  onLogout: () => void;
+  isLoggingOut?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,6 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
   lang,
   onChangeLang,
   activeMatchInProgress = false,
+  player,
+  authStatus,
+  onLogout,
+  isLoggingOut = false,
 }) => {
   const { t } = useTranslation('common');
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -156,23 +165,56 @@ export const Header: React.FC<HeaderProps> = ({
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
 
-          {/* User Profile Capsule */}
-          <button
-            onClick={() => onNavigate('records')}
-            className="flex items-center gap-2 pl-1 pr-3 py-1 bg-[#191b21] hover:bg-[#282a30] rounded-full border border-[#282a30] transition-all group"
-          >
-            <div className="relative">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ff479b] to-[#a5e7ff] p-[1.5px]">
-                <div className="w-full h-full rounded-full bg-[#111319] flex items-center justify-center text-[11px] font-black text-white">
-                  C
+          {/* Session: profile capsule + sign out, or sign in */}
+          {authStatus === 'authenticated' && player ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onNavigate('records')}
+                className="flex items-center gap-2 pl-1 pr-3 py-1 bg-[#191b21] hover:bg-[#282a30] rounded-full border border-[#282a30] transition-all group"
+              >
+                <div className="relative">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ff479b] to-[#a5e7ff] p-[1.5px]">
+                    <div className="w-full h-full rounded-full bg-[#111319] flex items-center justify-center text-[11px] font-black text-white overflow-hidden">
+                      {player.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={player.avatarUrl}
+                          alt={player.username}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        player.username.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-[#00d2ff] ring-1 ring-[#191b21]" />
                 </div>
-              </div>
-              <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-[#00d2ff] ring-1 ring-[#191b21]" />
+                <span className="font-['Cairo'] text-xs font-bold text-[#e2e2ea] group-hover:text-white hidden sm:inline max-w-[120px] truncate">
+                  {player.username}
+                </span>
+              </button>
+              <button
+                onClick={onLogout}
+                disabled={isLoggingOut}
+                title={t('header.signOut')}
+                aria-label={t('header.signOut')}
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-[#191b21] text-[#a98891] hover:text-white hover:bg-[#282a30] border border-[#282a30] transition-all disabled:opacity-50"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <span className="font-['Cairo'] text-xs font-bold text-[#e2e2ea] group-hover:text-white hidden sm:inline">
-              duelist#4821
-            </span>
-          </button>
+          ) : authStatus === 'anonymous' ? (
+            <button
+              onClick={() => onNavigate('auth')}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#191b21] hover:bg-[#282a30] border border-[#282a30] text-xs font-bold text-[#e2e2ea] transition-all"
+            >
+              <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
+              <span>{t('header.signIn')}</span>
+            </button>
+          ) : (
+            <div className="w-24 h-9 rounded-full bg-[#191b21] border border-[#282a30] animate-pulse" aria-hidden="true" />
+          )}
 
           {/* Direct CTA */}
           <button

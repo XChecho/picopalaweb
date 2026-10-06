@@ -18,7 +18,9 @@
     "mute": "Mute game sounds",
     "unmute": "Unmute game sounds",
     "modes": "Modes",
-    "playArena": "Play Arena"
+    "playArena": "Play Arena",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
   },
   "footer": {
     "howToPlay": "How to Play",
@@ -30,5 +32,12 @@
     "termsAlert": "Terms of Service: Fair play deduction protocols. Algorithmic anti-cheat active.",
     "privacyAlert": "Privacy Policy: All game states and records stored encrypted in local browser cache.",
     "version": "{{lang}} · v2.4 Live"
+  },
+  "ranks": {
+    "BRONCE": "Bronze",
+    "PLATA": "Silver",
+    "ORO": "Gold",
+    "PLATINO": "Platinum",
+    "DIAMANTE": "Diamond"
   }
 }
