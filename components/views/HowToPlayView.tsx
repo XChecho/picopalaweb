@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Check,
   X,
@@ -8,7 +8,6 @@ import {
   Lock,
   Timer,
   Coins,
-  Brain,
   Lightbulb,
   ArrowRight,
   Sparkles,
@@ -20,19 +19,12 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { AppView } from '@/types/game';
 
-const ADVANCED_TURNS = [
-  { guess: '3159', picos: 2, palas: 1 },
-  { guess: '3179', picos: 2, palas: 2 },
-  { guess: '3719', picos: 4, palas: 0 },
-] as const;
-
 interface HowToPlayViewProps {
   onNavigate: (view: AppView) => void;
 }
 
 export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
   const { t } = useTranslation('howToPlay');
-  const [tutorialMode, setTutorialMode] = useState<'easy' | 'advanced'>('easy');
 
   return (
     <div className="w-full max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-6 flex flex-col gap-10">
@@ -56,44 +48,21 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           {t('hero.subtitle')}
         </p>
 
-        {/* Mode Toggle Switch */}
+        {/* Guide tabs: two separate screens (basics / advanced strategy) */}
         <div className="mt-4 p-1 bg-[#191b21] border border-[#282a30] rounded-full flex items-center shadow-lg">
           <button
-            onClick={() => setTutorialMode('easy')}
-            className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-              tutorialMode === 'easy'
-                ? 'bg-gradient-to-r from-[#ff5959] to-[#ff479b] text-white shadow-[0_0_20px_rgba(255,46,149,0.4)]'
-                : 'text-[#a98891] hover:text-white'
-            }`}
+            aria-current="page"
+            className="px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider bg-gradient-to-r from-[#ff5959] to-[#ff479b] text-white shadow-[0_0_20px_rgba(255,46,149,0.4)]"
           >
             {t('hero.easyToggle')}
           </button>
           <button
-            onClick={() => setTutorialMode('advanced')}
-            className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-              tutorialMode === 'advanced'
-                ? 'bg-gradient-to-r from-[#00d2ff] to-[#47d6ff] text-black shadow-[0_0_20px_rgba(0,210,255,0.4)]'
-                : 'text-[#a98891] hover:text-white'
-            }`}
+            onClick={() => onNavigate('strategy')}
+            className="px-6 py-2 rounded-full text-xs font-black uppercase tracking-wider text-[#a98891] hover:text-white transition-all"
           >
             {t('hero.advancedToggle')}
           </button>
         </div>
-
-        {/* Advanced Mode Alert */}
-        {tutorialMode === 'advanced' && (
-          <div className="w-full max-w-2xl mt-3 p-4 rounded-2xl bg-[#191b21] border border-[#00d2ff]/40 shadow-md text-left flex items-start gap-3 animate-in fade-in">
-            <Brain className="w-6 h-6 text-[#00d2ff] shrink-0 mt-0.5" />
-            <div>
-              <span className="text-xs font-black text-[#00d2ff] uppercase tracking-wider block">
-                {t('hero.advancedAlert.title')}
-              </span>
-              <p className="text-xs text-[#a98891] mt-0.5 leading-relaxed">
-                {t('hero.advancedAlert.body')}
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 2. CORE RULE CARDS (2-Column Asymmetric Grid) */}
@@ -280,12 +249,6 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {tutorialMode === 'advanced' && (
-              <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#ffe170] uppercase">{t('matrix.pico.advTitle')}</span>
-                <span className="text-xs text-[#a98891]">{t('matrix.pico.advBody')}</span>
-              </div>
-            )}
           </div>
 
           {/* PALA */}
@@ -310,12 +273,6 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {tutorialMode === 'advanced' && (
-              <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#ff479b] uppercase">{t('matrix.pala.advTitle')}</span>
-                <span className="text-xs text-[#a98891]">{t('matrix.pala.advBody')}</span>
-              </div>
-            )}
           </div>
 
           {/* MISS */}
@@ -342,12 +299,6 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {tutorialMode === 'advanced' && (
-              <div className="flex flex-col md:text-right pl-4 border-l md:border-l-0 border-[#282a30]">
-                <span className="text-xs font-bold text-[#a98891] uppercase">{t('matrix.miss.advTitle')}</span>
-                <span className="text-xs text-rose-400">{t('matrix.miss.advBody')}</span>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -369,175 +320,137 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {tutorialMode === 'easy' && (
-          <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Opponent Secret (X-Ray) */}
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#a98891] uppercase">
-                    {t('example.opponentSecret')}
-                  </span>
-                  <span className="text-xs font-bold text-[#ffe170]">{t('example.vaultTarget')}</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { pos: 1, val: 3 },
-                    { pos: 2, val: 7 },
-                    { pos: 3, val: 1 },
-                    { pos: 4, val: 9 },
-                  ].map((s, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
-                    >
-                      <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
-                      <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Your Transmission */}
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#a98891] uppercase">{t('example.yourTransmission')}</span>
-                  <span className="text-xs font-bold text-[#ff479b]">{t('example.activeGuess')}</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { pos: 1, val: 3, color: 'text-[#ffe170]' },
-                    { pos: 2, val: 1, color: 'text-[#ffb0ca]' },
-                    { pos: 3, val: 5, color: 'text-gray-500' },
-                    { pos: 4, val: 9, color: 'text-[#ffe170]' },
-                  ].map((s, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
-                    >
-                      <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
-                      <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* 4-Position Dissected Flow */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
-                  <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
-                    PICO
-                  </span>
-                </div>
-                <div className="font-['Cairo'] text-base font-bold text-white">3 == 3</div>
-                <p className="text-xs text-[#a98891]">{t('example.step.one')}</p>
-              </div>
-
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
-                  <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
-                    PALA
-                  </span>
-                </div>
-                <div className="font-['Cairo'] text-base font-bold text-white">1 vs 7</div>
-                <p className="text-xs text-[#a98891]">
-                  {t('example.step.two')}
-                </p>
-              </div>
-
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
-                  <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
-                    {t('matrix.miss.label')}
-                  </span>
-                </div>
-                <div className="font-['Cairo'] text-base font-bold text-white">5 vs 1</div>
-                <p className="text-xs text-[#a98891]">{t('example.step.three')}</p>
-              </div>
-
-              <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
-                  <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
-                    PICO
-                  </span>
-                </div>
-                <div className="font-['Cairo'] text-base font-bold text-white">9 == 9</div>
-                <p className="text-xs text-[#a98891]">
-                  {t('example.step.four')}
-                </p>
-              </div>
-            </div>
-
-            {/* Telemetry Strip */}
-            <div className="bg-[#0c0e14] border border-[#282a30] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4 flex-wrap">
-                <span className="text-xs font-black text-white uppercase tracking-wider">
-                  {t('example.telemetryReturned')}
+        <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Opponent Secret (X-Ray) */}
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#a98891] uppercase">
+                  {t('example.opponentSecret')}
                 </span>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
-                    {t('example.result.picos')}
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
-                    <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
-                    {t('example.result.pala')}
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a30] text-[#a98891] text-xs font-bold">
-                    <span className="w-2 h-2 rounded-full bg-[#33353b]" />
-                    {t('example.result.miss')}
-                  </div>
-                </div>
+                <span className="text-xs font-bold text-[#ffe170]">{t('example.vaultTarget')}</span>
               </div>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { pos: 1, val: 3 },
+                  { pos: 2, val: 7 },
+                  { pos: 3, val: 1 },
+                  { pos: 4, val: 9 },
+                ].map((s, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
+                  >
+                    <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
+                    <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              <span className="text-xs text-[#a98891]">
-                {t('example.note')}
-              </span>
+            {/* Your Transmission */}
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#a98891] uppercase">{t('example.yourTransmission')}</span>
+                <span className="text-xs font-bold text-[#ff479b]">{t('example.activeGuess')}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { pos: 1, val: 3, color: 'text-[#ffe170]' },
+                  { pos: 2, val: 1, color: 'text-[#ffb0ca]' },
+                  { pos: 3, val: 5, color: 'text-gray-500' },
+                  { pos: 4, val: 9, color: 'text-[#ffe170]' },
+                ].map((s, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
+                  >
+                    <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
+                    <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {tutorialMode === 'advanced' && (
-          <div className="bg-[#111319] border border-[#282a30] rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
-            <span className="text-xs text-[#a98891]">{t('advancedExample.intro')}</span>
-            {ADVANCED_TURNS.map((turn, i) => (
-              <div
-                key={turn.guess}
-                className="bg-[#191b21] border border-[#282a30] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4"
-              >
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[11px] font-bold text-[#a98891] uppercase w-14">
-                    {t('advancedExample.turn', { n: i + 1 })}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    {turn.guess.split('').map((d, k) => (
-                      <span
-                        key={k}
-                        className="w-9 h-10 rounded-md bg-[#0c0e14] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-lg text-white"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold">
-                    <span className="px-2.5 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170]">{turn.picos}F</span>
-                    <span className="px-2.5 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca]">{turn.palas}P</span>
-                  </div>
-                </div>
-                <p className="text-xs sm:text-sm text-[#e2e2ea] leading-relaxed">
-                  {t(`advancedExample.deduction.${i + 1}`)}
-                </p>
+          {/* 4-Position Dissected Flow */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                  PICO
+                </span>
               </div>
-            ))}
-            <p className="text-xs text-[#a98891]">{t('advancedExample.note')}</p>
+              <div className="font-['Cairo'] text-base font-bold text-white">3 == 3</div>
+              <p className="text-xs text-[#a98891]">{t('example.step.one')}</p>
+            </div>
+
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
+                  PALA
+                </span>
+              </div>
+              <div className="font-['Cairo'] text-base font-bold text-white">1 vs 7</div>
+              <p className="text-xs text-[#a98891]">
+                {t('example.step.two')}
+              </p>
+            </div>
+
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
+                  {t('matrix.miss.label')}
+                </span>
+              </div>
+              <div className="font-['Cairo'] text-base font-bold text-white">5 vs 1</div>
+              <p className="text-xs text-[#a98891]">{t('example.step.three')}</p>
+            </div>
+
+            <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                  PICO
+                </span>
+              </div>
+              <div className="font-['Cairo'] text-base font-bold text-white">9 == 9</div>
+              <p className="text-xs text-[#a98891]">
+                {t('example.step.four')}
+              </p>
+            </div>
           </div>
-        )}
+
+          {/* Telemetry Strip */}
+          <div className="bg-[#0c0e14] border border-[#282a30] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-xs font-black text-white uppercase tracking-wider">
+                {t('example.telemetryReturned')}
+              </span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#e9c400]" />
+                  {t('example.result.picos')}
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
+                  <span className="w-2.5 h-2.5 rounded-full border-2 border-[#ff479b]" />
+                  {t('example.result.pala')}
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#282a30] text-[#a98891] text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-[#33353b]" />
+                  {t('example.result.miss')}
+                </div>
+              </div>
+            </div>
+
+            <span className="text-xs text-[#a98891]">
+              {t('example.note')}
+            </span>
+          </div>
+        </div>
 
         {/* Master Deduction Directive */}
         <div className="bg-[#111319] border border-[#00d2ff]/30 rounded-2xl p-4 sm:p-5 flex items-start gap-4">
@@ -593,6 +506,60 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
         </p>
       </div>
 
+      {/* GAME MODES (merged here from the former standalone "Game Modes" section) */}
+      <section id="modes" className="flex flex-col gap-5">
+        <div>
+          <h2 className="font-['Cairo'] font-black text-2xl sm:text-3xl text-white tracking-wide uppercase">
+            {t('modes.title')}
+          </h2>
+          <p className="text-[#a98891] text-sm mt-1">{t('modes.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Versus AI: the only mode available today */}
+          <button
+            onClick={() => onNavigate('play-hub')}
+            className="text-left bg-[#191b21] border border-[#282a30] rounded-2xl p-6 flex flex-col justify-between hover:border-purple-500/60 hover:bg-[#1d1f26] transition-all group shadow-xl"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30 mb-4">
+                <Bot className="w-6 h-6" />
+              </div>
+              <h3 className="font-['Cairo'] font-bold text-xl text-white">{t('modes.ai.title')}</h3>
+              <p className="text-[#a98891] text-sm mt-1 leading-relaxed">{t('modes.ai.description')}</p>
+              <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-1 rounded-full w-fit mt-3">
+                {t('modes.ai.badge')}
+              </div>
+            </div>
+            <div className="pt-6 mt-6 border-t border-[#282a30] flex items-center justify-between text-purple-300 font-semibold text-sm group-hover:text-purple-200">
+              <span>{t('modes.ai.cta')}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+
+          {/* Private and global rooms are not implemented yet */}
+          {(['private', 'global'] as const).map((mode) => {
+            const Icon = mode === 'private' ? Key : Globe;
+            return (
+              <div
+                key={mode}
+                aria-disabled="true"
+                className="bg-[#191b21]/60 border border-[#282a30] rounded-2xl p-6 flex flex-col opacity-70"
+              >
+                <div className="w-12 h-12 rounded-xl bg-[#282a30] flex items-center justify-center text-[#a98891] mb-4">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <h3 className="font-['Cairo'] font-bold text-xl text-white">{t(`modes.${mode}.title`)}</h3>
+                <p className="text-[#a98891] text-sm mt-1 leading-relaxed">{t(`modes.${mode}.description`)}</p>
+                <div className="bg-[#e9c400]/15 text-[#ffe170] border border-[#e9c400]/30 text-xs font-semibold px-3 py-1 rounded-full w-fit mt-3">
+                  {t(`modes.${mode}.badge`)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* 6. CTA FOOTER BAND */}
       <div className="bg-gradient-to-r from-[#191b21] via-[#201a24] to-[#191b21] border border-[#ff479b]/40 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
         <div className="flex flex-col gap-1 text-center md:text-left">
@@ -606,16 +573,10 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => onNavigate('arena')}
+            onClick={() => onNavigate('play-hub')}
             className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all"
           >
             {t('cta.play')}
-          </button>
-          <button
-            onClick={() => onNavigate('play-hub')}
-            className="px-6 py-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold uppercase tracking-wider transition-all"
-          >
-            {t('cta.explore')}
           </button>
         </div>
       </div>
