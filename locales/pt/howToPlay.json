@@ -4,10 +4,27 @@
     "title": "Como jogar",
     "subtitle": "Três minutos para aprender. Uma vida inteira de moral para se gabar. Domine o campo de batalha mental da dedução e da quebra de códigos.",
     "easyToggle": "Exemplo fácil",
-    "advancedToggle": "Estratégia avançada",
-    "advancedAlert": {
-      "title": "Lógica avançada de eliminação ativada",
-      "body": "Exibindo árvores de probabilidade condicional, matemática de permutações e matrizes rigorosas de redução de turnos ao longo desta análise."
+    "advancedToggle": "Estratégia avançada"
+  },
+  "modes": {
+    "title": "MODOS DE JOGO",
+    "subtitle": "Escolha seu campo de batalha e teste sua agilidade mental.",
+    "comingSoon": "Em breve",
+    "ai": {
+      "title": "Contra a IA",
+      "description": "Desafie nosso bot inteligente em três níveis de dificuldade. Entre para jogar.",
+      "badge": "Disponível",
+      "cta": "Jogar duelo"
+    },
+    "private": {
+      "title": "Sala privada",
+      "description": "Crie uma sala de batalha privada ou entre com uma chave de partida.",
+      "badge": "Em breve"
+    },
+    "global": {
+      "title": "Arena global",
+      "description": "Desafie duelistas do mundo todo com seu ELO em jogo.",
+      "badge": "Em breve"
     }
   },
   "secret": {
@@ -46,22 +63,16 @@
     "intro": "As pistas são calculadas em tempo real após cada tentativa enviada. Memorize estas três assinaturas táticas:",
     "pico": {
       "badge": "Trava exata",
-      "description": "Dígito correto travado na <b>posição exata</b>.",
-      "advTitle": "Isolamento do alvo",
-      "advBody": "Dígito e posição verificados. Não mude de posição."
+      "description": "Dígito correto travado na <b>posição exata</b>."
     },
     "pala": {
       "badge": "Correspondência deslocada",
-      "description": "O dígito existe no cofre, mas está atualmente na <b>posição errada</b>.",
-      "advTitle": "Armadilha de permutação",
-      "advBody": "Mantenha o dígito; gire-o pelas outras 3 posições."
+      "description": "O dígito existe no cofre, mas está atualmente na <b>posição errada</b>."
     },
     "miss": {
       "label": "ERRO",
       "badge": "Vazio",
-      "description": "O dígito não está no número secreto. Completamente eliminado.",
-      "advTitle": "Eliminação na matriz",
-      "advBody": "Descarte o candidato do teclado permanentemente."
+      "description": "O dígito não está no número secreto. Completamente eliminado."
     }
   },
   "example": {
@@ -101,18 +112,99 @@
   },
   "cta": {
     "title": "Pronto para testar sua dedução?",
-    "body": "Entre direto em um duelo offline contra a IA ou convide um rival em segundos. Sem downloads.",
-    "play": "Jogue grátis agora",
-    "explore": "Explorar o Play Hub"
+    "body": "Entre e enfrente a IA em um duelo quando quiser.",
+    "play": "Jogar agora"
   },
-  "advancedExample": {
-    "intro": "Segredo do oponente: 3719 (oculto para você). Deduza apenas com as pistas.",
-    "turn": "Turno {{n}}",
-    "deduction": {
-      "1": "São 3 acertos: o 3, o 1 e o 9 estão no segredo. O 5 erra, descarte-o.",
-      "2": "Só a posição 3 mudou (5 por 7). As Fixas continuam em 2 e surge mais uma Pala: o 7 está no segredo, mas não na posição 3. Os dígitos são 3, 1, 7 e 9.",
-      "3": "Pelo turno 1, o 1 não está na posição 2. Como o 7 não vai na 3, o 7 vai na 2 e o 1 na 3. Resultado: 4 Fixas."
+  "strategy": {
+    "eyebrow": "Guia avançado",
+    "title": "Estratégia avançada",
+    "subtitle": "Como vencer mais duelos: leia cada pista, reduza os candidatos e nunca desperdice um turno.",
+    "stats": [
+      {
+        "value": "3.024",
+        "label": "códigos possíveis no início"
+      },
+      {
+        "value": "840",
+        "label": "candidatos no máximo após sua primeira jogada"
+      },
+      {
+        "value": "12",
+        "label": "jogadas disponíveis"
+      },
+      {
+        "value": "≈5",
+        "label": "jogadas em média com esta estratégia"
+      }
+    ],
+    "statsNote": "A média vem de uma simulação de 300 códigos aleatórios jogando sempre um código possível: 5 jogadas em média e 8 no pior caso observado.",
+    "principles": {
+      "title": "Oito princípios para vencer",
+      "items": [
+        {
+          "title": "Sua primeira jogada: qualquer uma com 4 dígitos distintos",
+          "body": "Os nove dígitos são intercambiáveis, então todas as aberturas valem o mesmo: dividem os 3.024 códigos igual e, no pior caso, deixam 840. Use 1234 e concentre-se em ler a pista."
+        },
+        {
+          "title": "Picos + Palas = quantos dígitos você acertou",
+          "body": "A soma diz quantos dígitos da sua jogada estão no segredo, sem importar a posição. Primeiro descubra quais são os 4 dígitos; depois, onde ficam."
+        },
+        {
+          "title": "Não esqueça de contar o dígito que você não testou",
+          "body": "Se duas jogadas cobrem 8 dígitos (por exemplo 1234 e 5678) e juntas somam 3 acertos, o 9 está no código. Se somam 4, o 9 não está."
+        },
+        {
+          "title": "Jogue sempre um código que ainda possa ser o segredo",
+          "body": "Antes de enviar, confira se sua jogada teria dado as mesmas pistas que você já recebeu. Assim nenhum turno é desperdiçado e cada tentativa pode ser a vencedora. O contador de \"possíveis\" do tabuleiro mostra quantos candidatos restam."
+        },
+        {
+          "title": "Zero acertos é a melhor notícia",
+          "body": "Uma jogada sem Picos nem Palas elimina quatro dígitos de uma vez: de 3.024 códigos restam só 120."
+        },
+        {
+          "title": "Mude uma única casa para isolar um dígito",
+          "body": "Se você repete uma jogada mudando só um dígito, a diferença entre as duas pistas mostra o que aconteceu com ele: se entrou, se saiu ou se só mudou de tipo."
+        },
+        {
+          "title": "Quando Picos + Palas é 4, só falta ordenar",
+          "body": "Você já tem os quatro dígitos e há no máximo 24 ordenações. Fixe com os Picos e teste só as permutações que respeitam todas as pistas anteriores."
+        },
+        {
+          "title": "Esconda seu segredo sem padrões",
+          "body": "Evite sequências (1234, 9876), datas e números fáceis de adivinhar. O botão \"Aleatório\" ao definir seu código é a melhor opção. No Grão-Mestre você tem 60 s por turno: se acabar, o sistema envia uma jogada aleatória por você, então planeje enquanto o bot pensa."
+        }
+      ]
     },
-    "note": "Cada pista elimina combinações: compare dois palpites que diferem em uma única posição."
+    "example": {
+      "title": "Uma partida resolvida em 5 jogadas",
+      "intro": "Código secreto: 7314 (o rival não o vê). Cada jogada é um código que ainda podia ser o segredo.",
+      "turn": "Jogada {{n}}",
+      "left": "{{count}} possíveis",
+      "win": "Decifrado!",
+      "turns": [
+        "Abertura: 3 destes 4 dígitos estão no código, mas só um na sua casa. De 3.024 códigos restam 180.",
+        "Ainda é um código possível pela primeira pista: mantém três dígitos e testa o 5. A soma cai para 2 acertos e restam 32.",
+        "Testa o 6 e reordena o resto. Duas Palas e nenhum Pico deixam só 9 candidatos.",
+        "Com 9 candidatos, escolhe-se um que os separe bem. Esta pista deixa um único código possível.",
+        "Só restava um: 4 Picos e vitória na jogada 5, com 7 jogadas de folga."
+      ],
+      "outro": "A chave não foi adivinhar: foi descartar. Cada pista reduz os candidatos e a próxima jogada sai dos que sobrevivem."
+    },
+    "mistakes": {
+      "title": "Erros que custam partidas",
+      "items": [
+        "Reusar dígitos que você já sabe que não estão no segredo.",
+        "Ignorar as Palas: uma Pala significa que o dígito está lá, só em outra casa.",
+        "Mudar muitos dígitos de uma vez: você não saberá o que causou cada mudança na pista.",
+        "Jogar no aleatório quando restam poucos candidatos, em vez de conferir quais servem para todas as pistas.",
+        "Gastar jogadas de \"teste\" que já não podem ser o segredo."
+      ]
+    },
+    "cta": {
+      "title": "Leve para a arena",
+      "body": "A prática transforma estes princípios em reflexos. Comece contra a IA no Novato e suba de nível.",
+      "play": "Jogar agora",
+      "basics": "Voltar ao básico"
+    }
   }
 }

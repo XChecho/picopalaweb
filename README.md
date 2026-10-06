@@ -17,18 +17,28 @@ pnpm build
 | `/` | Landing / modos de juego |
 | `/play` | Play Hub (elegir modo y dificultad) |
 | `/arena` | Arena: partida jugable contra la IA (`ssr: false`) |
-| `/records` | Récords, perfil y ajustes de audio |
+| `/records` | Perfil, estadísticas e historial reales del usuario autenticado, y ajustes de audio |
 | `/how-to-play` | Reglas y estrategia |
-| `/auth` | Acceso / registro (UI, sin backend todavía) |
+| `/auth` | Acceso / registro reales (BFF + cookies HttpOnly) |
 
 ## Estructura
 - `app/` layout, estilos globales y una página por ruta
 - `components/` `Header`, `Footer`, `AppShell`, `Providers` y `views/` (las seis vistas del prototipo)
 - `store/useAppStore.ts` estado global (Zustand): modo, dificultad, partida activa, idioma y audio
 - `store/useMatchStore.ts` estado de la partida Versus IA
-- `hooks/useAppNavigation.ts` mapea las vistas a rutas de Next; `usePublicStats` y `useWaitlist` (TanStack Query) esperan endpoints del backend
+- `hooks/useAppNavigation.ts` mapea las vistas a rutas de Next; `usePublicStats` y `useWaitlist` (TanStack Query) esperan endpoints `public/*` del backend que aún no existen (y que el proxy no permite todavía)
 - `lib/` reglas y bots (`gameLogic.ts`), sintetizador de audio (`audio.ts`), cliente API y `QueryClient`
 - `docs/web-endpoints-plan.md` endpoints que faltan en el backend
+
+## Autenticación (BFF)
+El navegador nunca ve los tokens. Los route handlers de Next hablan con el backend (`BACKEND_URL`, solo servidor) y guardan los tokens en cookies HttpOnly.
+- `pp_at` (access, 15 min, `path=/`) y `pp_rt` (refresh, 7 días, `path=/api`); `SameSite=Lax`, `Secure` solo en producción.
+- `POST /api/auth/login|register|logout` y `GET /api/auth/session`: responden `{ player }` o `{ ok: true }`, sin tokens.
+- `/api/proxy/[...path]`: reenvía solo `player/*`, `match/*` y `stats/*`, añade `Authorization` desde `pp_at`, y ante un 401 (o sin `pp_at`) hace un único refresh (serializado por valor de `pp_rt` dentro del proceso) y reintenta una vez.
+- Cliente: `lib/api.ts` (`apiFetch`), `store/useAuthStore.ts`, `hooks/useSession|useLogin|useRegister|useLogout|usePlayerStats|useMatchHistory`.
+- Hacia el backend: auth en `/web/auth/{register,login,refresh,logout}`. Cada petición del BFF (también `public/*` y refresh) lleva `X-BFF-Key` (`BFF_SHARED_SECRET`, solo servidor, igual que en el backend; obligatoria en producción) y `X-Client-IP` (`cf-connecting-ip` > primer valor válido de `x-forwarded-for` > `x-real-ip`, validado con `net.isIP`). Sin la clave el backend ignora `X-Client-IP` y todos los usuarios compartirían el límite de la IP del servidor Next. Solo es fiable detrás de un proxy que sobrescriba esas cabeceras.
+- Captcha: con `NEXT_PUBLIC_TURNSTILE_SITE_KEY` el registro muestra Cloudflare Turnstile (`components/TurnstileWidget.tsx`, script cargado con `next/script`) y envía `captchaToken`; el token es de un solo uso. Sin site key (desarrollo) no hay widget. No hay CSP configurada; si se añade, permitir `challenges.cloudflare.com` en script/frame/connect.
+- Código servidor: `lib/server/bff.ts`, `lib/server/clientIp.ts`, `lib/server/validation.ts`, `lib/server/authRoute.ts`.
 
 ## Idiomas (i18n)
 Español, inglés y portugués con `i18next` + `react-i18next`. El idioma se toma del guardado (`localStorage: appLanguage`) o del navegador, y si no está soportado usa inglés. Se cambia desde el selector del header y actualiza `<html lang>`.
@@ -47,7 +57,7 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 
 ## Estado
 - Salas privada y global: solo interfaz; la arena muestra "coming soon".
-- Récords, perfil y auth usan datos mock hasta conectar el backend.
+- Auth, perfil, estadísticas e historial usan el backend real vía BFF. No hay ranking global, recuperación de contraseña, edición de perfil ni borrado de cuenta.
 - Las partidas de la web no se guardan ni se sincronizan estadísticas todavía.
 - El header no tiene menú de navegación en móvil (los enlaces solo aparecen desde `lg`).
 
@@ -56,4 +66,4 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 pnpm build && pnpm start -p 3111   # en otra terminal
 pnpm e2e                           # requiere Google Chrome; E2E_BASE_URL para otra URL
 ```
-`e2e/vs-ai-flow.mjs` cubre setup, victoria, derrota, jugada repetida, navegación y abandono; `e2e/vs-ai-edge.mjs` cubre empate (12 jugadas por lado) y el reloj de Grandmaster; `e2e/mobile-i18n.mjs` cubre el layout móvil (turno arriba, dos columnas, teclado en modal) y el cambio de idioma en es/en/pt. Los helpers comunes están en `e2e/lib.mjs`.
+`e2e/auth-bff.mjs` (necesita `pnpm build` sin site key; levanta su propio `next start` y un backend mock, y compila una copia con site key en `.next-e2e-captcha`) verifica rutas `/web/auth/*`, `X-BFF-Key`/`X-Client-IP`, `captchaToken`, que los tokens no llegan al navegador y el formulario con y sin Turnstile. `e2e/vs-ai-flow.mjs` cubre setup, victoria, derrota, jugada repetida, navegación y abandono; `e2e/vs-ai-edge.mjs` cubre empate (12 jugadas por lado) y el reloj de Grandmaster; `e2e/mobile-i18n.mjs` cubre el layout móvil (turno arriba, dos columnas, teclado en modal) y el cambio de idioma en es/en/pt. Los helpers comunes están en `e2e/lib.mjs`.

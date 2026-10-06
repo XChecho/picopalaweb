@@ -5,7 +5,6 @@ import {
   Sparkles,
   Bot,
   Key,
-  Globe,
   Timer,
   Flame,
   Zap,
@@ -21,7 +20,7 @@ import { AppView } from '@/types/game';
 
 interface LandingViewProps {
   onNavigate: (view: AppView) => void;
-  onLaunchMatch: (mode: 'ai' | 'private' | 'global') => void;
+  onLaunchMatch: () => void;
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMatch }) => {
@@ -67,7 +66,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
             {/* Action CTAs */}
             <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
               <button
-                onClick={() => onLaunchMatch('ai')}
+                onClick={() => onLaunchMatch()}
                 className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-base uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.55)] hover:shadow-[0_0_35px_rgba(255,46,149,0.8)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 <span>{t('hero.playNow')}</span>
@@ -307,90 +306,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
         </div>
       </section>
 
-      {/* 2. THE RIVALS (GAME MODE STRIP) */}
-      <section className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-14" id="battlefields">
-        <div className="mb-8">
-          <h2 className="font-['Cairo'] font-black text-3xl text-white tracking-wide uppercase">
-            {t('rivals.title')}
-          </h2>
-          <p className="text-[#a98891] text-sm mt-1">
-            {t('rivals.subtitle')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Versus AI */}
-          <div
-            onClick={() => onLaunchMatch('ai')}
-            className="bg-[#191b21] border border-[#282a30] rounded-2xl p-6 flex flex-col justify-between hover:border-purple-500/60 hover:bg-[#1d1f26] transition-all group shadow-xl cursor-pointer"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30 mb-4">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h3 className="font-['Cairo'] font-bold text-xl text-white">{t('rivals.ai.title')}</h3>
-              <p className="text-[#a98891] text-sm mt-1 leading-relaxed">
-                {t('rivals.ai.description')}
-              </p>
-              <div className="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-semibold px-3 py-1 rounded-full w-fit mt-3">
-                {t('rivals.ai.badge')}
-              </div>
-            </div>
-            <div className="pt-6 mt-6 border-t border-[#282a30] flex items-center justify-between text-purple-300 font-semibold text-sm group-hover:text-purple-200">
-              <span>{t('rivals.ai.cta')}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-
-          {/* Card 2: Private Room */}
-          <div
-            onClick={() => onLaunchMatch('private')}
-            className="bg-[#191b21] border border-[#282a30] rounded-2xl p-6 flex flex-col justify-between hover:border-[#ff479b]/60 hover:bg-[#1d1f26] transition-all group shadow-xl cursor-pointer"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#ff5959] to-[#ff2e95] flex items-center justify-center text-white shadow-lg shadow-pink-500/30 mb-4">
-                <Key className="w-6 h-6" />
-              </div>
-              <h3 className="font-['Cairo'] font-bold text-xl text-white">{t('rivals.private.title')}</h3>
-              <p className="text-[#a98891] text-sm mt-1 leading-relaxed">
-                {t('rivals.private.description')}
-              </p>
-              <div className="bg-pink-500/20 text-pink-300 border border-pink-500/30 font-mono text-xs font-semibold px-3 py-1 rounded-full w-fit mt-3">
-                {t('rivals.private.badge')}
-              </div>
-            </div>
-            <div className="pt-6 mt-6 border-t border-[#282a30] flex items-center justify-between text-pink-300 font-semibold text-sm group-hover:text-pink-200">
-              <span>{t('rivals.private.cta')}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-
-          {/* Card 3: Global Room */}
-          <div
-            onClick={() => onLaunchMatch('global')}
-            className="bg-[#191b21] border border-[#282a30] rounded-2xl p-6 flex flex-col justify-between hover:border-[#00d2ff]/60 hover:bg-[#1d1f26] transition-all group shadow-xl cursor-pointer"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00d2ff] to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 mb-4">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h3 className="font-['Cairo'] font-bold text-xl text-white">{t('rivals.global.title')}</h3>
-              <p className="text-[#a98891] text-sm mt-1 leading-relaxed">
-                {t('rivals.global.description')}
-              </p>
-              <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-1 rounded-full w-fit mt-3">
-                {t('rivals.global.badge')}
-              </div>
-            </div>
-            <div className="pt-6 mt-6 border-t border-[#282a30] flex items-center justify-between text-emerald-300 font-semibold text-sm group-hover:text-emerald-200">
-              <span>{t('rivals.global.cta')}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. HOW IT WORKS (3 NUMERICAL STEPS) */}
+      {/* 2. HOW IT WORKS (3 NUMERICAL STEPS) */}
       <section className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-14" id="how-it-works">
         <div className="bg-[#14161e] border border-[#282a30] rounded-3xl p-6 sm:p-10 md:p-14">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -498,7 +414,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
         </div>
       </section>
 
-      {/* 4. WHY YOU'LL LOVE IT */}
+      {/* 3. WHY YOU'LL LOVE IT */}
       <section className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-14" id="why-youll-love-it">
         <div className="text-center mb-10">
           <h2 className="font-['Cairo'] font-black text-3xl md:text-4xl text-white uppercase tracking-tight">
@@ -551,7 +467,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
         </div>
       </section>
 
-      {/* 5. FINAL CTA BAND */}
+      {/* 4. FINAL CTA BAND */}
       <section className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-14">
         <div className="border border-[#ff479b]/30 shadow-[0_0_50px_rgba(255,46,149,0.15)] bg-gradient-to-r from-[#191b21] via-[#201a24] to-[#191b21] rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
           <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#ff479b]/20 blur-[100px] pointer-events-none rounded-full" />
@@ -568,7 +484,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onNavigate, onLaunchMa
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
             <button
-              onClick={() => onLaunchMatch('ai')}
+              onClick={() => onLaunchMatch()}
               className="w-full sm:w-auto bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold px-8 py-3.5 rounded-xl shadow-[0_0_25px_rgba(255,46,149,0.45)] hover:shadow-[0_0_35px_rgba(255,46,149,0.65)] hover:scale-[1.02] active:scale-[0.98] transition-all text-center"
             >
               {t('cta.playFree')}

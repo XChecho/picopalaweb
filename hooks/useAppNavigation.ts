@@ -4,15 +4,23 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { AppView, Difficulty, GameMode } from "@/types/game";
 import { useAppStore } from "@/store/useAppStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useMatchStore } from "@/store/useMatchStore";
+
+/** Views that need a signed-in player; anonymous visitors are sent to `/auth`. */
+const PROTECTED_VIEWS: readonly AppView[] = ["play-hub", "arena"];
 
 export const VIEW_ROUTES: Record<AppView, string> = {
   landing: "/",
   "play-hub": "/play",
+  live: "/live",
   arena: "/arena",
   records: "/records",
   "how-to-play": "/how-to-play",
+  strategy: "/how-to-play/strategy",
   auth: "/auth",
+  terms: "/terms",
+  privacy: "/privacy",
 };
 
 export function viewFromPathname(pathname: string): AppView {
@@ -25,13 +33,17 @@ export function viewFromPathname(pathname: string): AppView {
 export function useAppNavigation() {
   const router = useRouter();
   const startMatchInStore = useAppStore((state) => state.startMatch);
+  const requestArena = useAppStore((state) => state.requestArena);
 
   const navigate = useCallback(
     (view: AppView) => {
-      router.push(VIEW_ROUTES[view]);
+      const isAnonymous = useAuthStore.getState().status === "anonymous";
+      const target: AppView = isAnonymous && PROTECTED_VIEWS.includes(view) ? "auth" : view;
+      if (target !== "arena") requestArena(false);
+      router.push(VIEW_ROUTES[target]);
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [router],
+    [router, requestArena],
   );
 
   const startMatch = useCallback(
@@ -44,7 +56,10 @@ export function useAppNavigation() {
     [navigate, startMatchInStore],
   );
 
-  const resumeMatch = useCallback(() => navigate("arena"), [navigate]);
+  const resumeMatch = useCallback(() => {
+    requestArena(true);
+    navigate("arena");
+  }, [navigate, requestArena]);
 
   return { navigate, startMatch, resumeMatch };
 }

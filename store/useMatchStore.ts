@@ -37,6 +37,10 @@ interface IMatchState {
   isAIThinking: boolean;
   timeRemaining: number;
   timeUp: boolean;
+  /** Client-generated id; makes saving the match idempotent on the backend. */
+  matchId: string;
+  startedAt: number | null;
+  finishedAt: number | null;
 
   openSetup: (difficulty: Difficulty) => void;
   lockSecret: (secret: string) => boolean;
@@ -61,6 +65,9 @@ const initialState = {
   isAIThinking: false,
   timeRemaining: TIMER_SECONDS,
   timeUp: false,
+  matchId: "",
+  startedAt: null as number | null,
+  finishedAt: null as number | null,
 };
 
 let timers: ReturnType<typeof setTimeout>[] = [];
@@ -79,7 +86,7 @@ function nextActor(current: Actor, playerLeft: number, aiLeft: number): Actor {
 export const useMatchStore = create<IMatchState>((set, get) => {
   const finish = (result: MatchResult, patch: Partial<IMatchState> = {}) => {
     clearTimers();
-    set({ ...patch, phase: "finished", result, isAIThinking: false });
+    set({ ...patch, phase: "finished", result, isAIThinking: false, finishedAt: Date.now() });
   };
 
   const runAITurn = () => {
@@ -144,6 +151,7 @@ export const useMatchStore = create<IMatchState>((set, get) => {
         playerSecret: secret,
         opponentSecret: generateSecretNumber(),
         starter: Math.random() < 0.5 ? "PLAYER" : "AI",
+        matchId: crypto.randomUUID(),
         phase: "toss",
       });
       return true;
@@ -153,7 +161,7 @@ export const useMatchStore = create<IMatchState>((set, get) => {
       const { phase, starter } = get();
       if (phase !== "toss" || !starter) return;
 
-      set({ phase: "playing", currentActor: starter, timeRemaining: TIMER_SECONDS });
+      set({ phase: "playing", currentActor: starter, timeRemaining: TIMER_SECONDS, startedAt: Date.now() });
 
       if (starter === "AI") {
         timers.push(setTimeout(runAITurn, AI_START_DELAY_MS));

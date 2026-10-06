@@ -8,26 +8,78 @@ import {
   TrendingUp,
   History,
   Shield,
-  Volume2,
   RefreshCw,
-  Edit,
-  ExternalLink,
   Check,
   AlertTriangle,
   ChevronRight,
-  Clock,
   Swords,
   Globe,
   Sliders,
   Mail,
   Award,
+  ExternalLink,
+  LogIn,
 } from 'lucide-react';
-import { DuelistProfile, MatchHistoryItem, AudioSettings, AppView } from '@/types/game';
+import { useMatchHistory } from '@/hooks/useMatchHistory';
+import { usePlayerStats } from '@/hooks/usePlayerStats';
+import { useAuthStore } from '@/store/useAuthStore';
+import { AudioSettings, AppView } from '@/types/game';
+import type {
+  IMatchHistoryItem,
+  IMatchParticipant,
+  TApiDifficulty,
+  TApiGameMode,
+  TMatchModeFilter,
+} from '@/types/player';
 
 interface RecordsViewProps {
   onNavigate: (view: AppView) => void;
   audioSettings: AudioSettings;
   onUpdateAudio: (key: keyof AudioSettings, val: boolean) => void;
+}
+
+const DIFFICULTY_COLOR: Record<TApiDifficulty, string> = {
+  EASY: 'text-emerald-400',
+  MEDIUM: 'text-[#00d2ff]',
+  HARD: 'text-[#ff479b]',
+};
+
+const MODE_KEY: Record<TApiGameMode, 'ai' | 'private' | 'global'> = {
+  VERSUS_AI: 'ai',
+  PRIVATE: 'private',
+  GLOBAL: 'global',
+};
+
+interface IMatchRow {
+  id: string;
+  result: IMatchParticipant['result'];
+  mode: 'ai' | 'private' | 'global';
+  opponentName: string | null;
+  opponentIsAi: boolean;
+  aiDifficulty: TApiDifficulty | null;
+  eloDelta: number | null;
+  turnsTaken: number;
+  maxTurns: number;
+  date: string;
+}
+
+function toMatchRow(match: IMatchHistoryItem, playerId: string): IMatchRow {
+  const me = match.participants.find((p) => p.playerId === playerId);
+  const opponent = match.participants.find((p) => p.playerId !== playerId);
+  const eloBefore = me?.eloBefore ?? null;
+  const eloAfter = me?.eloAfter ?? null;
+  return {
+    id: match.id,
+    result: me?.result ?? null,
+    mode: MODE_KEY[match.mode],
+    opponentName: opponent?.player?.username ?? null,
+    opponentIsAi: opponent?.isAi ?? false,
+    aiDifficulty: match.aiDifficulty ?? null,
+    eloDelta: eloBefore !== null && eloAfter !== null ? eloAfter - eloBefore : null,
+    turnsTaken: me?.attemptsUsed ?? 0,
+    maxTurns: match.maxTurns,
+    date: match.finishedAt ?? match.createdAt,
+  };
 }
 
 export const RecordsView: React.FC<RecordsViewProps> = ({
@@ -37,142 +89,32 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
 }) => {
   const { t, i18n } = useTranslation('records');
   const lang = i18n.language;
-  const [profile, setProfile] = useState<DuelistProfile>({
-    handle: 'CIPHER_MASTER',
-    email: 'duelist@auron.gg',
-    rankTitle: 'Diamond Tier (1,420 ELO)',
-    elo: 1420,
-    seasonTag: 'Season 4 Veteran',
-    statusText: 'Active Deduction Duelist',
-    gamesPlayed: 284,
-    gamesWeekDelta: 18,
-    victories: 182,
-    winRate: 64,
-    currentStreak: 7,
-    bestStreak: 14,
-    draws: 12,
-    avgDecryptTurns: 5.8,
-    totalPicos: 742,
-    totalPalas: 1108,
-    avgTurnPace: 3.4,
-  });
+  const player = useAuthStore((state) => state.player);
+  const authStatus = useAuthStore((state) => state.status);
+  const [filterMode, setFilterMode] = useState<TMatchModeFilter>('all');
 
-  const [filterMode, setFilterMode] = useState<'all' | 'ai' | 'private' | 'global'>('all');
-  const [tableState, setTableState] = useState<
-    'default' | 'offline' | 'empty' | 'error' | 'loading'
-  >('default');
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editHandle, setEditHandle] = useState(profile.handle);
-  const [editEmail, setEditEmail] = useState(profile.email);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteInputText, setDeleteInputText] = useState('');
+  const statsQuery = usePlayerStats();
+  const historyQuery = useMatchHistory(filterMode);
+  const stats = statsQuery.data;
 
-  const matches: MatchHistoryItem[] = [
-    {
-      id: 'm1',
-      result: 'WIN',
-      mode: 'global',
-      modeLabel: 'Global Arena',
-      opponent: { name: 'Valkyrie_99', initials: 'V', subtext: 'Diamond II', elo: 1445 },
-      stakes: '+24 ELO',
-      turnsTaken: 5,
-      maxTurns: 12,
-      picosInTurn: 4,
-      palasInTurn: 0,
-      timestamp: 'Today, 14:20',
-    },
-    {
-      id: 'm2',
-      result: 'WIN',
-      mode: 'ai',
-      modeLabel: 'vs AI',
-      opponent: { name: 'VORTEX-AI', initials: 'VT', subtext: 'Grandmaster (Hard)', elo: 2150 },
-      stakes: 'Training Drill',
-      turnsTaken: 6,
-      maxTurns: 12,
-      picosInTurn: 2,
-      palasInTurn: 1,
-      timestamp: 'Today, 11:05',
-    },
-    {
-      id: 'm3',
-      result: 'LOSS',
-      mode: 'private',
-      modeLabel: 'Private Room',
-      opponent: { name: 'CipherKOBE', initials: 'CK', subtext: 'Code #AB7X2Q' },
-      stakes: 'Friendly Match',
-      turnsTaken: 8,
-      maxTurns: 12,
-      picosInTurn: 0,
-      palasInTurn: 0,
-      timestamp: 'Yesterday',
-    },
-    {
-      id: 'm4',
-      result: 'DRAW',
-      mode: 'global',
-      modeLabel: 'Global Arena',
-      opponent: { name: 'NeoDeductor', initials: 'ND', subtext: 'Diamond I', elo: 1410 },
-      stakes: '±0 ELO',
-      turnsTaken: 12,
-      maxTurns: 12,
-      picosInTurn: 4,
-      palasInTurn: 0,
-      timestamp: 'Oct 24',
-    },
-    {
-      id: 'm5',
-      result: 'WIN',
-      mode: 'ai',
-      modeLabel: 'vs AI',
-      opponent: { name: 'NOVICE-BOT', initials: 'NB', subtext: 'Novice (Warmup)' },
-      stakes: 'Warmup (+0)',
-      turnsTaken: 4,
-      maxTurns: 12,
-      picosInTurn: 4,
-      palasInTurn: 0,
-      timestamp: 'Oct 23',
-    },
-  ];
+  const dash = '—';
+  const formatNumber = (value: number | undefined) =>
+    value === undefined ? dash : value.toLocaleString(lang);
+  const formatDecimal = (value: number) => (Math.round(value * 10) / 10).toLocaleString(lang);
+  const winRate =
+    stats && stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 1000) / 10 : 0;
+  const avgDecrypt = stats && stats.totalGames > 0 ? stats.totalAttempts / stats.totalGames : null;
+  const avgTurnPace = stats && stats.totalAttempts > 0 ? stats.totalDurationSec / stats.totalAttempts : null;
 
-  const stakesKeys: Record<string, string> = {
-    'Training Drill': 'stakes.trainingDrill',
-    'Friendly Match': 'stakes.friendlyMatch',
-    'Warmup (+0)': 'stakes.warmup',
-  };
-  const subtextKeys: Record<string, string> = {
-    'Grandmaster (Hard)': 'opponents.grandmasterHard',
-    'Novice (Warmup)': 'opponents.noviceWarmup',
-  };
-  const timestampLabel = (ts: string) => {
-    if (ts.startsWith('Today, ')) return t('timestamps.todayAt', { time: ts.slice(7) });
-    if (ts === 'Yesterday') return t('timestamps.yesterday');
-    if (ts === 'Oct 24') return t('timestamps.oct24');
-    if (ts === 'Oct 23') return t('timestamps.oct23');
-    return ts;
-  };
+  const matchRows = player
+    ? (historyQuery.data?.pages.flatMap((page) => page.matches) ?? []).map((m) => toMatchRow(m, player.id))
+    : [];
+  const historyTotal = historyQuery.data?.pages.at(-1)?.total ?? 0;
 
-  const filteredMatches = matches.filter((m) => {
-    if (filterMode === 'all') return true;
-    return m.mode === filterMode;
-  });
-
-  const handleManualSync = () => {
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      setTableState('default');
-    }, 1200);
-  };
-
-  const handleSaveProfile = () => {
-    setProfile((prev) => ({
-      ...prev,
-      handle: editHandle.trim() || prev.handle,
-      email: editEmail.trim() || prev.email,
-    }));
-    setShowEditModal(false);
+  const dateFormatter = new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' });
+  const formatDate = (iso: string) => {
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime()) ? dash : dateFormatter.format(date);
   };
 
   return (
@@ -193,12 +135,6 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191b21] border border-[#282a30]">
-              <span className="w-2 h-2 rounded-full bg-[#00d2ff] animate-pulse" />
-              <span className="text-[11px] font-bold text-[#a5e7ff] uppercase">
-                {t('node.synced')}
-              </span>
-            </div>
             <span className="px-2.5 py-1 rounded-full bg-[#191b21] text-xs font-bold text-white border border-[#282a30]">
               {lang.slice(0, 2).toUpperCase()}
             </span>
@@ -206,6 +142,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
         </div>
 
         {/* Hero Duelist Identity Card */}
+        {player && (
         <div className="p-6 sm:p-8 rounded-3xl bg-[#191b21] border border-[#282a30] shadow-2xl relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-gradient-to-br from-[#ff479b]/15 via-[#00d2ff]/10 to-transparent blur-3xl pointer-events-none" />
 
@@ -215,7 +152,17 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#ff5959] to-[#ff2e95] blur-md opacity-75 animate-pulse" />
               <div className="relative w-20 h-20 rounded-2xl bg-[#282a30] p-1 shadow-2xl flex items-center justify-center overflow-hidden border border-white/10">
                 <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#111319] to-[#282a30] flex items-center justify-center text-3xl font-black text-[#ffb0ca]">
-                  CM
+                  {player.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={player.avatarUrl}
+                      alt={player.username}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    player.username.slice(0, 2).toUpperCase()
+                  )}
                 </div>
               </div>
               <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#00d2ff] flex items-center justify-center shadow-[0_0_8px_rgba(0,210,255,0.8)] ring-2 ring-[#191b21]">
@@ -227,26 +174,22 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="font-['Cairo'] text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white">
-                  {profile.handle}
+                  {player.username}
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#282a30] text-xs font-bold text-[#ffe170] flex items-center gap-1 border border-white/5">
                   <Award className="w-3.5 h-3.5" />
-                  {t('profile.rankTitle', { elo: profile.elo.toLocaleString(lang) })}
+                  {t('profile.rankTitle', {
+                    rank: t(`ranks.${player.rank}`, { ns: 'common' }),
+                    elo: player.elo.toLocaleString(lang),
+                  })}
                 </span>
               </div>
 
               <div className="flex items-center gap-3 flex-wrap text-[#a98891] text-xs sm:text-sm">
                 <span className="flex items-center gap-1">
                   <Mail className="w-3.5 h-3.5" />
-                  {profile.email}
+                  {player.email}
                 </span>
-                <span>•</span>
-                <span className="flex items-center gap-1 text-[#ffe170]">
-                  <Trophy className="w-3.5 h-3.5" />
-                  {t('profile.seasonTag')}
-                </span>
-                <span>•</span>
-                <span className="text-[#00d2ff] font-bold">{t('profile.statusText')}</span>
               </div>
             </div>
           </div>
@@ -254,14 +197,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           {/* Action Controls */}
           <div className="flex items-center gap-3 shrink-0 relative z-10 flex-wrap">
             <button
-              onClick={() => setShowEditModal(true)}
-              className="px-5 py-2.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md"
-            >
-              <Edit className="w-4 h-4 text-[#ff479b]" />
-              <span>{t('profile.editProfile')}</span>
-            </button>
-            <button
-              onClick={() => onNavigate('arena')}
+              onClick={() => onNavigate('play-hub')}
               className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,46,149,0.45)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" />
@@ -269,8 +205,35 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </button>
           </div>
         </div>
+        )}
       </div>
 
+      {authStatus !== 'authenticated' || !player ? (
+        authStatus === 'anonymous' ? (
+          <div className="rounded-3xl bg-[#191b21] border border-[#282a30] shadow-2xl p-10 sm:p-14 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-2xl bg-[#282a30] flex items-center justify-center text-[#ff479b] mb-5">
+              <Trophy className="w-8 h-8" />
+            </div>
+            <h1 className="font-['Cairo'] text-2xl sm:text-3xl font-black text-white uppercase mb-2">
+              {t('anonymous.title')}
+            </h1>
+            <p className="text-sm text-[#a98891] max-w-md mb-6">{t('anonymous.description')}</p>
+            <button
+              onClick={() => onNavigate('auth')}
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            >
+              <LogIn className="w-4 h-4" /> {t('anonymous.cta')}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3" aria-hidden="true">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 rounded-3xl bg-[#282a30]/40 animate-pulse" />
+            ))}
+          </div>
+        )
+      ) : (
+      <>
       {/* 2. HERO STATS ROW (4 PRIORITY CARDS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Games Played */}
@@ -286,11 +249,11 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           </div>
           <div className="relative z-10">
             <div className="font-['Cairo'] text-5xl font-black tracking-tight text-white leading-none">
-              {profile.gamesPlayed}
+              {formatNumber(stats?.totalGames)}
             </div>
             <div className="text-xs text-[#00d2ff] flex items-center gap-1 mt-1 font-bold">
               <TrendingUp className="w-3.5 h-3.5" />
-              {t('stats.thisWeek', { count: profile.gamesWeekDelta })}
+              {stats ? t('stats.record', { wins: stats.wins, losses: stats.losses, draws: stats.draws }) : dash}
             </div>
           </div>
         </div>
@@ -308,11 +271,11 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           </div>
           <div className="relative z-10">
             <div className="font-['Cairo'] text-5xl font-black tracking-tight text-white leading-none">
-              {profile.victories}
+              {formatNumber(stats?.wins)}
             </div>
             <div className="text-xs text-[#ffe170] flex items-center gap-1 mt-1 font-bold">
               <Check className="w-3.5 h-3.5" />
-              {t('stats.trueWinrate')}
+              {stats ? t('stats.winRateOf', { rate: winRate.toLocaleString(lang) }) : dash}
             </div>
           </div>
         </div>
@@ -338,7 +301,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   stroke="currentColor"
-                  strokeDasharray="64, 100"
+                  strokeDasharray={`${winRate}, 100`}
                   strokeLinecap="round"
                   strokeWidth="3.5"
                 />
@@ -348,11 +311,11 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           </div>
           <div className="relative z-10">
             <div className="font-['Cairo'] text-5xl font-black tracking-tight text-[#ffe170] leading-none drop-shadow-[0_0_12px_rgba(255,214,0,0.3)]">
-              {profile.winRate}%
+              {stats ? winRate.toLocaleString(lang) : dash}%
             </div>
             <div className="text-xs text-[#a98891] flex items-center gap-1 mt-1">
               <Award className="w-3.5 h-3.5 text-[#ffe170]" />
-              {t('stats.topPool')}
+              {t('stats.currentElo', { elo: player?.elo.toLocaleString(lang) ?? dash })}
             </div>
           </div>
         </div>
@@ -371,12 +334,12 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
           <div className="relative z-10">
             <div className="font-['Cairo'] text-5xl font-black tracking-tight text-white leading-none flex items-center gap-2">
               <span className="text-[#ff479b]">🔥</span>
-              <span>{profile.currentStreak}</span>
+              <span>{formatNumber(stats?.currentStreak)}</span>
               <span className="text-base font-bold text-[#a98891] uppercase">{t('stats.wins')}</span>
             </div>
             <div className="text-xs text-[#a98891] flex items-center gap-1 mt-1">
               <Award className="w-3.5 h-3.5 text-[#ff479b]" />
-              {t('stats.personalBest', { count: profile.bestStreak })}
+              {t('stats.personalBest', { count: stats?.bestStreak ?? 0 })}
             </div>
           </div>
         </div>
@@ -390,7 +353,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             <span className="text-xs text-[#a98891] uppercase tracking-wider font-semibold">
               {t('metrics.draws')}
             </span>
-            <span className="font-['Cairo'] text-2xl font-bold text-white">{profile.draws}</span>
+            <span className="font-['Cairo'] text-2xl font-bold text-white">{formatNumber(stats?.draws)}</span>
           </div>
 
           {/* Segment 2: Longest Streak */}
@@ -399,7 +362,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('metrics.longestStreak')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ffb0ca]">
-              {t('metrics.winsValue', { count: profile.bestStreak })}
+              {stats ? t('metrics.winsValue', { count: stats.bestStreak }) : dash}
             </span>
           </div>
 
@@ -409,7 +372,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('metrics.avgDecrypt')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#00d2ff]">
-              {t('metrics.turnsValue', { count: profile.avgDecryptTurns })}
+              {avgDecrypt === null ? dash : t('metrics.turnsValue', { count: Math.round(avgDecrypt * 10) / 10 })}
             </span>
           </div>
 
@@ -420,7 +383,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('metrics.totalPicos')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ffe170]">
-              {profile.totalPicos}
+              {formatNumber(stats?.totalPicos)}
             </span>
           </div>
 
@@ -431,7 +394,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('metrics.totalPalas')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-[#ff479b]">
-              {profile.totalPalas.toLocaleString(lang)}
+              {formatNumber(stats?.totalPalas)}
             </span>
           </div>
 
@@ -441,7 +404,7 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('metrics.avgTurnPace')}
             </span>
             <span className="font-['Cairo'] text-2xl font-bold text-white">
-              {profile.avgTurnPace}s
+              {avgTurnPace === null ? dash : `${formatDecimal(avgTurnPace)}s`}
             </span>
           </div>
         </div>
@@ -484,170 +447,36 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
           </div>
 
-          {/* State Preview Switches */}
-          <div className="flex items-center gap-2 flex-wrap pt-1">
-            <span className="text-xs text-[#a98891] uppercase tracking-wider font-bold mr-1">
-              {t('preview.label')}
-            </span>
-            {(['default', 'offline', 'empty', 'error', 'loading'] as const).map((st) => (
-              <button
-                key={st}
-                onClick={() => setTableState(st)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  tableState === st
-                    ? 'bg-[#ff479b] text-white shadow-sm'
-                    : 'bg-[#282a30] text-[#a98891] hover:text-white'
-                }`}
-              >
-                {t(`preview.${st}`)}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Offline Banner */}
-        {tableState === 'offline' && (
-          <div className="px-6 py-3 bg-[#e9c400]/20 text-[#ffe170] flex items-center justify-between gap-4 border-b border-[#e9c400]/30 transition-all">
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <RefreshCw className={`w-4 h-4 text-[#ffe170] ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>
-                {t('offline.banner', { count: 3 })}
-              </span>
+        {historyQuery.isPending ? (
+          /* Loading Shimmer */
+          <div className="p-6 space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-14 rounded-2xl bg-[#282a30]/40 animate-pulse" />
+            ))}
+          </div>
+        ) : historyQuery.isError ? (
+          /* Error State */
+          <div className="p-12 flex flex-col items-center justify-center text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(244,63,94,0.4)]">
+              <AlertTriangle className="w-8 h-8" />
             </div>
+            <h3 className="font-['Cairo'] text-2xl font-bold text-rose-400 uppercase mb-2">
+              {t('error.title')}
+            </h3>
+            <p className="text-sm text-[#a98891] max-w-md mb-6">
+              {t('error.description')}
+            </p>
             <button
-              onClick={handleManualSync}
-              className="px-3.5 py-1 rounded-full bg-[#e9c400] text-black font-['Cairo'] text-xs font-black uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all"
+              onClick={() => void historyQuery.refetch()}
+              className="px-6 py-2.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold flex items-center gap-2 transition-all"
             >
-              {t('offline.syncNow')}
+              <RefreshCw className="w-4 h-4" /> {t('error.retry')}
             </button>
           </div>
-        )}
-
-        {/* 4A. Default Table View */}
-        {tableState === 'default' || tableState === 'offline' ? (
-          <div className="w-full overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[760px]">
-              <thead>
-                <tr className="bg-[#191b21] text-xs font-bold text-[#a98891] uppercase tracking-wider border-b border-[#282a30]">
-                  <th className="py-3 px-6">{t('table.result')}</th>
-                  <th className="py-3 px-4">{t('table.mode')}</th>
-                  <th className="py-3 px-4">{t('table.opponent')}</th>
-                  <th className="py-3 px-4">{t('table.stakes')}</th>
-                  <th className="py-3 px-4">{t('table.turnsTaken')}</th>
-                  <th className="py-3 px-4">{t('table.timestamp')}</th>
-                  <th className="py-3 px-6 text-right">{t('table.logView')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#282a30] text-sm">
-                {filteredMatches.map((m) => (
-                  <tr
-                    key={m.id}
-                    onClick={() => onNavigate('arena')}
-                    className="hover:bg-[#282a30]/50 transition-colors group cursor-pointer"
-                  >
-                    {/* Result */}
-                    <td className="py-4 px-6">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                          m.result === 'WIN'
-                            ? 'bg-[#e9c400]/20 text-[#ffe170]'
-                            : m.result === 'LOSS'
-                            ? 'bg-rose-950/40 text-rose-400'
-                            : 'bg-[#282a30] text-[#a98891]'
-                        }`}
-                      >
-                        <Trophy className="w-3.5 h-3.5" />
-                        {t(`results.${m.result}`)}
-                      </span>
-                    </td>
-
-                    {/* Mode */}
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#00d2ff]/15 text-[#00d2ff] text-xs font-bold">
-                        <Globe className="w-3 h-3" />
-                        {t(`modes.${m.mode}`)}
-                      </span>
-                    </td>
-
-                    {/* Opponent */}
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#282a30] flex items-center justify-center font-bold text-xs text-[#ffb0ca]">
-                          {m.opponent.initials}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-['Cairo'] text-sm font-bold text-white group-hover:text-[#ff479b] transition-colors">
-                            {m.opponent.name}
-                          </span>
-                          <span className="text-xs text-[#a98891]">{subtextKeys[m.opponent.subtext] ? t(subtextKeys[m.opponent.subtext]) : m.opponent.subtext}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Stakes */}
-                    <td className="py-4 px-4">
-                      <span
-                        className={`text-xs font-bold ${
-                          m.stakes.includes('+')
-                            ? 'text-[#ffe170]'
-                            : m.stakes.includes('±')
-                            ? 'text-[#a98891]'
-                            : 'text-white'
-                        }`}
-                      >
-                        {stakesKeys[m.stakes] ? t(stakesKeys[m.stakes]) : m.stakes}
-                      </span>
-                    </td>
-
-                    {/* Turns Taken */}
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white">
-                          {m.turnsTaken}/{m.maxTurns}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: Math.min(4, m.turnsTaken) }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-2 h-2 rounded-full bg-[#e9c400] shadow-[0_0_6px_rgba(233,196,0,0.8)]"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Timestamp */}
-                    <td className="py-4 px-4 text-xs text-[#a98891]">{timestampLabel(m.timestamp)}</td>
-
-                    {/* Action */}
-                    <td className="py-4 px-6 text-right">
-                      <ChevronRight className="w-4 h-4 text-[#a98891] group-hover:text-[#ff479b] group-hover:translate-x-1 transition-all inline-block" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Pagination */}
-            <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0c0e14] border-t border-[#282a30]">
-              <span className="text-xs text-[#a98891]">
-                <Trans
-                  t={t}
-                  i18nKey="table.showing"
-                  values={{ shown: filteredMatches.length, total: profile.gamesPlayed }}
-                  components={{ strong: <strong className="text-white font-bold" /> }}
-                />
-              </span>
-              <button
-                onClick={() => alert(t('table.loadMoreAlert', { total: profile.gamesPlayed }))}
-                className="px-4 py-1.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold transition-all"
-              >
-                {t('table.loadMore')}
-              </button>
-            </div>
-          </div>
-        ) : tableState === 'empty' ? (
-          /* 4B. Empty State */
+        ) : matchRows.length === 0 ? (
+          /* Empty State */
           <div className="p-12 flex flex-col items-center justify-center text-center py-20">
             <div className="flex items-center gap-3 mb-6">
               {[1, 2, 3, 4].map((i) => (
@@ -666,40 +495,146 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
               {t('empty.description')}
             </p>
             <button
-              onClick={() => onNavigate('arena')}
+              onClick={() => onNavigate('play-hub')}
               className="px-8 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-sm uppercase tracking-wider shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Swords className="w-4 h-4" /> {t('empty.cta')}
             </button>
           </div>
-        ) : tableState === 'error' ? (
-          /* 4C. Error State */
-          <div className="p-12 flex flex-col items-center justify-center text-center py-16">
-            <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(244,63,94,0.4)]">
-              <AlertTriangle className="w-8 h-8" />
-            </div>
-            <h3 className="font-['Cairo'] text-2xl font-bold text-rose-400 uppercase mb-2">
-              {t('error.title')}
-            </h3>
-            <p className="text-sm text-[#a98891] max-w-md mb-6">
-              {t('error.description')}
-            </p>
-            <button
-              onClick={() => setTableState('default')}
-              className="px-6 py-2.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold flex items-center gap-2 transition-all"
-            >
-              <RefreshCw className="w-4 h-4" /> {t('error.retry')}
-            </button>
-          </div>
         ) : (
-          /* 4D. Loading Shimmer */
-          <div className="p-6 space-y-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-14 rounded-2xl bg-[#282a30]/40 animate-pulse" />
-            ))}
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[760px]">
+              <thead>
+                <tr className="bg-[#191b21] text-xs font-bold text-[#a98891] uppercase tracking-wider border-b border-[#282a30]">
+                  <th className="py-3 px-6">{t('table.result')}</th>
+                  <th className="py-3 px-4">{t('table.mode')}</th>
+                  <th className="py-3 px-4">{t('table.opponent')}</th>
+                  <th className="py-3 px-4">{t('table.stakes')}</th>
+                  <th className="py-3 px-4">{t('table.turnsTaken')}</th>
+                  <th className="py-3 px-6">{t('table.timestamp')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#282a30] text-sm">
+                {matchRows.map((m) => {
+                  const opponentName = m.opponentIsAi
+                    ? t('opponents.ai')
+                    : (m.opponentName ?? t('opponents.unknown'));
+                  const deltaLabel =
+                    m.eloDelta === null
+                      ? t('table.unranked')
+                      : t('table.eloDelta', {
+                          delta: m.eloDelta > 0 ? `+${m.eloDelta}` : m.eloDelta < 0 ? `${m.eloDelta}` : '±0',
+                        });
+                  return (
+                    <tr key={m.id} className="hover:bg-[#282a30]/50 transition-colors group">
+                      {/* Result */}
+                      <td className="py-4 px-6">
+                        {m.result ? (
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                              m.result === 'WIN'
+                                ? 'bg-[#e9c400]/20 text-[#ffe170]'
+                                : m.result === 'LOSS'
+                                ? 'bg-rose-950/40 text-rose-400'
+                                : 'bg-[#282a30] text-[#a98891]'
+                            }`}
+                          >
+                            <Trophy className="w-3.5 h-3.5" />
+                            {t(`results.${m.result}`)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-[#a98891]">{dash}</span>
+                        )}
+                      </td>
+
+                      {/* Mode */}
+                      <td className="py-4 px-4">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#00d2ff]/15 text-[#00d2ff] text-xs font-bold">
+                          <Globe className="w-3 h-3" />
+                          {t(`modes.${m.mode}`)}
+                        </span>
+                      </td>
+
+                      {/* Opponent */}
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#282a30] flex items-center justify-center font-bold text-xs text-[#ffb0ca]">
+                            {m.opponentIsAi ? 'AI' : opponentName.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex flex-col leading-tight">
+                            <span className="font-['Cairo'] text-sm font-bold text-white">
+                              {opponentName}
+                            </span>
+                            {m.opponentIsAi && m.aiDifficulty && (
+                              <span
+                                data-testid="ai-difficulty"
+                                className={`text-[11px] font-bold uppercase tracking-wide ${DIFFICULTY_COLOR[m.aiDifficulty]}`}
+                              >
+                                {t(`difficulty.${m.aiDifficulty}`)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* ELO change */}
+                      <td className="py-4 px-4">
+                        <span
+                          className={`text-xs font-bold ${
+                            m.eloDelta === null
+                              ? 'text-[#a98891]'
+                              : m.eloDelta > 0
+                              ? 'text-[#ffe170]'
+                              : m.eloDelta < 0
+                              ? 'text-rose-400'
+                              : 'text-white'
+                          }`}
+                        >
+                          {deltaLabel}
+                        </span>
+                      </td>
+
+                      {/* Turns Taken */}
+                      <td className="py-4 px-4">
+                        <span className="font-bold text-white">
+                          {m.turnsTaken}/{m.maxTurns}
+                        </span>
+                      </td>
+
+                      {/* Timestamp */}
+                      <td className="py-4 px-6 text-xs text-[#a98891]">{formatDate(m.date)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0c0e14] border-t border-[#282a30]">
+              <span className="text-xs text-[#a98891]">
+                <Trans
+                  t={t}
+                  i18nKey="table.showing"
+                  values={{ shown: matchRows.length, total: historyTotal }}
+                  components={{ strong: <strong className="text-white font-bold" /> }}
+                />
+              </span>
+              {historyQuery.hasNextPage && (
+                <button
+                  onClick={() => void historyQuery.fetchNextPage()}
+                  disabled={historyQuery.isFetchingNextPage}
+                  className="px-4 py-1.5 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold transition-all disabled:opacity-60"
+                >
+                  {historyQuery.isFetchingNextPage ? t('table.loadingMore') : t('table.loadMore')}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
+
+      </>
+      )}
 
       {/* 5. DUELIST CONFIGURATION (3-CARD LAYOUT) */}
       <div className="flex flex-col gap-3">
@@ -772,7 +707,8 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: Account & Security */}
+          {/* Card 2: Account */}
+          {player && (
           <div className="rounded-3xl bg-[#191b21] border border-[#282a30] p-6 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -794,78 +730,36 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
                     {t('account.email')}
                   </span>
                   <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#111319] border border-[#282a30]">
-                    <span className="text-xs font-bold text-white truncate">{profile.email}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold flex items-center gap-1 shrink-0">
-                      <Check className="w-3 h-3" /> {t('account.verified')}
-                    </span>
+                    <span className="text-xs font-bold text-white truncate">{player?.email}</span>
                   </div>
                 </div>
 
-                {/* Password Item */}
+                {/* Username Item */}
                 <div className="flex flex-col gap-1">
                   <span className="text-[11px] text-[#a98891] uppercase font-bold">
-                    {t('account.passcode')}
+                    {t('account.username')}
                   </span>
-                  <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#111319] border border-[#282a30]">
-                    <span className="text-xs text-[#a98891]">{t('account.updated')}</span>
-                    <button
-                      onClick={() => alert(t('account.changeAlert', { email: profile.email }))}
-                      className="px-3 py-1 rounded-lg bg-[#282a30] hover:bg-[#33353b] text-white text-xs font-bold transition-colors"
-                    >
-                      {t('account.change')}
-                    </button>
+                  <div className="p-3 rounded-xl bg-[#111319] border border-[#282a30]">
+                    <span className="text-xs font-bold text-white truncate block">{player?.username}</span>
                   </div>
                 </div>
 
-                {/* Delete Account */}
-                <div className="pt-2">
-                  <button
-                    onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                    className="w-full py-2.5 rounded-xl bg-rose-950/20 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20 text-xs font-bold transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>{t('account.delete')}</span>
-                  </button>
-
-                  {showDeleteConfirm && (
-                    <div className="mt-3 p-4 rounded-2xl bg-[#0c0e14] border border-rose-500/40 flex flex-col gap-3">
-                      <p className="text-xs text-[#e2bdc7] leading-relaxed">
-                        <Trans
-                          t={t}
-                          i18nKey="account.deleteWarning"
-                          values={{ word: 'DELETE' }}
-                          components={{ strong: <strong className="text-rose-400 font-mono" /> }}
-                        />
-                      </p>
-                      <input
-                        type="text"
-                        placeholder={t('account.deletePlaceholder', { word: 'DELETE' })}
-                        value={deleteInputText}
-                        onChange={(e) => setDeleteInputText(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[#191b21] border border-[#282a30] text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-rose-500"
-                      />
-                      <button
-                        onClick={() => {
-                          if (deleteInputText === 'DELETE') {
-                            alert(t('account.deletePurged'));
-                            setShowDeleteConfirm(false);
-                          } else {
-                            alert(t('account.deleteMismatch', { word: 'DELETE' }));
-                          }
-                        }}
-                        className="w-full py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition-all"
-                      >
-                        {t('account.purge')}
-                      </button>
-                    </div>
-                  )}
+                {/* Member since */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[11px] text-[#a98891] uppercase font-bold">
+                    {t('account.memberSince')}
+                  </span>
+                  <div className="p-3 rounded-xl bg-[#111319] border border-[#282a30]">
+                    <span className="text-xs font-bold text-white">
+                      {player ? formatDate(player.createdAt) : dash}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-[#282a30] text-[11px] text-[#a98891]">
-              {t('account.footer')}
-            </div>
           </div>
+          )}
 
           {/* Card 3: About & Integrity */}
           <div className="rounded-3xl bg-[#191b21] border border-[#282a30] p-6 shadow-xl flex flex-col justify-between">
@@ -940,64 +834,6 @@ export const RecordsView: React.FC<RecordsViewProps> = ({
         </div>
       </div>
 
-      {/* Profile Edit Slide-Over Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-[#191b21] border border-[#33353b] p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between">
-              <h3 className="font-['Cairo'] text-xl font-bold text-white">{t('edit.title')}</h3>
-              <button
-                onClick={() => setShowEditModal(false)}
-                aria-label={t('edit.close')}
-                className="w-8 h-8 rounded-full bg-[#282a30] text-white flex items-center justify-center hover:bg-[#33353b]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-[#a98891] mb-1 font-bold">
-                  {t('edit.callSign')}
-                </label>
-                <input
-                  type="text"
-                  value={editHandle}
-                  onChange={(e) => setEditHandle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#111319] border border-[#282a30] text-white font-bold focus:outline-none focus:border-[#ff479b]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-[#a98891] mb-1 font-bold">
-                  {t('edit.email')}
-                </label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#111319] border border-[#282a30] text-white font-bold focus:outline-none focus:border-[#ff479b]"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 mt-4">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 rounded-full text-[#a98891] hover:text-white font-bold text-xs"
-              >
-                {t('edit.cancel')}
-              </button>
-              <button
-                onClick={handleSaveProfile}
-                className="px-6 py-2 rounded-full bg-[#ff479b] text-white font-bold text-xs shadow-md hover:bg-[#ff2e95]"
-              >
-                {t('edit.save')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

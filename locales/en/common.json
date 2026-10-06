@@ -1,9 +1,8 @@
 {
   "nav": {
     "playHub": "Play Hub",
-    "liveArena": "Live Arena",
+    "live": "Live",
     "howToPlay": "How to Play",
-    "gameModes": "Game Modes",
     "records": "Records"
   },
   "brand": {
@@ -13,22 +12,36 @@
   },
   "header": {
     "matchLive": "Match Live",
-    "nodeSynced": "Node Synced // Tokyo East",
     "changeLanguage": "Change language",
-    "mute": "Mute game sounds",
-    "unmute": "Unmute game sounds",
-    "modes": "Modes",
-    "playArena": "Play Arena"
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "play": "Play",
+    "signOutConfirm": {
+      "title": "Sign out?",
+      "body": "You will be signed out of your account on this device. You can sign back in any time.",
+      "bodyActiveMatch": "You have a match in progress. If you sign out it will be lost and not saved.",
+      "confirm": "Sign out",
+      "cancel": "Cancel"
+    }
   },
   "footer": {
     "howToPlay": "How to Play",
-    "gameModes": "Game Modes",
     "recordsLedger": "Records Ledger",
     "duelistProfile": "Duelist Profile",
     "terms": "Terms of Service",
-    "privacy": "Privacy Policy",
-    "termsAlert": "Terms of Service: Fair play deduction protocols. Algorithmic anti-cheat active.",
-    "privacyAlert": "Privacy Policy: All game states and records stored encrypted in local browser cache.",
-    "version": "{{lang}} · v2.4 Live"
+    "privacy": "Privacy Policy"
+  },
+  "ranks": {
+    "BRONCE": "Bronze",
+    "PLATA": "Silver",
+    "ORO": "Gold",
+    "PLATINO": "Platinum",
+    "DIAMANTE": "Diamond"
+  },
+  "live": {
+    "eyebrow": "Spectator mode",
+    "title": "Live matches",
+    "body": "Watching other players' duels in real time is not available yet. When it is, ongoing matches will show up here.",
+    "cta": "See how to play"
   }
 }

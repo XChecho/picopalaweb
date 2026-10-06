@@ -8,6 +8,7 @@ import enHowToPlay from "@/locales/en/howToPlay.json";
 import enPlayHub from "@/locales/en/playHub.json";
 import enRecords from "@/locales/en/records.json";
 import enArena from "@/locales/en/arena.json";
+import enLegal from "@/locales/en/legal.json";
 import esCommon from "@/locales/es/common.json";
 import esLanding from "@/locales/es/landing.json";
 import esAuth from "@/locales/es/auth.json";
@@ -15,6 +16,7 @@ import esHowToPlay from "@/locales/es/howToPlay.json";
 import esPlayHub from "@/locales/es/playHub.json";
 import esRecords from "@/locales/es/records.json";
 import esArena from "@/locales/es/arena.json";
+import esLegal from "@/locales/es/legal.json";
 import ptCommon from "@/locales/pt/common.json";
 import ptLanding from "@/locales/pt/landing.json";
 import ptAuth from "@/locales/pt/auth.json";
@@ -22,6 +24,7 @@ import ptHowToPlay from "@/locales/pt/howToPlay.json";
 import ptPlayHub from "@/locales/pt/playHub.json";
 import ptRecords from "@/locales/pt/records.json";
 import ptArena from "@/locales/pt/arena.json";
+import ptLegal from "@/locales/pt/legal.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "es", "pt"] as const;
 export type TLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -39,9 +42,9 @@ export function isSupportedLanguage(value: string | null | undefined): value is 
 }
 
 export const resources = {
-  en: { common: enCommon, landing: enLanding, auth: enAuth, howToPlay: enHowToPlay, playHub: enPlayHub, records: enRecords, arena: enArena },
-  es: { common: esCommon, landing: esLanding, auth: esAuth, howToPlay: esHowToPlay, playHub: esPlayHub, records: esRecords, arena: esArena },
-  pt: { common: ptCommon, landing: ptLanding, auth: ptAuth, howToPlay: ptHowToPlay, playHub: ptPlayHub, records: ptRecords, arena: ptArena },
+  en: { common: enCommon, landing: enLanding, auth: enAuth, howToPlay: enHowToPlay, playHub: enPlayHub, records: enRecords, arena: enArena, legal: enLegal },
+  es: { common: esCommon, landing: esLanding, auth: esAuth, howToPlay: esHowToPlay, playHub: esPlayHub, records: esRecords, arena: esArena, legal: esLegal },
+  pt: { common: ptCommon, landing: ptLanding, auth: ptAuth, howToPlay: ptHowToPlay, playHub: ptPlayHub, records: ptRecords, arena: ptArena, legal: ptLegal },
 } as const;
 
 if (!i18n.isInitialized) {

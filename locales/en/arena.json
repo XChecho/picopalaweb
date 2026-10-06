@@ -35,7 +35,7 @@
   "menu": {
     "newDuel": "New duel",
     "forfeit": "Forfeit",
-    "confirmNewDuel": "Abandon the current duel and start a new one?",
+    "confirmNewDuel": "Abandon the current duel and start a new one? It will count as a loss.",
     "confirmForfeit": "Are you sure you want to forfeit this duel? This counts as a defeat."
   },
   "write": {
@@ -73,7 +73,10 @@
     "botMove": "AI BOT: {{order}}",
     "first": "FIRST",
     "second": "SECOND",
-    "enter": "Enter duel grid"
+    "enter": "Enter duel grid",
+    "flipping": "Flipping the coin…",
+    "coinYou": "You",
+    "coinBot": "Bot"
   },
   "result": {
     "win": {
@@ -100,7 +103,14 @@
     "share": "Share",
     "copied": "Copied!",
     "hub": "Play Hub",
-    "shareText": "I cracked the cipher in {{count}} guesses on Pico & Pala!"
+    "shareText": "I cracked the cipher in {{count}} guesses on Pico & Pala!",
+    "viewMatch": "View match",
+    "showResult": "Show result",
+    "saving": "Saving match…",
+    "saved": "Match saved to your history",
+    "saveFailed": "The match could not be saved.",
+    "retry": "Retry",
+    "confirmLeaveUnsaved": "This match has not been saved and will be lost if you leave. Leave anyway?"
   },
   "unavailable": {
     "title": "This mode is coming soon",

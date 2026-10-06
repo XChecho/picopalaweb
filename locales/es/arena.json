@@ -35,7 +35,7 @@
   "menu": {
     "newDuel": "Nuevo duelo",
     "forfeit": "Rendirse",
-    "confirmNewDuel": "¿Abandonar el duelo actual y empezar uno nuevo?",
+    "confirmNewDuel": "¿Abandonar el duelo actual y empezar uno nuevo? Contará como una derrota.",
     "confirmForfeit": "¿Seguro que quieres rendirte? Contará como una derrota."
   },
   "write": {
@@ -73,7 +73,10 @@
     "botMove": "BOT IA: {{order}}",
     "first": "PRIMERO",
     "second": "SEGUNDO",
-    "enter": "Entrar al duelo"
+    "enter": "Entrar al duelo",
+    "flipping": "Lanzando la moneda…",
+    "coinYou": "Tú",
+    "coinBot": "Bot"
   },
   "result": {
     "win": {
@@ -100,7 +103,14 @@
     "share": "Compartir",
     "copied": "¡Copiado!",
     "hub": "Centro de Juego",
-    "shareText": "¡Descifré la clave en {{count}} jugadas en Pico & Pala!"
+    "shareText": "¡Descifré la clave en {{count}} jugadas en Pico & Pala!",
+    "viewMatch": "Ver partida",
+    "showResult": "Ver resultado",
+    "saving": "Guardando partida…",
+    "saved": "Partida guardada en tu historial",
+    "saveFailed": "No se pudo guardar la partida.",
+    "retry": "Reintentar",
+    "confirmLeaveUnsaved": "Esta partida aún no se guardó y se perderá si sales. ¿Salir de todos modos?"
   },
   "unavailable": {
     "title": "Este modo llega pronto",

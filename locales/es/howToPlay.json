@@ -4,10 +4,27 @@
     "title": "Cómo jugar",
     "subtitle": "Tres minutos para aprender. Una vida entera de presumir. Domina el campo de batalla mental de la deducción y el descifrado de códigos.",
     "easyToggle": "Ejemplo fácil",
-    "advancedToggle": "Estrategia avanzada",
-    "advancedAlert": {
-      "title": "Lógica avanzada de eliminación activada",
-      "body": "Mostrando árboles de probabilidad condicional, matemática de permutaciones y matrices estrictas de reducción de turnos a lo largo de este desglose."
+    "advancedToggle": "Estrategia avanzada"
+  },
+  "modes": {
+    "title": "MODOS DE JUEGO",
+    "subtitle": "Elige tu campo de batalla y pon a prueba tu agilidad mental.",
+    "comingSoon": "Próximamente",
+    "ai": {
+      "title": "Contra la IA",
+      "description": "Desafía a nuestro bot inteligente en tres niveles de dificultad. Inicia sesión para jugar.",
+      "badge": "Disponible",
+      "cta": "Jugar duelo"
+    },
+    "private": {
+      "title": "Sala privada",
+      "description": "Crea una sala de batalla privada o únete con una clave de partida.",
+      "badge": "Próximamente"
+    },
+    "global": {
+      "title": "Arena global",
+      "description": "Desafía a duelistas de todo el mundo con tu ELO en juego.",
+      "badge": "Próximamente"
     }
   },
   "secret": {
@@ -46,22 +63,16 @@
     "intro": "Las pistas se calculan en tiempo real después de cada intento enviado. Memoriza estas tres firmas tácticas:",
     "pico": {
       "badge": "Fijación exacta",
-      "description": "Dígito correcto fijado en la <b>posición exacta</b>.",
-      "advTitle": "Aislamiento del objetivo",
-      "advBody": "Dígito y casilla verificados. No cambies de casilla."
+      "description": "Dígito correcto fijado en la <b>posición exacta</b>."
     },
     "pala": {
       "badge": "Coincidencia desplazada",
-      "description": "El dígito está en la bóveda, pero ahora mismo está en la <b>casilla equivocada</b>.",
-      "advTitle": "Trampa de permutación",
-      "advBody": "Conserva el dígito; rótalo por las otras 3 casillas."
+      "description": "El dígito está en la bóveda, pero ahora mismo está en la <b>casilla equivocada</b>."
     },
     "miss": {
       "label": "FALLO",
       "badge": "Vacío",
-      "description": "El dígito no está en el número secreto. Queda eliminado por completo.",
-      "advTitle": "Eliminación en la matriz",
-      "advBody": "Descarta el candidato del teclado de forma permanente."
+      "description": "El dígito no está en el número secreto. Queda eliminado por completo."
     }
   },
   "example": {
@@ -101,18 +112,99 @@
   },
   "cta": {
     "title": "¿Listo para poner a prueba tu deducción?",
-    "body": "Entra directo a un duelo offline contra la IA o invita a un rival en segundos. Sin descargas.",
-    "play": "Juega gratis ahora",
-    "explore": "Explora el Play Hub"
+    "body": "Inicia sesión y enfréntate a la IA en un duelo cuando quieras.",
+    "play": "Jugar ahora"
   },
-  "advancedExample": {
-    "intro": "Secreto del oponente: 3719 (oculto para ti). Deduce solo con las pistas.",
-    "turn": "Turno {{n}}",
-    "deduction": {
-      "1": "Suma 3 aciertos: el 3, el 1 y el 9 están en el secreto. El 5 falla, descártalo.",
-      "2": "Solo cambió la casilla 3 (5 por 7). Las Fijas siguen en 2 y aparece una Pala más: el 7 está en el secreto, pero no en la casilla 3. Los dígitos son 3, 1, 7 y 9.",
-      "3": "Del turno 1, el 1 no está en la casilla 2. Como el 7 no va en la 3, el 7 va en la 2 y el 1 en la 3. Resultado: 4 Fijas."
+  "strategy": {
+    "eyebrow": "Guía avanzada",
+    "title": "Estrategia avanzada",
+    "subtitle": "Cómo ganar más duelos: lee cada pista, reduce los candidatos y nunca desperdicies un turno.",
+    "stats": [
+      {
+        "value": "3.024",
+        "label": "códigos posibles al inicio"
+      },
+      {
+        "value": "840",
+        "label": "candidatos como máximo tras tu primera jugada"
+      },
+      {
+        "value": "12",
+        "label": "jugadas disponibles"
+      },
+      {
+        "value": "≈5",
+        "label": "jugadas promedio con esta estrategia"
+      }
+    ],
+    "statsNote": "El promedio sale de una simulación de 300 códigos al azar jugando siempre un código posible: 5 jugadas de media y 8 en el peor caso observado.",
+    "principles": {
+      "title": "Ocho principios para ganar",
+      "items": [
+        {
+          "title": "Tu primera jugada: cualquiera con 4 dígitos distintos",
+          "body": "Los nueve dígitos son intercambiables, así que todas las aperturas valen lo mismo: reparten los 3.024 códigos igual y, en el peor caso, dejan 840. Usa 1234 y concéntrate en leer la pista."
+        },
+        {
+          "title": "Picos + Palas = cuántos dígitos acertaste",
+          "body": "La suma te dice cuántos dígitos de tu jugada están en el secreto, sin importar su posición. Primero descubre cuáles son los 4 dígitos; después, dónde van."
+        },
+        {
+          "title": "No olvides contar el dígito que no probaste",
+          "body": "Si dos jugadas cubren 8 dígitos (por ejemplo 1234 y 5678) y entre ambas suman 3 aciertos, el 9 está en el código. Si suman 4, el 9 no está."
+        },
+        {
+          "title": "Juega siempre un código que todavía pueda ser el secreto",
+          "body": "Antes de enviar, comprueba que tu jugada habría dado las mismas pistas que ya recibiste. Así ningún turno se desperdicia y cada intento puede ser el ganador. El contador de «posibles» del tablero te dice cuántos candidatos quedan."
+        },
+        {
+          "title": "Cero aciertos es la mejor noticia",
+          "body": "Una jugada sin Picos ni Palas elimina cuatro dígitos de golpe: de 3.024 códigos quedan solo 120."
+        },
+        {
+          "title": "Cambia una sola casilla para aislar un dígito",
+          "body": "Si repites una jugada cambiando un único dígito, la diferencia entre las dos pistas te dice qué pasó con ese dígito: si entró, si salió o si solo cambió de tipo."
+        },
+        {
+          "title": "Cuando Picos + Palas es 4, solo queda ordenar",
+          "body": "Ya tienes los cuatro dígitos y hay como máximo 24 ordenaciones. Fija con los Picos y prueba solo las permutaciones que respeten todas las pistas anteriores."
+        },
+        {
+          "title": "Esconde tu secreto sin patrones",
+          "body": "Evita secuencias (1234, 9876), fechas y números fáciles de adivinar. El botón «Aleatorio» al fijar tu clave es la mejor opción. En Gran Maestro tienes 60 s por turno: si se acaban, el sistema envía una jugada al azar por ti, así que planifica mientras el bot piensa."
+        }
+      ]
     },
-    "note": "Cada pista descarta combinaciones: compara dos intentos que difieran en una sola casilla."
+    "example": {
+      "title": "Una partida resuelta en 5 jugadas",
+      "intro": "Código secreto: 7314 (el rival no lo ve). Cada jugada es un código que todavía podía ser el secreto.",
+      "turn": "Jugada {{n}}",
+      "left": "{{count}} posibles",
+      "win": "¡Descifrado!",
+      "turns": [
+        "Apertura: 3 de estos 4 dígitos están en el código, pero solo uno en su casilla. De 3.024 códigos quedan 180.",
+        "Sigue siendo un código posible según la primera pista: mantiene tres dígitos y prueba el 5. La suma baja a 2 aciertos y quedan 32.",
+        "Prueba el 6 y reordena el resto. Dos Palas y ningún Pico dejan solo 9 candidatos.",
+        "Con 9 candidatos se elige uno que los separe bien. Esta pista deja un único código posible.",
+        "Solo quedaba uno: 4 Picos y victoria en la jugada 5, con 7 jugadas de margen."
+      ],
+      "outro": "La clave no fue adivinar: fue descartar. Cada pista reduce los candidatos y la jugada siguiente sale de los que sobreviven."
+    },
+    "mistakes": {
+      "title": "Errores que cuestan partidas",
+      "items": [
+        "Reusar dígitos que ya sabes que no están en el secreto.",
+        "Ignorar las Palas: una Pala significa que el dígito está, solo que en otra casilla.",
+        "Cambiar muchos dígitos a la vez: no sabrás qué causó cada cambio en la pista.",
+        "Jugar al azar cuando quedan pocos candidatos en lugar de comprobar cuáles encajan con todas las pistas.",
+        "Gastar jugadas de «prueba» que ya no pueden ser el secreto."
+      ]
+    },
+    "cta": {
+      "title": "Llévalo a la arena",
+      "body": "La práctica convierte estos principios en reflejos. Empieza contra la IA en Novato y sube de nivel.",
+      "play": "Jugar ahora",
+      "basics": "Volver a lo básico"
+    }
   }
 }

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0
+- Barra de navegación simplificada: En vivo, Cómo jugar y Récords (más Centro de juego con sesión); sin icono de sonido ni "nodo sincronizado"; cursor `pointer` global; confirmación antes de cerrar sesión.
+- "Modos de juego" se integra en Cómo jugar, que ahora son dos pantallas: básicos y `/how-to-play/strategy` (estrategia avanzada con principios, ejemplo resuelto y errores comunes, con cifras calculadas por fuerza bruta).
+- `/live` (próximamente, sin datos falsos). `/play` y `/arena` exigen sesión; la arena solo se abre desde jugar/continuar. Centro de juego sin datos inventados: victorias totales y por modo reales.
+- Arena: la partida web siempre se guarda (`POST /stats/sync`, idempotente, con reintentos); moneda 3D de 2 s al sortear quién empieza; teclado inline en pantallas ≥768 px; "Ver partida" tras el resultado; sin footer ni doble scroll.
+- Récords muestra la dificultad de la IA (requiere que el backend exponga `aiDifficulty` en el historial).
+- Login sin panel de temporada ni textos inventados. Páginas `/terms` y `/privacy` (Ley 1581 de 2012) en en/es/pt.
+- Logo con fondo en cabecera/pie, favicon sin fondo, metadata Open Graph/Twitter por ruta, imagen para compartir, `robots`, `sitemap` y `manifest`.
+
+## 0.6.0
+- BFF endurecido: las rutas de auth del backend pasan a `/web/auth/{register,login,refresh,logout}` (ya no se envía `platform` en register). Toda llamada del BFF (auth, refresh, `public/*`, `player/*`...) lleva `X-BFF-Key` (`BFF_SHARED_SECRET`, solo servidor, obligatoria en producción: la ruta falla con un error claro si falta) y `X-Client-IP` (nuevo `lib/server/clientIp.ts`: `cf-connecting-ip`, primer valor válido de `x-forwarded-for`, `x-real-ip`; validado con `net.isIP`).
+- Cloudflare Turnstile en el registro sin dependencias nuevas (`components/TurnstileWidget.tsx`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`): el botón espera el token, el token es de un solo uso (se descarta y el widget se resetea tras cada intento fallido) y el BFF lo reenvía como `captchaToken`. Sin site key (desarrollo) no hay widget y el token es opcional. Nuevos textos i18n (en, es, pt). `useWaitlist` envía `captchaToken`.
+- E2E nuevo `e2e/auth-bff.mjs` con backend mock local. `next.config.ts` admite `NEXT_DIST_DIR`.
+
+## 0.5.0
+- Login, registro, sesión persistente, logout e historial/estadísticas reales con un BFF en Next (`app/api/auth/*` y `app/api/proxy/[...path]`): tokens en cookies HttpOnly (`pp_at`, `pp_rt`), refresh con rotación serializado y un único reintento.
+- `apiFetch` ahora usa rutas same-origin y lanza `ApiError` con el mensaje real del backend. Nuevo `BACKEND_URL` (solo servidor) en `.env.example`; se elimina `NEXT_PUBLIC_API_URL`.
+- AuthView, Header y RecordsView conectados: estados de carga/error mapeados a i18n (en, es, pt). Se retiran del UI los elementos no implementados (login social, recuperar clave, editar/borrar cuenta, ranking global, vista previa de estados).
+
 ## 0.4.4
 - Arena: textos, dígitos, círculos de feedback y botones del HUD más grandes (se eliminan los textos de 10-11 px). E2E actualizado al selector de dificultad en modal.
 

@@ -41,7 +41,7 @@ Los endpoints públicos deben usar `select` explícito: nunca devolver `email`, 
 7. **Body limit**: bajar a ~100 KB por defecto; 10 MB solo para `/player/me/avatar` con validación de tipo y tamaño.
 8. **Refresh tokens**: guardar solo el hash, limitar sesiones por usuario, limpiar expirados y leer `JWT_REFRESH_EXPIRES_IN`.
 9. **Enumeración**: unificar mensajes de `register` para usuario/email existentes.
-10. **Contrato**: el contrato dice `origin: '*'` en WebSocket pero el código usa `CORS_ORIGIN`; actualizar `docs/backend-contract.md`.
+10. **Contrato**: `docs/backend-contract.md` fue eliminado (obsoleto); la fuente de verdad son los controllers y los tests e2e del backend.
 
 ## Verificación por subagentes (siguiente fase)
 Un subagente por bloque, cada uno con su rama y tests: (a) `PublicModule` + Prisma (waitlist, contact, stats, leaderboard, app-links, health); (b) auth (forgot/reset/verify, cookie de refresh, throttling); (c) endurecimiento (CORS, trust proxy, DTOs, límites). Un revisor final contrasta contra este documento y ejecuta `pnpm build` de la web contra el backend local.

@@ -23,28 +23,6 @@
     "legendPico": "Pico = Posição exata",
     "legendPala": "Pala = Posição errada"
   },
-  "rivals": {
-    "title": "OS RIVAIS",
-    "subtitle": "Escolha seu campo de batalha e teste sua agilidade mental.",
-    "ai": {
-      "title": "Contra a IA",
-      "description": "Desafie nosso bot inteligente com heurísticas de dificuldade personalizadas.",
-      "badge": "Funciona offline",
-      "cta": "Jogar duelo"
-    },
-    "private": {
-      "title": "Sala privada",
-      "description": "Crie uma sala de batalha privada ou entre com uma chave de partida de 6 dígitos.",
-      "badge": "Código ABCD12",
-      "cta": "Criar sala"
-    },
-    "global": {
-      "title": "Arena global",
-      "description": "Desafie duelistas do mundo todo com pontos de ELO em jogo em tempo real.",
-      "badge": "Partida em < 30 s",
-      "cta": "Partida rápida"
-    }
-  },
   "how": {
     "title": "Como funciona o Pico & Pala",
     "subtitle": "Três regras simples. Profundidade tática infinita.",
