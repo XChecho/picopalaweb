@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, apiPaths } from "@/lib/api";
 
 export interface IPublicStats {
   totalPlayers: number;
@@ -13,6 +13,6 @@ export interface IPublicStats {
 export function usePublicStats() {
   return useQuery({
     queryKey: ["publicStats"],
-    queryFn: () => apiFetch<IPublicStats>("/public/stats"),
+    queryFn: () => apiFetch<IPublicStats>(apiPaths.proxy("/public/stats")),
   });
 }

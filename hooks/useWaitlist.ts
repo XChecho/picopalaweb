@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, apiPaths } from "@/lib/api";
 
 interface IWaitlistResponse {
   subscribed: boolean;
@@ -11,7 +11,7 @@ interface IWaitlistResponse {
 export function useWaitlist() {
   return useMutation({
     mutationFn: (email: string) =>
-      apiFetch<IWaitlistResponse>("/public/waitlist", {
+      apiFetch<IWaitlistResponse>(apiPaths.proxy("/public/waitlist"), {
         method: "POST",
         body: JSON.stringify({ email, source: "web" }),
       }),
