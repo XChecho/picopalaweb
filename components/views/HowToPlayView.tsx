@@ -109,7 +109,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-white">{t('secret.digitsRange.title')}</span>
-                  <span className="text-[10px] text-[#a98891]">{t('secret.digitsRange.subtitle')}</span>
+                  <span className="text-xs text-[#a98891]">{t('secret.digitsRange.subtitle')}</span>
                 </div>
               </div>
 
@@ -119,7 +119,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-rose-400">{t('secret.noZeros.title')}</span>
-                  <span className="text-[10px] text-[#a98891]">{t('secret.noZeros.subtitle')}</span>
+                  <span className="text-xs text-[#a98891]">{t('secret.noZeros.subtitle')}</span>
                 </div>
               </div>
 
@@ -129,7 +129,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-rose-400">{t('secret.noDuplicates.title')}</span>
-                  <span className="text-[10px] text-[#a98891] line-through">{t('secret.noDuplicates.subtitle')}</span>
+                  <span className="text-xs text-[#a98891] line-through">{t('secret.noDuplicates.subtitle')}</span>
                 </div>
               </div>
             </div>
@@ -234,12 +234,12 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 <span className="font-['Cairo'] text-4xl font-black text-black leading-none">7</span>
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="w-3.5 h-3.5 rounded-full bg-[#e9c400] shadow-[0_0_8px_#ffe170]" />
                   <span className="font-['Cairo'] text-lg font-black text-[#ffe170] uppercase tracking-wider">
                     PICO
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold uppercase">
                     {t('matrix.pico.badge')}
                   </span>
                 </div>
@@ -258,12 +258,12 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 <span className="font-['Cairo'] text-4xl font-black text-[#ffb0ca] leading-none">1</span>
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="w-3.5 h-3.5 rounded-full border-2 border-[#ff479b] bg-transparent shadow-[0_0_8px_#ff479b]" />
                   <span className="font-['Cairo'] text-lg font-black text-[#ff479b] uppercase tracking-wider">
                     PALA
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold uppercase">
                     {t('matrix.pala.badge')}
                   </span>
                 </div>
@@ -284,12 +284,12 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                 </span>
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="w-3 h-3 rounded-full bg-[#33353b]" />
                   <span className="font-['Cairo'] text-lg font-black text-[#a98891] uppercase tracking-wider">
                     {t('matrix.miss.label')}
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded bg-[#282a30] text-[#a98891] text-xs font-bold uppercase">
                     {t('matrix.miss.badge')}
                   </span>
                 </div>
@@ -341,7 +341,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                     key={i}
                     className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
                   >
-                    <span className="text-[10px] text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
+                    <span className="text-xs text-[#a98891]">{t('example.slot', { n: s.pos })}</span>
                     <span className="font-['Cairo'] text-2xl font-black text-white">{s.val}</span>
                   </div>
                 ))}
@@ -365,7 +365,7 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
                     key={i}
                     className="aspect-square bg-[#111319] border border-[#282a30] rounded-xl flex flex-col items-center justify-center"
                   >
-                    <span className="text-[10px] text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
+                    <span className="text-xs text-[#a98891]">{t('example.pos', { n: s.pos })}</span>
                     <span className={`font-['Cairo'] text-2xl font-black ${s.color}`}>{s.val}</span>
                   </div>
                 ))}
@@ -377,8 +377,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 1 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                <span className="text-xs text-[#a98891]">{t('example.position', { n: 1 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
                   PICO
                 </span>
               </div>
@@ -388,8 +388,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 2 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-[10px] font-bold">
+                <span className="text-xs text-[#a98891]">{t('example.position', { n: 2 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#ff479b]/20 text-[#ffb0ca] text-xs font-bold">
                   PALA
                 </span>
               </div>
@@ -401,8 +401,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 3 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-[10px] font-bold">
+                <span className="text-xs text-[#a98891]">{t('example.position', { n: 3 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#282a30] text-[#a98891] text-xs font-bold">
                   {t('matrix.miss.label')}
                 </span>
               </div>
@@ -412,8 +412,8 @@ export const HowToPlayView: React.FC<HowToPlayViewProps> = ({ onNavigate }) => {
 
             <div className="bg-[#191b21] border border-[#282a30] rounded-xl p-3 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#a98891]">{t('example.position', { n: 4 })}</span>
-                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-[10px] font-bold">
+                <span className="text-xs text-[#a98891]">{t('example.position', { n: 4 })}</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#e9c400]/20 text-[#ffe170] text-xs font-bold">
                   PICO
                 </span>
               </div>
