@@ -31,8 +31,10 @@ export const fb = (guess, secret) => {
   return [p, l];
 };
 
-export async function newPage(browser, viewport = { width: 1280, height: 900 }, lang = "en") {
+export async function newPage(browser, viewport = { width: 1280, height: 900 }, lang = "en", { anonymous = false } = {}) {
   const context = await browser.newContext({ viewport, locale: lang });
+  // Play is gated behind login: any access token is accepted by the mock backend (see mock-backend.mjs).
+  if (!anonymous) await context.addCookies([{ name: "pp_at", value: "e2e-access", url: BASE }]);
   const page = await context.newPage();
   page.errors = [];
   page.on("pageerror", (e) => page.errors.push(e.message));
@@ -55,9 +57,19 @@ export async function moves(page) {
 export const status = (page) => page.getAttribute('[data-testid="turn-status"]', "data-state").catch(() => null);
 export const result = (page) => page.getAttribute('[data-testid="result-title"]', "data-result", { timeout: 300 }).catch(() => null);
 
+// /arena only opens through the play hub (a bare visit redirects back), so enter like a player would.
+// Language-agnostic: the hub's single Play button, then the first (easiest) level in the dialog.
+export async function enterArena(page, levelIndex = 0) {
+  await page.goto(BASE + "/play", { waitUntil: "networkidle" });
+  await page.locator("main").getByRole("button", { name: /^(Play|Jugar|Jogar)$/i }).click();
+  await page.getByRole("dialog").getByRole("button").nth(levelIndex).click();
+  await page.waitForURL("**/arena");
+  await page.waitForLoadState("networkidle"); // the arena is a client-only dynamic chunk
+}
+
 export async function openArena(page, level, secret) {
   await page.goto(BASE + "/play", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /^Play$/i }).first().click();
+  await page.locator("main").getByRole("button", { name: /^Play$/i }).click();
   await page.getByRole("dialog").getByRole("button", { name: new RegExp(level, "i") }).click();
   await page.waitForURL("**/arena");
   await page.getByText("Choose your secret cipher").waitFor();

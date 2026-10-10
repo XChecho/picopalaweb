@@ -18,6 +18,11 @@ const PLAYER = {
   avatarUrl: null, elo: 1000, rank: "BRONCE", createdAt: "2026-01-01T00:00:00.000Z",
 };
 
+const STATS = {
+  totalGames: 0, wins: 0, losses: 0, draws: 0, currentStreak: 0, bestStreak: 0, bestAttempts: null,
+  totalAttempts: 0, totalPicos: 0, totalPalas: 0, totalDurationSec: 0, avgTimePerGame: 0, byMode: [],
+};
+
 const r = createReport();
 const calls = [];
 let rejectCaptchaOnce = false;
@@ -42,6 +47,7 @@ const mock = http.createServer((req, res) => {
     }
     if (url.endsWith("/web/auth/refresh")) return send(200, { accessToken: ACCESS, refreshToken: REFRESH + "2" });
     if (url.endsWith("/web/auth/logout")) return send(200, { ok: true });
+    if (url.includes("/player/me/stats")) return send(200, STATS);
     if (url.includes("/player/me")) return send(200, PLAYER);
     if (url.includes("/public/waitlist")) return send(201, { subscribed: true });
     return send(404, null);
@@ -131,7 +137,7 @@ try {
 
   // Browser: no site key, form works without captcha
   browser = await launch();
-  let page = await newPage(browser);
+  let page = await newPage(browser, undefined, "en", { anonymous: true });
   await page.goto(A + "/auth", { waitUntil: "networkidle" });
   r.check("no site key: no Turnstile widget", (await page.locator('[data-testid="turnstile-widget"]').count()) === 0);
   await page.fill("#register-handle", "duelist1");
@@ -167,7 +173,7 @@ try {
     r.check("server rejects register without captchaToken when site key is set",
       (await fetch(B + "/api/auth/register", json({}, REGISTER))).status === 400);
 
-    page = await newPage(browser);
+    page = await newPage(browser, undefined, "en", { anonymous: true });
     // Stub the Cloudflare script: deterministic and offline. Tokens are single use (stub-token-N).
     await page.route("https://challenges.cloudflare.com/turnstile/v0/api.js*", (route) =>
       route.fulfill({

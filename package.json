@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "e2e": "node e2e/vs-ai-flow.mjs && node e2e/vs-ai-edge.mjs && node e2e/mobile-i18n.mjs && node e2e/auth-bff.mjs"
+    "e2e": "node e2e/run.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
