@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Check, Copy, KeyRound, Loader2, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ApiError } from "@/lib/api";
 import { PrivateMatch } from "@/components/room/PrivateMatch";
 import { useActiveMatch } from "@/hooks/useHumanMatch";
 import { useCancelRoom, useCreateRoom, useJoinRoom, useRoomState } from "@/hooks/useRoom";
@@ -37,7 +38,11 @@ function Waiting({ code, onMatch, onClosed }: { code: string; onMatch: (matchId:
   const [copied, setCopied] = useState(false);
 
   const matchId = room.data?.matchId ?? null;
-  const gone = room.data?.status === "CLOSED" || room.data?.status === "EXPIRED" || room.isError;
+  // Only a definitive answer drops the room: a transient failure (5xx, 429, offline) keeps polling.
+  const gone =
+    room.data?.status === "CLOSED" ||
+    room.data?.status === "EXPIRED" ||
+    (room.error instanceof ApiError && room.error.status === 404);
 
   useEffect(() => {
     if (matchId) onMatch(matchId);
@@ -76,7 +81,16 @@ function Waiting({ code, onMatch, onClosed }: { code: string; onMatch: (matchId:
           {copied ? t("waiting.copied") : t("waiting.copy")}
         </button>
         <button
-          onClick={() => cancel.mutate(code, { onSettled: onClosed })}
+          onClick={() =>
+            cancel.mutate(code, {
+              onSuccess: onClosed,
+              // 404: already gone. Anything else (e.g. 409: a guest just joined) must be re-read, not discarded.
+              onError: (error) => {
+                if (error instanceof ApiError && error.status === 404) onClosed();
+                else void room.refetch();
+              },
+            })
+          }
           disabled={cancel.isPending}
           data-testid="cancel-room"
           className="px-5 py-2.5 rounded-full border border-[#33353b] text-[#a98891] hover:text-rose-400 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
@@ -180,7 +194,10 @@ export const PrivateRoomView: React.FC = () => {
   // Resume an unfinished private duel (reload, other tab or device).
   const activeId = active.data?.mode === "PRIVATE" ? (active.data.id ?? null) : null;
   useEffect(() => {
-    if (activeId) setMatchId((current) => current ?? activeId);
+    if (!activeId) return;
+    storeCode(null);
+    setHostCode(null);
+    setMatchId((current) => current ?? activeId);
   }, [activeId]);
 
   const startWaiting = (code: string) => {

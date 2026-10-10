@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { DigitPad } from "@/components/room/DigitPad";
 import { useForfeitMatch, useMatchView, useSetSecret, useSubmitMove } from "@/hooks/useHumanMatch";
 import { useCountdown } from "@/hooks/useCountdown";
+import { ApiError } from "@/lib/api";
 import { roomErrorKey } from "@/lib/roomErrors";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { IMatchView, IMoveView } from "@/types/room";
@@ -111,7 +112,7 @@ function SecretStep({ view, matchId, secondsLeft }: { view: IMatchView; matchId:
 export const PrivateMatch: React.FC<PrivateMatchProps> = ({ matchId, onExit }) => {
   const { t } = useTranslation("room");
   const playerId = useAuthStore((state) => state.player?.id);
-  const { data: view, isError, isPending, failureCount } = useMatchView(matchId);
+  const { data: view, error, isPending, failureCount } = useMatchView(matchId);
   const submitMove = useSubmitMove(matchId);
   const forfeit = useForfeitMatch(matchId);
   const [draft, setDraft] = useState<number[]>([]);
@@ -119,10 +120,12 @@ export const PrivateMatch: React.FC<PrivateMatchProps> = ({ matchId, onExit }) =
   const secondsLeft = useCountdown(view?.turnDeadlineAt);
 
   if (isPending) return <p className="text-center text-[#a98891]">{t("loading")}</p>;
-  if (isError || !view) {
+  // Keep showing the last known state through transient failures; only a definitive 403/404 ends the view.
+  const gone = error instanceof ApiError && (error.status === 404 || error.status === 403);
+  if (!view || gone) {
     return (
       <div className={`${card} flex flex-col items-center gap-4 text-center`}>
-        <p role="alert" className="text-rose-400 font-bold">{t("errors.notFound")}</p>
+        <p role="alert" className="text-rose-400 font-bold">{t(gone || !error ? "errors.notFound" : roomErrorKey(error))}</p>
         <button onClick={onExit} className="px-6 py-2.5 rounded-full bg-[#282a30] text-white text-xs font-bold uppercase tracking-wider">
           {t("result.back")}
         </button>
@@ -224,7 +227,7 @@ export const PrivateMatch: React.FC<PrivateMatchProps> = ({ matchId, onExit }) =
             {t(roomErrorKey(submitMove.error))}
           </p>
         )}
-        {failureCount > 0 && <p className="text-xs text-center text-[#ffe170]">{t("match.connectionLost")}</p>}
+        {(failureCount > 0 || error) && <p role="status" className="text-xs text-center text-[#ffe170]">{t("match.connectionLost")}</p>}
       </div>
 
       <button

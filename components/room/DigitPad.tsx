@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Delete, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -26,22 +26,32 @@ export const DigitPad: React.FC<DigitPadProps> = ({ draft, disabled = false, onC
     onChange([...draft, digit]);
   };
 
+  // One listener for the pad's lifetime; it always reads the latest props through this ref.
+  const latest = useRef({ draft, onChange, onSubmit });
+  latest.current = { draft, onChange, onSubmit };
+
   useEffect(() => {
     if (disabled) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat || event.isComposing) return;
+      const target = event.target instanceof Element ? event.target : null;
+      // A focused control (or an open dialog) owns the keyboard: Enter must not also submit the guess.
+      if (target?.closest("button, input, textarea, select, [role=dialog], [role=alertdialog]")) return;
+      if (document.querySelector("[role=alertdialog]")) return;
+      const { draft: current, onChange: change, onSubmit: submit } = latest.current;
       if (/^[1-9]$/.test(event.key)) {
         const digit = Number(event.key);
-        if (draft.length < 4 && !draft.includes(digit)) onChange([...draft, digit]);
+        if (current.length < 4 && !current.includes(digit)) change([...current, digit]);
       } else if (event.key === "Backspace") {
-        onChange(draft.slice(0, -1));
-      } else if (event.key === "Enter" && draft.length === 4) {
-        onSubmit();
+        change(current.slice(0, -1));
+      } else if (event.key === "Enter" && current.length === 4) {
+        event.preventDefault();
+        submit();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [disabled, draft, onChange, onSubmit]);
+  }, [disabled]);
 
   return (
     <div className="flex flex-col gap-3" data-testid="digit-pad">

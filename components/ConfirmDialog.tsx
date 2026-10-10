@@ -27,16 +27,22 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
 }) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  // Callers often pass inline handlers; keeping the latest in a ref stops re-renders from re-running the effects.
+  const onCancelRef = useRef(onCancel);
+  onCancelRef.current = onCancel;
+
+  useEffect(() => {
+    if (open) cancelRef.current?.focus();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    cancelRef.current?.focus();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !busy) onCancel();
+      if (event.key === 'Escape' && !busy) onCancelRef.current();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, busy, onCancel]);
+  }, [open, busy]);
 
   if (!open) return null;
 

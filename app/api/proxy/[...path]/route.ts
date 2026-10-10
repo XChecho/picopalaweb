@@ -22,6 +22,8 @@ async function handle(request: NextRequest, context: IRouteContext): Promise<Res
   const valid =
     path.length > 0 &&
     ALLOWED_ROOTS.has(path[0]) &&
+    // Only private rooms: the global queue is not exposed to the browser yet.
+    (path[0] !== "room" || path[1] === "private") &&
     path.every((segment) => SEGMENT_PATTERN.test(segment) && segment !== "." && segment !== "..");
   if (!valid) return errorResponse(404, "Not found");
 
