@@ -95,6 +95,7 @@ function Waiting({ code, onMatch, onClosed }: { code: string; onMatch: (matchId:
           data-testid="cancel-room"
           className="px-5 py-2.5 rounded-full border border-[#33353b] text-[#a98891] hover:text-rose-400 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
         >
+          {cancel.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin inline mr-2" />}
           {t("waiting.cancel")}
         </button>
       </div>
@@ -132,8 +133,9 @@ function Lobby({ onWaiting, onMatch }: { onWaiting: (code: string) => void; onMa
           onClick={() => create.mutate(undefined, { onSuccess: (room) => onWaiting(room.code) })}
           disabled={create.isPending}
           data-testid="create-room"
-          className="px-6 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.4)] disabled:opacity-60"
+          className="px-6 py-3 rounded-full bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,46,149,0.4)] disabled:opacity-60 flex items-center justify-center gap-2"
         >
+          {create.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {t("create.button")}
         </button>
         {create.isError && (
@@ -164,8 +166,9 @@ function Lobby({ onWaiting, onMatch }: { onWaiting: (code: string) => void; onMa
           type="submit"
           disabled={join.isPending}
           data-testid="join-submit"
-          className="px-6 py-3 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white font-black text-sm uppercase tracking-wider disabled:opacity-60"
+          className="px-6 py-3 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white font-black text-sm uppercase tracking-wider disabled:opacity-60 flex items-center justify-center gap-2"
         >
+          {join.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {t("join.button")}
         </button>
         {(codeError || join.isError) && (
@@ -223,21 +226,27 @@ export const PrivateRoomView: React.FC = () => {
 
   let body: React.ReactNode;
   if (!restored || (active.isPending && !matchId)) {
-    body = <p className="text-center text-[#a98891]">{t("loading")}</p>;
+    body = (
+      <p className="flex items-center justify-center gap-2 text-[#a98891]">
+        <Loader2 className="w-4 h-4 animate-spin" /> {t("loading")}
+      </p>
+    );
   } else if (matchId) {
-    body = <PrivateMatch matchId={matchId} onExit={exitMatch} />;
+    body = <PrivateMatch matchId={matchId} onExit={exitMatch} onSwitchMatch={enterMatch} />;
   } else if (hostCode) {
     body = <Waiting code={hostCode} onMatch={enterMatch} onClosed={clearWaiting} />;
   } else {
     body = <Lobby onWaiting={startWaiting} onMatch={enterMatch} />;
   }
 
+  if (matchId && restored) return <>{body}</>;
+
   return (
     <section className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <span className="text-xs font-bold uppercase tracking-widest text-[#ff479b]">{t("header.eyebrow")}</span>
         <h1 className="font-['Cairo'] text-3xl sm:text-4xl font-black text-white">{t("header.title")}</h1>
-        {!matchId && <p className="text-sm sm:text-base text-[#e2e2ea]/80 max-w-2xl">{t("header.subtitle")}</p>}
+        <p className="text-sm sm:text-base text-[#e2e2ea]/80 max-w-2xl">{t("header.subtitle")}</p>
       </header>
       {body}
     </section>

@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Delete, RotateCcw, Send } from 'lucide-react';
+import { Delete, Loader2, RotateCcw, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface TurnComposerProps {
   draft: number[];
   canPlay: boolean;
+  /** The guess is being sent to the server. */
+  busy?: boolean;
   errorMsg: string | null;
   turnLabel: string;
   onPress: (digit: number) => void;
@@ -19,6 +21,7 @@ interface TurnComposerProps {
 export const TurnComposer: React.FC<TurnComposerProps> = ({
   draft,
   canPlay,
+  busy = false,
   errorMsg,
   turnLabel,
   onPress,
@@ -93,7 +96,7 @@ export const TurnComposer: React.FC<TurnComposerProps> = ({
                 : 'bg-[#282a30] text-[#a98891] opacity-70'
             }`}
           >
-            {t('write.submit')} <Send className="w-4 h-4" />
+            {t('write.submit')} {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
       </div>
