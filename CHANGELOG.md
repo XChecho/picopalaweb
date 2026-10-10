@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- Duelo privado con el mismo diseño que el versus IA: tablero de dos columnas, fichas pico/pala, leyenda, teclado y modal de secreto. Componentes compartidos en `components/arena/` (`ColumnHeader`, `BoardCell`, `WriteTurnModal`, `SecretSetupModal`, `MatchResultModal`).
+- Pantalla final como modal de resultado (ya no muestra el historial): revancha, ver partida y salir. La revancha requiere `POST /match/:id/rematch` del backend (campo `rematch` en la vista de la partida).
+- Indicadores de carga al crear/unirse a una sala, fijar el secreto, enviar la jugada, rendirse y pedir revancha.
+
 ## 0.8.0
 - Salas privadas en la web (`/room`): crear sala y compartir el código de 6 caracteres, unirse con código, elegir el secreto (propio o aleatorio) y duelo por turnos con el reloj de 60 s del servidor, rendirse y reanudar un duelo en curso (`GET /match/active`) tras recargar. El BFF permite ahora `room/*`. Sincronización por polling cada 2 s (sin WebSocket: los tokens son HttpOnly). Textos en en/es/pt.
 - CI en GitHub Actions (typecheck, build, e2e). E2E con backend mock compartido (`e2e/mock-backend.mjs`, `e2e/run.mjs`) y nueva suite `private-room`.

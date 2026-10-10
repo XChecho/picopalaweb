@@ -20,6 +20,7 @@ const feedback = (guess, secret) => {
   for (let i = 0; i < 4; i++) { if (guess[i] === secret[i]) picos++; else if (secret.includes(guess[i])) palas++; }
   return { picos, palas };
 };
+let gameCount = 0;
 let game = null; // the single active private match of the signed-in mock player
 let hostRoom = null; // { code, matchId } once the scripted guest has "joined"
 
@@ -31,10 +32,13 @@ function matchView() {
     turnDeadlineAt: new Date(Date.now() + 60_000).toISOString(),
     mySeat: game.mySeat, player1Id: "p1", player2Id: "rival", [mine]: game.mySecret,
     winnerId: game.winnerId, turnCount: game.moves.length, participants: [], moves: game.moves,
+    rematch: game.rematch ?? null,
+    // Like the backend: the rival's secret is revealed once the match is over.
+    ...(game.status === "FINISHED" ? { [game.mySeat === 1 ? "player2Number" : "player1Number"]: RIVAL_SECRET } : {}),
   };
 }
 function startGame(mySeat) {
-  game = { id: "00000000-0000-4000-8000-000000000001", status: "WAITING", mySeat, currentSeat: 1, mySecret: null, endReason: null, winnerId: null, moves: [] };
+  game = { id: `00000000-0000-4000-8000-${String(++gameCount).padStart(12, "0")}`, status: "WAITING", mySeat, currentSeat: 1, mySecret: null, endReason: null, winnerId: null, moves: [], rematch: null };
 }
 function pushMove(seat, guess, secret) {
   const fb = feedback(guess, secret);
@@ -49,17 +53,18 @@ function handleRooms(req, url, body, send) {
     return send(201, { id: "r1", code: "ABC123", hostId: "p1", maxTurns: 12, status: "WAITING", expiresAt: new Date(Date.now() + 3_600_000).toISOString() });
   }
   if (req.method === "POST" && url.endsWith("/room/private/join")) {
-    if (body?.code !== "JOIN12") return send(404, { message: "Room not found" });
+    if (body?.code !== "JOIN12" && body?.code !== "REM123") return send(404, { message: "Room not found" });
     startGame(2);
-    return send(201, { room: { id: "r2", code: "JOIN12", hostId: "rival", guestId: "p1", status: "IN_GAME", matchId: game.id }, match: { id: game.id } });
+    return send(201, { room: { id: "r2", code: body.code, hostId: "rival", guestId: "p1", status: "IN_GAME", matchId: game.id }, match: { id: game.id } });
   }
   if (req.method === "GET" && url.includes("/room/private/")) {
     if (!hostRoom) return send(404, { message: "Room not found" });
-    if (hostRoom.joined && !game) startGame(1);
-    return send(200, { id: "r1", code: hostRoom.code, hostId: "p1", guestId: game ? "rival" : null, status: game ? "IN_GAME" : "WAITING", maxTurns: 12, expiresAt: new Date(Date.now() + 3_600_000).toISOString(), matchId: game?.id ?? null, matchStatus: game?.status ?? null });
+    if (hostRoom.joined && (!game || game.status === "FINISHED")) startGame(1);
+    return send(200, { id: "r1", code: hostRoom.code, hostId: "p1", guestId: game && game.status !== "FINISHED" ? "rival" : null, status: game && game.status !== "FINISHED" ? "IN_GAME" : "WAITING", maxTurns: 12, expiresAt: new Date(Date.now() + 3_600_000).toISOString(), matchId: game && game.status !== "FINISHED" ? game.id : null, matchStatus: game && game.status !== "FINISHED" ? game.status : null });
   }
   if (req.method === "DELETE" && url.includes("/room/private/")) { hostRoom = null; return send(200, { message: "Room closed" }); }
   if (url.endsWith("/__test/guest-joins")) { if (hostRoom) hostRoom.joined = true; return send(200, { ok: true }); }
+  if (url.endsWith("/__test/rival-offers-rematch")) { if (game) game.rematch = { code: "REM123", requestedBy: "rival" }; return send(200, { ok: true }); }
   if (url.endsWith("/__test/reset")) { game = null; hostRoom = null; return send(200, { ok: true }); }
   if (url.endsWith("/match/active")) return send(200, game && game.status !== "FINISHED" ? matchView() : {});
   if (!game || !url.includes(`/match/${game.id}`)) return false;
@@ -78,6 +83,12 @@ function handleRooms(req, url, body, send) {
     const rivalSeat = game.mySeat === 1 ? 2 : 1;
     pushMove(rivalSeat, "5678", game.mySecret);
     return send(201, { move });
+  }
+  if (url.endsWith("/rematch")) {
+    if (game.status !== "FINISHED") return send(409, { message: "Match is not finished" });
+    hostRoom = { code: "REM123", joined: false };
+    game.rematch = { code: "REM123", requestedBy: "p1" };
+    return send(201, { code: "REM123" });
   }
   if (url.endsWith("/forfeit")) { game.status = "FINISHED"; game.endReason = "RESIGNED"; game.winnerId = "rival"; return send(201, matchView()); }
   return false;
