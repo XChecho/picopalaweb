@@ -1,5 +1,5 @@
 // Versus AI: setup, win, defeat, duplicate guess, navigation, forfeit.
-import { BASE, launch, createReport, perms, fb, newPage, moves, result, openArena, enterGrid, waitMyTurnOrEnd, typeGuess } from "./lib.mjs";
+import { BASE, enterArena, launch, createReport, perms, fb, newPage, moves, result, openArena, enterGrid, waitMyTurnOrEnd, typeGuess } from "./lib.mjs";
 
 const browser = await launch();
 const r = createReport();
@@ -21,7 +21,8 @@ async function playSolver(page, maxRounds = 13) {
 // T1: setup + solver, bot uses its history
 {
   const page = await newPage(browser);
-  await page.goto(BASE + "/arena", { waitUntil: "networkidle" });
+  await enterArena(page, 1); // Tactician: the bot prunes by its history (Novice is deliberately looser)
+  await page.getByText("Choose your secret cipher").waitFor({ timeout: 10000 }).catch(() => {});
   r.check("setup modal appears on first open", await page.getByText("Choose your secret cipher").isVisible());
   r.check("no debug bar / fake data", !/Debug States|Tokyo/i.test(await page.locator("main").innerText()));
   r.check("lock disabled with empty secret", await page.getByRole("button", { name: "Lock secret" }).isDisabled());
@@ -97,7 +98,7 @@ async function playSolver(page, maxRounds = 13) {
   const before = (await moves(page)).length;
   await page.getByRole("button", { name: /How to Play/ }).first().click();
   await page.waitForURL("**/how-to-play");
-  await page.getByRole("button", { name: /Live Arena/ }).first().click();
+  await page.getByRole("button", { name: /Match Live/ }).first().click();
   await page.waitForURL("**/arena");
   const after = (await moves(page)).length;
   r.check("match survives navigating away and back", after >= before && after > 0, `${before} -> ${after} moves`);

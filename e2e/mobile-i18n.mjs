@@ -1,5 +1,5 @@
 // Mobile battle layout (top turn indicator, two columns, number pad in a modal) and i18n (en / es / pt).
-import { BASE, launch, createReport, newPage, moves, openArena, enterGrid, waitMyTurnOrEnd } from "./lib.mjs";
+import { BASE, enterArena, launch, createReport, newPage, moves, openArena, enterGrid, waitMyTurnOrEnd } from "./lib.mjs";
 
 const browser = await launch();
 const r = createReport();
@@ -48,9 +48,9 @@ const RAW_KEY = /^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/m; // an untranslated i18n
 
 // ---------- i18n ----------
 const LANGS = [
-  { code: "es", label: "Español", nav: "Cómo Jugar", write: /Escribir turno/i, setup: "Elige tu clave secreta" },
-  { code: "pt", label: "Português", nav: "Como Jogar", write: /Escrever jogada/i, setup: "Escolha seu código secreto" },
-  { code: "en", label: "English", nav: "How to Play", write: /Write turn/i, setup: "Choose your secret cipher" },
+  { code: "es", label: "Español", nav: "Cómo Jugar", write: /Escribe tu jugada/i, setup: "Elige tu clave secreta" },
+  { code: "pt", label: "Português", nav: "Como Jogar", write: /Escreva sua jogada/i, setup: "Escolha seu código secreto" },
+  { code: "en", label: "English", nav: "How to Play", write: /Write your turn/i, setup: "Choose your secret cipher" },
 ];
 
 for (const lang of LANGS) {
@@ -75,18 +75,19 @@ for (const lang of LANGS) {
   r.check(`[${lang.code}] no untranslated keys on any page`, raw.length === 0, raw.join(","));
 
   await openArenaSetup(page);
+  await page.getByText(lang.setup).waitFor({ timeout: 10000 }).catch(() => {});
   r.check(`[${lang.code}] arena setup modal translated`, await page.getByText(lang.setup).isVisible());
   for (const c of "5841") await page.keyboard.press(c);
   await page.keyboard.press("Enter");
   await page.getByRole("button", { name: /^(Enter duel grid|Entrar al duelo|Entrar no duelo)$/i }).click();
   await waitMyTurnOrEnd(page, 20000);
-  r.check(`[${lang.code}] arena action button translated`, await page.getByRole("button", { name: lang.write }).isVisible());
+  r.check(`[${lang.code}] arena action button translated`, await page.getByLabel(lang.write).first().isVisible());
   r.check(`[${lang.code}] no console errors`, page.errors.length === 0, page.errors.slice(0, 2).join(" | "));
   await page.close();
 }
 
 async function openArenaSetup(page) {
-  await page.goto(BASE + "/arena", { waitUntil: "networkidle" });
+  await enterArena(page);
 }
 
 // Browser locale detection

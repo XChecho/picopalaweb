@@ -63,7 +63,8 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 
 ## Pruebas E2E
 ```bash
-pnpm build && pnpm start -p 3111   # en otra terminal
-pnpm e2e                           # requiere Google Chrome; E2E_BASE_URL para otra URL
+pnpm build   # sin NEXT_PUBLIC_TURNSTILE_SITE_KEY
+pnpm e2e     # requiere Google Chrome; levanta solo el backend mock (e2e/mock-backend.mjs) y `next start` en :3111
 ```
+`E2E_ONLY=mobile-i18n pnpm e2e` ejecuta una sola suite. El juego exige sesión: las suites usan una cookie `pp_at` que el mock acepta.
 `e2e/auth-bff.mjs` (necesita `pnpm build` sin site key; levanta su propio `next start` y un backend mock, y compila una copia con site key en `.next-e2e-captcha`) verifica rutas `/web/auth/*`, `X-BFF-Key`/`X-Client-IP`, `captchaToken`, que los tokens no llegan al navegador y el formulario con y sin Turnstile. `e2e/vs-ai-flow.mjs` cubre setup, victoria, derrota, jugada repetida, navegación y abandono; `e2e/vs-ai-edge.mjs` cubre empate (12 jugadas por lado) y el reloj de Grandmaster; `e2e/mobile-i18n.mjs` cubre el layout móvil (turno arriba, dos columnas, teclado en modal) y el cambio de idioma en es/en/pt. Los helpers comunes están en `e2e/lib.mjs`.
