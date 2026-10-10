@@ -32,6 +32,7 @@ interface PlayHubViewProps {
   session: IActiveSession | null;
   onStartMatch: (mode: GameMode, difficulty?: Difficulty) => void;
   onResumeMatch: () => void;
+  onOpenPrivateRoom: () => void;
 }
 
 export const PlayHubView: React.FC<PlayHubViewProps> = ({
@@ -42,6 +43,7 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
   session,
   onStartMatch,
   onResumeMatch,
+  onOpenPrivateRoom,
 }) => {
   const { t } = useTranslation('playHub');
   const [difficultyOpen, setDifficultyOpen] = useState(false);
@@ -193,31 +195,40 @@ export const PlayHubView: React.FC<PlayHubViewProps> = ({
           </div>
         </div>
 
-        {/* Not implemented yet: no fake rooms, codes or queues */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          {(['private', 'global'] as const).map((mode) => {
-            const Icon = mode === 'private' ? Key : Globe;
-            return (
-              <div
-                key={mode}
-                aria-disabled="true"
-                className="rounded-3xl bg-[#191b21]/60 border border-[#282a30] p-5 flex items-center gap-4 opacity-70"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-[#282a30] flex items-center justify-center text-[#a98891] shrink-0">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="font-['Cairo'] text-lg font-black text-white tracking-tight">{t(`${mode}.title`)}</h2>
-                    <span className="px-2 py-0.5 rounded-full bg-[#e9c400]/15 text-[#ffe170] text-[11px] font-bold uppercase tracking-wider">
-                      {t('comingSoon')}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#a98891]">{t(`${mode}.subtitle`)}</p>
-                </div>
+          <button
+            type="button"
+            onClick={onOpenPrivateRoom}
+            data-testid="open-private-room"
+            className="rounded-3xl bg-[#191b21] border border-[#282a30] hover:border-[#ff479b]/60 p-5 flex items-center gap-4 text-left transition-all hover:shadow-[0_0_25px_rgba(255,46,149,0.2)] active:scale-[0.99]"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-[#ff479b]/15 text-[#ff479b] flex items-center justify-center shrink-0">
+              <Key className="w-6 h-6" />
+            </div>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <h2 className="font-['Cairo'] text-lg font-black text-white tracking-tight">{t('private.title')}</h2>
+              <p className="text-xs text-[#a98891]">{t('private.subtitle')}</p>
+            </div>
+          </button>
+
+          {/* Not implemented yet: no fake queues */}
+          <div
+            aria-disabled="true"
+            className="rounded-3xl bg-[#191b21]/60 border border-[#282a30] p-5 flex items-center gap-4 opacity-70"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-[#282a30] flex items-center justify-center text-[#a98891] shrink-0">
+              <Globe className="w-6 h-6" />
+            </div>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-['Cairo'] text-lg font-black text-white tracking-tight">{t('global.title')}</h2>
+                <span className="px-2 py-0.5 rounded-full bg-[#e9c400]/15 text-[#ffe170] text-[11px] font-bold uppercase tracking-wider">
+                  {t('comingSoon')}
+                </span>
               </div>
-            );
-          })}
+              <p className="text-xs text-[#a98891]">{t('global.subtitle')}</p>
+            </div>
+          </div>
         </div>
       </div>
 

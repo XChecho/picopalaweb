@@ -1,0 +1,89 @@
+{
+  "header": {
+    "eyebrow": "Private Duel",
+    "title": "Duel a friend",
+    "subtitle": "Share a room code, each of you locks a secret and you take turns deciphering the other's. 60 seconds per move."
+  },
+  "create": {
+    "title": "Create a room",
+    "description": "You get a 6-character code to send to your friend. The room stays open for 1 hour.",
+    "button": "Create room"
+  },
+  "join": {
+    "title": "Join with a code",
+    "description": "Enter the code your friend shared.",
+    "label": "Room code",
+    "placeholder": "ABC123",
+    "button": "Join"
+  },
+  "waiting": {
+    "title": "Waiting for your rival",
+    "subtitle": "Send this code. The duel starts as soon as they join.",
+    "codeLabel": "Room code",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "cancel": "Cancel room",
+    "closed": "The room is no longer available."
+  },
+  "secret": {
+    "title": "Choose your secret cipher",
+    "subtitle": "4 different digits from 1 to 9. Your rival will try to guess it.",
+    "random": "Random",
+    "lock": "Lock secret",
+    "waitingRival": "Secret locked. Waiting for your rival…",
+    "timeLeft": "Time to choose: {{seconds}} s"
+  },
+  "match": {
+    "yourTurn": "Your turn",
+    "rivalTurn": "Rival's turn",
+    "you": "You",
+    "rival": "Rival",
+    "mySecret": "Your secret",
+    "turn": "Turn {{n}} / {{max}}",
+    "timeLeft": "{{seconds}} s",
+    "noMoves": "No guesses yet",
+    "hint": "Digits 1–9 · No repeats · {{count}} remaining",
+    "submit": "Send guess",
+    "clear": "Clear",
+    "undo": "Undo",
+    "digit": "Digit",
+    "forfeit": "Forfeit",
+    "pico": "P",
+    "pala": "L",
+    "picosLabel": "picos",
+    "palasLabel": "palas",
+    "connectionLost": "Connection problem. Retrying…"
+  },
+  "forfeitDialog": {
+    "title": "Forfeit this duel?",
+    "description": "You will lose the match and your rival wins.",
+    "confirm": "Forfeit",
+    "cancel": "Keep playing"
+  },
+  "result": {
+    "win": "Victory",
+    "loss": "Defeat",
+    "draw": "Draw",
+    "cancelled": "Duel cancelled",
+    "back": "Back to lobby",
+    "reason": {
+      "GUESSED": "The secret was cracked.",
+      "MAX_TURNS": "Turn limit reached.",
+      "ABANDONED": "A player left the duel.",
+      "TIMEOUT": "A player ran out of time.",
+      "RESIGNED": "A player forfeited.",
+      "none": ""
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "notFound": "That room does not exist.",
+    "full": "That room is already full.",
+    "expired": "That room has expired.",
+    "own": "You cannot join your own room.",
+    "invalidCode": "The code has 6 characters.",
+    "notYourTurn": "It is not your turn.",
+    "network": "Connection problem. Try again."
+  },
+  "loading": "Loading…"
+}

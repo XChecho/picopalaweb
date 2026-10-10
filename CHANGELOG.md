@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0
+- Salas privadas en la web (`/room`): crear sala y compartir el código de 6 caracteres, unirse con código, elegir el secreto (propio o aleatorio) y duelo por turnos con el reloj de 60 s del servidor, rendirse y reanudar un duelo en curso (`GET /match/active`) tras recargar. El BFF permite ahora `room/*`. Sincronización por polling cada 2 s (sin WebSocket: los tokens son HttpOnly). Textos en en/es/pt.
+- CI en GitHub Actions (typecheck, build, e2e). E2E con backend mock compartido (`e2e/mock-backend.mjs`, `e2e/run.mjs`) y nueva suite `private-room`.
+- Fix: salir de la arena desde el header ya no rebota al centro de juego.
+
 ## 0.7.0
 - Barra de navegación simplificada: En vivo, Cómo jugar y Récords (más Centro de juego con sesión); sin icono de sonido ni "nodo sincronizado"; cursor `pointer` global; confirmación antes de cerrar sesión.
 - "Modos de juego" se integra en Cómo jugar, que ahora son dos pantallas: básicos y `/how-to-play/strategy` (estrategia avanzada con principios, ejemplo resuelto y errores comunes, con cifras calculadas por fuerza bruta).

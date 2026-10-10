@@ -9,7 +9,7 @@ import {
 
 // Only these backend areas are reachable from the browser. `auth/*` is deliberately absent:
 // token handling lives in /api/auth/*.
-const ALLOWED_ROOTS = new Set(["player", "match", "stats", "public"]);
+const ALLOWED_ROOTS = new Set(["player", "match", "room", "stats", "public"]);
 const SEGMENT_PATTERN = /^[A-Za-z0-9_\-:.]+$/;
 
 interface IRouteContext {
@@ -22,6 +22,8 @@ async function handle(request: NextRequest, context: IRouteContext): Promise<Res
   const valid =
     path.length > 0 &&
     ALLOWED_ROOTS.has(path[0]) &&
+    // Only private rooms: the global queue is not exposed to the browser yet.
+    (path[0] !== "room" || path[1] === "private") &&
     path.every((segment) => SEGMENT_PATTERN.test(segment) && segment !== "." && segment !== "..");
   if (!valid) return errorResponse(404, "Not found");
 

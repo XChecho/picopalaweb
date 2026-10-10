@@ -1,0 +1,89 @@
+{
+  "header": {
+    "eyebrow": "Duelo privado",
+    "title": "Enfréntate a un amigo",
+    "subtitle": "Comparte el código de sala, cada uno fija un secreto y se turnan para descifrar el del otro. 60 segundos por jugada."
+  },
+  "create": {
+    "title": "Crear una sala",
+    "description": "Recibes un código de 6 caracteres para enviarle a tu amigo. La sala queda abierta 1 hora.",
+    "button": "Crear sala"
+  },
+  "join": {
+    "title": "Unirse con un código",
+    "description": "Introduce el código que te compartió tu amigo.",
+    "label": "Código de sala",
+    "placeholder": "ABC123",
+    "button": "Unirme"
+  },
+  "waiting": {
+    "title": "Esperando a tu rival",
+    "subtitle": "Envía este código. El duelo empieza en cuanto se una.",
+    "codeLabel": "Código de sala",
+    "copy": "Copiar código",
+    "copied": "Copiado",
+    "cancel": "Cancelar sala",
+    "closed": "La sala ya no está disponible."
+  },
+  "secret": {
+    "title": "Elige tu clave secreta",
+    "subtitle": "4 dígitos distintos del 1 al 9. Tu rival intentará adivinarla.",
+    "random": "Aleatoria",
+    "lock": "Fijar secreto",
+    "waitingRival": "Secreto fijado. Esperando a tu rival…",
+    "timeLeft": "Tiempo para elegir: {{seconds}} s"
+  },
+  "match": {
+    "yourTurn": "Tu turno",
+    "rivalTurn": "Turno del rival",
+    "you": "Tú",
+    "rival": "Rival",
+    "mySecret": "Tu secreto",
+    "turn": "Turno {{n}} / {{max}}",
+    "timeLeft": "{{seconds}} s",
+    "noMoves": "Aún no hay jugadas",
+    "hint": "Dígitos 1–9 · Sin repetir · faltan {{count}}",
+    "submit": "Enviar jugada",
+    "clear": "Borrar",
+    "undo": "Deshacer",
+    "digit": "Dígito",
+    "forfeit": "Rendirme",
+    "pico": "P",
+    "pala": "L",
+    "picosLabel": "picos",
+    "palasLabel": "palas",
+    "connectionLost": "Problema de conexión. Reintentando…"
+  },
+  "forfeitDialog": {
+    "title": "¿Rendirte en este duelo?",
+    "description": "Perderás la partida y ganará tu rival.",
+    "confirm": "Rendirme",
+    "cancel": "Seguir jugando"
+  },
+  "result": {
+    "win": "Victoria",
+    "loss": "Derrota",
+    "draw": "Empate",
+    "cancelled": "Duelo cancelado",
+    "back": "Volver al lobby",
+    "reason": {
+      "GUESSED": "Se descifró la clave.",
+      "MAX_TURNS": "Se alcanzó el límite de turnos.",
+      "ABANDONED": "Un jugador abandonó el duelo.",
+      "TIMEOUT": "A un jugador se le acabó el tiempo.",
+      "RESIGNED": "Un jugador se rindió.",
+      "none": ""
+    }
+  },
+  "errors": {
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "notFound": "Esa sala no existe.",
+    "full": "Esa sala ya está llena.",
+    "expired": "Esa sala expiró.",
+    "own": "No puedes unirte a tu propia sala.",
+    "invalidCode": "El código tiene 6 caracteres.",
+    "notYourTurn": "No es tu turno.",
+    "network": "Problema de conexión. Inténtalo de nuevo."
+  },
+  "loading": "Cargando…"
+}

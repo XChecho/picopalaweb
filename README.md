@@ -56,7 +56,7 @@ Lógica portada de la app (`picopalaapp/core/utils/gameLogic.ts`), sin backend:
 - Código: `lib/gameLogic.ts` (reglas y bots), `store/useMatchStore.ts` (estado y turnos), `components/views/ArenaView.tsx` (UI).
 
 ## Estado
-- Salas privada y global: solo interfaz; la arena muestra "coming soon".
+- Sala privada (`/room`): crear sala con código, unirse con código, elegir secreto, duelo por turnos con reloj del servidor, rendirse y reanudar tras recargar. Se sincroniza por polling (2 s) a través del BFF. Sala global: aún "coming soon".
 - Auth, perfil, estadísticas e historial usan el backend real vía BFF. No hay ranking global, recuperación de contraseña, edición de perfil ni borrado de cuenta.
 - Las partidas de la web no se guardan ni se sincronizan estadísticas todavía.
 - El header no tiene menú de navegación en móvil (los enlaces solo aparecen desde `lg`).
