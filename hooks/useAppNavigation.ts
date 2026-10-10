@@ -8,11 +8,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useMatchStore } from "@/store/useMatchStore";
 
 /** Views that need a signed-in player; anonymous visitors are sent to `/auth`. */
-const PROTECTED_VIEWS: readonly AppView[] = ["play-hub", "arena"];
+const PROTECTED_VIEWS: readonly AppView[] = ["play-hub", "room", "arena"];
 
 export const VIEW_ROUTES: Record<AppView, string> = {
   landing: "/",
   "play-hub": "/play",
+  room: "/room",
   live: "/live",
   arena: "/arena",
   records: "/records",

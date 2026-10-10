@@ -9,7 +9,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { MAX_ATTEMPTS, TIMER_SECONDS, useMatchStore } from "@/store/useMatchStore";
 
 export default function PlayPage() {
-  const { startMatch, resumeMatch } = useAppNavigation();
+  const { navigate, startMatch, resumeMatch } = useAppNavigation();
   const isAuthenticated = useRequireAuth();
   const player = useAuthStore((state) => state.player);
   const stats = usePlayerStats();
@@ -34,6 +34,7 @@ export default function PlayPage() {
       session={session}
       onStartMatch={startMatch}
       onResumeMatch={resumeMatch}
+      onOpenPrivateRoom={() => navigate("room")}
     />
   );
 }

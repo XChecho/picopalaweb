@@ -9,7 +9,7 @@ import {
 
 // Only these backend areas are reachable from the browser. `auth/*` is deliberately absent:
 // token handling lives in /api/auth/*.
-const ALLOWED_ROOTS = new Set(["player", "match", "stats", "public"]);
+const ALLOWED_ROOTS = new Set(["player", "match", "room", "stats", "public"]);
 const SEGMENT_PATTERN = /^[A-Za-z0-9_\-:.]+$/;
 
 interface IRouteContext {
