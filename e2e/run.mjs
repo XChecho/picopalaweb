@@ -4,7 +4,7 @@ import { spawn } from "node:child_process";
 import { startMockBackend, MOCK_PORT } from "./mock-backend.mjs";
 
 const PORT = 3111;
-const ALL = ["vs-ai-flow", "vs-ai-edge", "mobile-i18n", "auth-bff"];
+const ALL = ["vs-ai-flow", "vs-ai-edge", "mobile-i18n", "private-room", "auth-bff"];
 const SUITES = process.env.E2E_ONLY ? process.env.E2E_ONLY.split(",") : ALL;
 
 const mock = await startMockBackend();
