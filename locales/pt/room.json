@@ -26,33 +26,16 @@
     "closed": "A sala não está mais disponível."
   },
   "secret": {
-    "title": "Escolha seu código secreto",
     "subtitle": "4 dígitos diferentes de 1 a 9. Seu rival tentará adivinhá-lo.",
-    "random": "Aleatório",
-    "lock": "Fixar segredo",
     "waitingRival": "Segredo fixado. Aguardando seu rival…",
     "timeLeft": "Tempo para escolher: {{seconds}} s"
   },
   "match": {
-    "yourTurn": "Sua vez",
-    "rivalTurn": "Vez do rival",
-    "you": "Você",
     "rival": "Rival",
-    "mySecret": "Seu segredo",
-    "turn": "Turno {{n}} / {{max}}",
-    "timeLeft": "{{seconds}} s",
-    "noMoves": "Ainda não há jogadas",
-    "hint": "Dígitos 1–9 · Sem repetir · faltam {{count}}",
-    "submit": "Enviar jogada",
-    "clear": "Limpar",
-    "undo": "Desfazer",
-    "digit": "Dígito",
     "forfeit": "Desistir",
-    "pico": "P",
-    "pala": "L",
-    "picosLabel": "picos",
-    "palasLabel": "palas",
-    "connectionLost": "Problema de conexão. Tentando novamente…"
+    "connectionLost": "Problema de conexão. Tentando novamente…",
+    "sending": "Enviando jogada…",
+    "rivalThinking": "Aguardando…"
   },
   "forfeitDialog": {
     "title": "Desistir deste duelo?",
@@ -65,7 +48,6 @@
     "loss": "Derrota",
     "draw": "Empate",
     "cancelled": "Duelo cancelado",
-    "back": "Voltar ao lobby",
     "reason": {
       "GUESSED": "O código foi decifrado.",
       "MAX_TURNS": "Limite de turnos atingido.",
@@ -73,7 +55,23 @@
       "TIMEOUT": "O tempo de um jogador acabou.",
       "RESIGNED": "Um jogador desistiu.",
       "none": ""
-    }
+    },
+    "badge": {
+      "win": "VITÓRIA",
+      "loss": "DERROTA",
+      "draw": "EMPATE",
+      "cancelled": "CANCELADO"
+    },
+    "exit": "Sair",
+    "viewMatch": "Ver partida",
+    "rematch": "Pedir revanche",
+    "rematchAccept": "Aceitar revanche",
+    "rematchWaiting": "Revanche solicitada",
+    "rematchSent": "Aguardando seu rival aceitar…",
+    "rematchOffered": "Seu rival quer a revanche",
+    "rivalGuesses": "Jogadas do rival",
+    "secretDecrypted": "Segredo do rival decifrado",
+    "secretWas": "O segredo do rival era"
   },
   "errors": {
     "generic": "Algo deu errado. Tente novamente.",

@@ -34,6 +34,7 @@ export function useRoomState(code: string | null) {
     queryFn: () => apiFetch<IRoomState>(apiPaths.proxy(`/room/private/${code}`)),
     enabled: Boolean(code),
     refetchInterval: (query) => {
+      if (query.state.error instanceof ApiError && query.state.error.status === 404) return false;
       const status = query.state.data?.status;
       return status === "IN_GAME" || status === "CLOSED" || status === "EXPIRED" ? false : ROOM_POLL_MS;
     },

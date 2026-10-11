@@ -5,6 +5,8 @@ import { ApiError, apiFetch, apiPaths } from "@/lib/api";
 import type { IMatchView, TActiveMatch } from "@/types/room";
 
 const MATCH_POLL_MS = 2000;
+/** A finished duel keeps being read, slower, so a rematch offer from the rival shows up. */
+const FINISHED_POLL_MS = 4000;
 
 /** The player's unfinished match, if any: lets a reload or a second device resume a private duel. */
 export function useActiveMatch(enabled = true) {
@@ -25,7 +27,8 @@ export function useMatchView(matchId: string | null) {
     enabled: Boolean(matchId),
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === "FINISHED" || status === "CANCELLED" ? false : MATCH_POLL_MS;
+      if (status === "CANCELLED") return false;
+      return status === "FINISHED" ? FINISHED_POLL_MS : MATCH_POLL_MS;
     },
     retry: (count, error) => !(error instanceof ApiError && error.status >= 400 && error.status < 500) && count < 2,
   });
@@ -36,12 +39,14 @@ function useMatchMutation<TVars>(matchId: string, request: (vars: TVars) => Prom
   return useMutation({
     mutationFn: request,
     // Success or rejection, the server's state is the truth: refresh it right away.
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ["match", matchId] });
-      void queryClient.invalidateQueries({ queryKey: ["activeMatch"] });
-      void queryClient.invalidateQueries({ queryKey: ["playerStats"] });
-      void queryClient.invalidateQueries({ queryKey: ["matchHistory"] });
-    },
+    // Returned so the mutation stays pending until the fresh state arrives: no double submit in between.
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["match", matchId] }),
+        queryClient.invalidateQueries({ queryKey: ["activeMatch"] }),
+        queryClient.invalidateQueries({ queryKey: ["playerStats"] }),
+        queryClient.invalidateQueries({ queryKey: ["matchHistory"] }),
+      ]),
   });
 }
 
@@ -59,4 +64,11 @@ export function useSubmitMove(matchId: string) {
 
 export function useForfeitMatch(matchId: string) {
   return useMatchMutation(matchId, () => apiFetch<unknown>(apiPaths.proxy(`/match/${matchId}/forfeit`), { method: "POST" }));
+}
+
+/** Offers a rematch: the backend opens a private room and exposes its code to the rival through the match view. */
+export function useRequestRematch(matchId: string) {
+  return useMatchMutation(matchId, () =>
+    apiFetch<unknown>(apiPaths.proxy(`/match/${matchId}/rematch`), { method: "POST" }),
+  );
 }

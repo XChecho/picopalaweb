@@ -6,26 +6,18 @@ import {
   Timer,
   Bot,
   User,
-  Lock,
-  EyeOff,
   Send,
   RotateCcw,
-  Delete,
   Flag,
   Trophy,
-  Skull,
-  Handshake,
   Share2,
-  Flame,
-  Shuffle,
-  X,
   Eye,
   Loader2,
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
-import { Difficulty, GameMode, ILocalMove, MatchResult } from '@/types/game';
-import { countRemainingCandidates, generateSecretNumber } from '@/lib/gameLogic';
+import { Difficulty, GameMode, MatchResult } from '@/types/game';
+import { countRemainingCandidates } from '@/lib/gameLogic';
 import { MAX_ATTEMPTS, useMatchStore } from '@/store/useMatchStore';
 import { soundEngine } from '@/lib/audio';
 import { buildMatchRecord } from '@/lib/matchRecord';
@@ -33,6 +25,11 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useSaveMatch } from '@/hooks/useSaveMatch';
 import { CoinFlip } from '@/components/arena/CoinFlip';
 import { TurnComposer } from '@/components/arena/TurnComposer';
+import { ColumnHeader } from '@/components/arena/ColumnHeader';
+import { BoardCell } from '@/components/arena/BoardCell';
+import { WriteTurnModal } from '@/components/arena/WriteTurnModal';
+import { SecretSetupModal } from '@/components/arena/SecretSetupModal';
+import { MatchResultModal } from '@/components/arena/MatchResultModal';
 
 interface ArenaViewProps {
   mode?: GameMode;
@@ -44,37 +41,45 @@ interface ArenaViewProps {
 
 const BOT_NAME = 'VORTEX-AI';
 
-const RESULT_THEME = {
-  win: {
-    border: 'border-[#e9c400]/40',
-    glow: 'bg-[#e9c400]/20',
-    iconBg: 'bg-[#e9c400]/20 shadow-[0_0_40px_rgba(255,214,0,0.5)]',
-    iconColor: 'text-[#ffe170]',
-    badge: 'bg-[#e9c400] text-black',
-    Icon: Trophy,
-  },
-  lose: {
-    border: 'border-rose-500/40',
-    glow: 'bg-rose-500/20',
-    iconBg: 'bg-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.5)]',
-    iconColor: 'text-rose-400',
-    badge: 'bg-rose-500 text-white',
-    Icon: Skull,
-  },
-  draw: {
-    border: 'border-[#00d2ff]/40',
-    glow: 'bg-[#00d2ff]/20',
-    iconBg: 'bg-[#00d2ff]/20 shadow-[0_0_40px_rgba(0,210,255,0.5)]',
-    iconColor: 'text-[#00d2ff]',
-    badge: 'bg-[#00d2ff] text-black',
-    Icon: Handshake,
-  },
-} as const;
-
 const formatClock = (seconds: number): string =>
   `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
 const pad2 = (n: number): string => String(n).padStart(2, '0');
+
+const SaveStatus: React.FC<{ status: 'idle' | 'saving' | 'saved' | 'error'; onRetry: () => void }> = ({
+  status,
+  onRetry,
+}) => {
+  const { t } = useTranslation('arena');
+  return (
+    <div
+      data-testid="save-status"
+      data-state={status}
+      role="status"
+      className="min-h-5 flex items-center justify-center gap-1.5 text-xs text-[#a98891]"
+    >
+      {status === 'saving' && (
+        <>
+          <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('result.saving')}
+        </>
+      )}
+      {status === 'saved' && (
+        <>
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {t('result.saved')}
+        </>
+      )}
+      {status === 'error' && (
+        <>
+          <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+          <span className="text-rose-400">{t('result.saveFailed')}</span>
+          <button onClick={onRetry} className="underline font-bold text-white hover:text-[#ffb0ca]">
+            {t('result.retry')}
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
 
 export const ArenaView: React.FC<ArenaViewProps> = ({
   mode = 'ai',
@@ -111,6 +116,12 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
   const boardRef = useRef<HTMLDivElement>(null);
   const previousPhaseRef = useRef(phase);
   const maxTurns = MAX_ATTEMPTS;
+
+  const saveStatus = (saveMatch.isError ? 'error' : saveMatch.isSuccess ? 'saved' : saveMatch.isIdle ? 'idle' : 'saving') as
+    | 'idle'
+    | 'saving'
+    | 'saved'
+    | 'error';
 
   const canPlay = phase === 'playing' && currentActor === 'PLAYER' && !isBotThinking;
   const levelLabel = t(`level.${storeDifficulty}`);
@@ -577,114 +588,22 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
 
       {/* WRITE-TURN MODAL (number pad) */}
       {!isDesktop && writeOpen && canPlay && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center"
-          onClick={() => setWriteOpen(false)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={t('write.title', { n: pad2(turnCount) })}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full sm:max-w-md bg-[#191b21] border border-[#ff479b]/40 rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col gap-3"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-['Cairo'] font-bold text-sm text-[#ff479b] uppercase tracking-wider flex items-center gap-1.5">
-                <Send className="w-4 h-4" /> {t('write.title', { n: pad2(turnCount) })}
-              </span>
-              <button
-                onClick={() => setWriteOpen(false)}
-                aria-label={t('write.close')}
-                className="w-8 h-8 rounded-full bg-[#282a30] hover:bg-[#33353b] text-white flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {[0, 1, 2, 3].map((slot) => {
-                const filled = slot < currentDraft.length;
-                const active = slot === currentDraft.length;
-                return (
-                  <div
-                    key={slot}
-                    className={`h-16 rounded-xl flex items-center justify-center font-['Cairo'] text-3xl font-black transition-all ${
-                      filled
-                        ? 'bg-[#282a30] border-2 border-[#ff479b] text-white shadow-[0_0_15px_rgba(255,71,155,0.3)]'
-                        : active
-                          ? 'bg-[#0c0e14] border-2 border-[#00d2ff] text-[#00d2ff] animate-pulse'
-                          : 'bg-[#0c0e14] border border-[#282a30] text-[#a98891]/40 opacity-60'
-                    }`}
-                  >
-                    {filled ? currentDraft[slot] : active ? '_' : '·'}
-                  </div>
-                );
-              })}
-            </div>
-
-            <span
-              role={errorMsg ? 'alert' : undefined}
-              className={`text-xs text-center ${errorMsg ? 'text-rose-400 font-bold' : 'text-[#a98891]'}`}
-            >
-              {errorMsg ?? t('write.hint', { count: Math.max(0, 4 - currentDraft.length) })}
-            </span>
-
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
-                const used = currentDraft.includes(n);
-                return (
-                  <button
-                    key={n}
-                    onClick={() => pressKey(n)}
-                    disabled={used}
-                    aria-label={`${t('write.digitAlpha')} ${n}`}
-                    className={`h-14 rounded-xl font-['Cairo'] text-2xl font-black transition-all ${
-                      used
-                        ? 'bg-[#282a30] text-[#ff479b] opacity-40 cursor-not-allowed border border-[#33353b]'
-                        : 'bg-[#111319] border border-[#282a30] hover:border-[#ff479b]/60 text-white active:scale-95'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={handleClear}
-                className="h-11 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-[#a98891]" /> {t('write.clear')}
-              </button>
-              <button
-                onClick={handleBackspace}
-                className="h-11 rounded-xl bg-[#111319] hover:bg-[#282a30] active:scale-95 text-[#e2e2ea] border border-[#282a30] flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-all"
-              >
-                <Delete className="w-3.5 h-3.5 text-rose-400" /> {t('write.undo')}
-              </button>
-            </div>
-
-            <button
-              onClick={submitDraftGuess}
-              disabled={currentDraft.length < 4}
-              className={`h-14 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                currentDraft.length === 4
-                  ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-[0_0_24px_rgba(255,46,149,0.5)] hover:brightness-110 active:scale-95'
-                  : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
-              }`}
-            >
-              {t('write.submit')} <Send className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        <WriteTurnModal
+          turnLabel={t('write.title', { n: pad2(turnCount) })}
+          draft={currentDraft}
+          errorMsg={errorMsg}
+          onPress={pressKey}
+          onBackspace={handleBackspace}
+          onClear={handleClear}
+          onSubmit={submitDraftGuess}
+          onClose={() => setWriteOpen(false)}
+        />
       )}
 
       {/* SECRET SETUP MODAL */}
       {phase === 'setup' && (
         <SecretSetupModal
-          botName={BOT_NAME}
-          levelLabel={levelLabel}
+          description={t('setup.text', { name: BOT_NAME, level: levelLabel })}
           onLock={(secret) => {
             soundEngine.playSubmit();
             useMatchStore.getState().lockSecret(secret);
@@ -746,459 +665,45 @@ export const ArenaView: React.FC<ArenaViewProps> = ({
 
       {/* RESULT MODAL (victory / defeat / draw) */}
       {phase === 'finished' && result && !reviewing && (
-        <ResultModal
-          result={result}
-          botName={BOT_NAME}
-          opponentSecret={opponentSecret}
-          playerGuesses={playerMoves.length}
-          botGuesses={botMoves.length}
-          maxTurns={maxTurns}
-          totalPicos={totalPicos}
-          totalPalas={totalPalas}
-          shareCopied={shareCopied}
-          saveStatus={saveMatch.isError ? 'error' : saveMatch.isSuccess ? 'saved' : saveMatch.isIdle ? 'idle' : 'saving'}
-          onRetrySave={retrySave}
-          onReview={() => setReviewing(true)}
-          onNext={handleNewDuel}
-          onShare={handleShare}
-          onLeave={handleLeave}
+        <MatchResultModal
+          outcome={result}
+          badge={t(`result.${result}.badge`)}
+          title={t(`result.${result}.title`)}
+          summary={t(`result.${result}.summary`, {
+            count: result === 'lose' ? botMoves.length : playerMoves.length,
+            name: BOT_NAME,
+          })}
+          secret={{
+            label: result === 'win' ? t('result.secretDecrypted') : t('result.secretWas'),
+            digits: opponentSecret,
+          }}
+          stats={[
+            { label: t('result.yourGuesses'), value: `${playerMoves.length} / ${maxTurns}` },
+            { label: t('result.botGuesses'), value: `${botMoves.length} / ${maxTurns}`, tone: 'cyan' },
+            { label: t('result.picosPalas'), value: `${totalPicos} / ${totalPalas}`, tone: 'gold' },
+          ]}
+          primary={{
+            label: t('result.playNext'),
+            icon: <RotateCcw className="w-5 h-5 shrink-0" />,
+            onClick: handleNewDuel,
+            disabled: saveStatus === 'saving',
+          }}
+          secondary={[
+            { label: t('result.viewMatch'), icon: <Eye className="w-4 h-4 shrink-0" />, onClick: () => setReviewing(true) },
+            ...(result === 'win'
+              ? [
+                  {
+                    label: shareCopied ? t('result.copied') : t('result.share'),
+                    icon: <Share2 className="w-4 h-4 shrink-0" />,
+                    onClick: handleShare,
+                  },
+                ]
+              : []),
+            { label: t('result.hub'), onClick: handleLeave, disabled: saveStatus === 'saving' },
+          ]}
+          footer={<SaveStatus status={saveStatus} onRetry={retrySave} />}
         />
       )}
-    </div>
-  );
-};
-
-/* ---------------------------------------------------------------- */
-
-interface ColumnHeaderProps {
-  side: 'opponent' | 'you';
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  digits: number[] | null;
-  secretLabel: string;
-  attemptsLabel: string;
-}
-
-const ColumnHeader: React.FC<ColumnHeaderProps> = ({
-  side,
-  title,
-  subtitle,
-  icon,
-  digits,
-  secretLabel,
-  attemptsLabel,
-}) => (
-  <div
-    data-testid={`column-${side}`}
-    className={`rounded-2xl border p-2 sm:p-3 flex flex-col gap-2 min-w-0 ${
-      side === 'you'
-        ? 'bg-gradient-to-br from-[#e9c400]/10 via-[#191b21] to-[#191b21] border-[#e9c400]/30'
-        : 'bg-[#191b21] border-[#282a30]'
-    }`}
-  >
-    <div className="flex items-center justify-between gap-1 min-w-0">
-      <div className="flex items-center gap-1.5 min-w-0">
-        <span className="w-7 h-7 shrink-0 rounded-lg bg-[#282a30] flex items-center justify-center">{icon}</span>
-        <div className="flex flex-col min-w-0">
-          <span className="font-['Cairo'] text-sm sm:text-base font-black text-white uppercase leading-tight truncate">
-            {title}
-          </span>
-          <span className="text-xs text-[#a98891] leading-tight truncate">{subtitle}</span>
-        </div>
-      </div>
-      <span className="shrink-0 text-xs font-bold text-[#a98891] tabular-nums">{attemptsLabel}</span>
-    </div>
-
-    <div className="flex items-center justify-center gap-1" aria-label={secretLabel}>
-      {[0, 1, 2, 3].map((i) => (
-        <span
-          key={i}
-          className={`w-8 h-9 sm:w-9 sm:h-10 rounded-lg border flex items-center justify-center font-['Cairo'] text-lg font-black ${
-            digits
-              ? 'bg-[#282a30] border-white/10 text-[#ffe170]'
-              : 'bg-[#111319] border-white/5 text-[#a98891]'
-          }`}
-        >
-          {digits ? digits[i] : '?'}
-        </span>
-      ))}
-      {digits ? (
-        <EyeOff className="w-3.5 h-3.5 text-[#a98891] ml-1 hidden sm:block" />
-      ) : (
-        <Lock className="w-3.5 h-3.5 text-[#a98891] ml-1 hidden sm:block" />
-      )}
-    </div>
-  </div>
-);
-
-interface BoardCellProps {
-  actor: 'BOT' | 'YOU';
-  move: ILocalMove | undefined;
-  round: number;
-  pending: string | null;
-}
-
-const BoardCell: React.FC<BoardCellProps> = ({ actor, move, round, pending }) => {
-  if (!move) {
-    return pending ? (
-      <div className="rounded-xl border border-dashed border-[#ff479b]/50 bg-[#ff479b]/5 p-2 flex items-center justify-center gap-2 min-h-[80px] animate-pulse">
-        <span className="text-xs font-bold text-[#a98891]">#{pad2(round)}</span>
-        <span className="text-xs font-bold text-[#ffb0ca] uppercase tracking-wider truncate">{pending}</span>
-      </div>
-    ) : (
-      <div aria-hidden className="min-h-[80px]" />
-    );
-  }
-
-  const { picos, palas } = move.feedback;
-  const misses = 4 - picos - palas;
-
-  return (
-    <div
-      data-testid="move"
-      data-actor={actor}
-      data-guess={move.guess}
-      data-picos={picos}
-      data-palas={palas}
-      className={`rounded-xl border p-2 flex flex-col gap-1.5 min-h-[80px] ${
-        actor === 'YOU'
-          ? 'bg-[#111319] border-[#282a30]'
-          : 'bg-[#282a30]/50 border-transparent'
-      }`}
-    >
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs font-bold text-[#a98891] tabular-nums w-5 shrink-0">#{pad2(round)}</span>
-        <div className="flex items-center gap-1">
-          {move.guess.split('').map((d, i) => (
-            <span
-              key={i}
-              className="w-6 h-8 sm:w-8 sm:h-9 rounded-md bg-[#0c0e14] border border-white/5 flex items-center justify-center font-['Cairo'] font-black text-base text-white"
-            >
-              {d}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-1 pl-6">
-        <div className="flex items-center gap-1">
-          {Array.from({ length: picos }).map((_, i) => (
-            <span
-              key={`p${i}`}
-              className="w-4 h-4 rounded-full bg-[#e9c400] shadow-[0_0_6px_rgba(233,196,0,0.8)]"
-            />
-          ))}
-          {Array.from({ length: palas }).map((_, i) => (
-            <span
-              key={`l${i}`}
-              className="w-4 h-4 rounded-full bg-transparent border-2 border-[#ff479b] shadow-[0_0_6px_rgba(255,71,155,0.7)]"
-            />
-          ))}
-          {Array.from({ length: misses }).map((_, i) => (
-            <span key={`m${i}`} className="w-2.5 h-2.5 rounded-full bg-[#33353b]" />
-          ))}
-        </div>
-        <span className="text-xs sm:text-sm font-bold text-[#e2bdc7] tabular-nums whitespace-nowrap">
-          {picos > 0 && `${picos}F `}
-          {palas > 0 && `${palas}P`}
-          {picos === 0 && palas === 0 && '0'}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-/* ---------------------------------------------------------------- */
-
-interface ResultModalProps {
-  result: MatchResult;
-  botName: string;
-  opponentSecret: number[];
-  playerGuesses: number;
-  botGuesses: number;
-  maxTurns: number;
-  totalPicos: number;
-  totalPalas: number;
-  shareCopied: boolean;
-  saveStatus: 'idle' | 'saving' | 'saved' | 'error';
-  onRetrySave: () => void;
-  onReview: () => void;
-  onNext: () => void;
-  onShare: () => void;
-  onLeave: () => void;
-}
-
-const ResultModal: React.FC<ResultModalProps> = ({
-  result,
-  botName,
-  opponentSecret,
-  playerGuesses,
-  botGuesses,
-  maxTurns,
-  totalPicos,
-  totalPalas,
-  shareCopied,
-  saveStatus,
-  onRetrySave,
-  onReview,
-  onNext,
-  onShare,
-  onLeave,
-}) => {
-  const { t } = useTranslation('arena');
-  const theme = RESULT_THEME[result];
-  const ResultIcon = theme.Icon;
-  const count = result === 'lose' ? botGuesses : playerGuesses;
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-      <div
-        className={`max-w-lg w-full bg-[#191b21] border ${theme.border} rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center gap-6 relative overflow-hidden`}
-      >
-        <div className={`absolute -top-20 -left-20 w-56 h-56 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
-        <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#ff479b]/20 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative">
-          <div className={`w-24 h-24 rounded-full flex items-center justify-center ${theme.iconBg}`}>
-            <ResultIcon className={`w-12 h-12 ${theme.iconColor}`} />
-          </div>
-          <span
-            className={`absolute -top-2 -right-2 px-2.5 py-0.5 rounded-full ${theme.badge} font-['Cairo'] text-xs font-black uppercase`}
-          >
-            {t(`result.${result}.badge`)}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <span
-            data-testid="result-title"
-            data-result={result}
-            className="font-['Cairo'] text-3xl font-black text-white uppercase tracking-tight"
-          >
-            {t(`result.${result}.title`)}
-          </span>
-          <span className="text-sm text-[#e2bdc7]">{t(`result.${result}.summary`, { count, name: botName })}</span>
-        </div>
-
-        <div className="w-full p-4 rounded-2xl bg-[#111319] border border-[#282a30] flex flex-col items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a98891]">
-            {result === 'win' ? t('result.secretDecrypted') : t('result.secretWas')}
-          </span>
-          <div className="flex items-center gap-2">
-            {opponentSecret.map((d, i) => (
-              <div
-                key={i}
-                className="w-12 h-14 rounded-xl bg-[#282a30] border border-white/10 flex items-center justify-center shadow-md font-['Cairo'] text-2xl font-black text-[#ffe170]"
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-            <span className="text-xs text-[#a98891]">{t('result.yourGuesses')}</span>
-            <span className="font-['Cairo'] text-base font-bold text-white">
-              {playerGuesses} / {maxTurns}
-            </span>
-          </div>
-          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-            <span className="text-xs text-[#a98891]">{t('result.botGuesses')}</span>
-            <span className="font-['Cairo'] text-base font-bold text-[#00d2ff]">
-              {botGuesses} / {maxTurns}
-            </span>
-          </div>
-          <div className="bg-[#111319] border border-[#282a30] p-2.5 rounded-xl flex flex-col">
-            <span className="text-xs text-[#a98891]">{t('result.picosPalas')}</span>
-            <span className="font-['Cairo'] text-base font-bold text-[#ffe170]">
-              {totalPicos} / {totalPalas}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 w-full">
-          <button
-            onClick={onNext}
-            disabled={saveStatus === 'saving'}
-            className="w-full h-14 px-6 rounded-2xl bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white font-['Cairo'] font-black text-base uppercase tracking-wider whitespace-nowrap shadow-[0_0_24px_rgba(255,46,149,0.45)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            <RotateCcw className="w-5 h-5 shrink-0" /> {t('result.playNext')}
-          </button>
-          <div className={`grid gap-3 ${result === 'win' ? 'grid-cols-3' : 'grid-cols-2'}`}>
-            <button
-              onClick={onReview}
-              className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2"
-            >
-              <Eye className="w-4 h-4 shrink-0" /> {t('result.viewMatch')}
-            </button>
-            {result === 'win' && (
-              <button
-                onClick={onShare}
-                className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2"
-              >
-                <Share2 className="w-4 h-4 shrink-0" /> {shareCopied ? t('result.copied') : t('result.share')}
-              </button>
-            )}
-            <button
-              onClick={onLeave}
-              disabled={saveStatus === 'saving'}
-              className="h-12 px-3 rounded-xl bg-[#282a30] hover:bg-[#33353b] text-white font-['Cairo'] font-bold text-xs uppercase tracking-wider whitespace-nowrap transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {t('result.hub')}
-            </button>
-          </div>
-
-          <div
-            data-testid="save-status"
-            data-state={saveStatus}
-            role="status"
-            className="min-h-5 flex items-center justify-center gap-1.5 text-xs text-[#a98891]"
-          >
-            {saveStatus === 'saving' && (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('result.saving')}
-              </>
-            )}
-            {saveStatus === 'saved' && (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {t('result.saved')}
-              </>
-            )}
-            {saveStatus === 'error' && (
-              <>
-                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                <span className="text-rose-400">{t('result.saveFailed')}</span>
-                <button onClick={onRetrySave} className="underline font-bold text-white hover:text-[#ffb0ca]">
-                  {t('result.retry')}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ---------------------------------------------------------------- */
-
-interface SecretSetupModalProps {
-  botName: string;
-  levelLabel: string;
-  onLock: (secret: string) => void;
-  onCancel: () => void;
-}
-
-const SecretSetupModal: React.FC<SecretSetupModalProps> = ({ botName, levelLabel, onLock, onCancel }) => {
-  const { t } = useTranslation('arena');
-  const [draft, setDraft] = useState<number[]>([]);
-
-  const press = (n: number) => {
-    setDraft((prev) => (prev.includes(n) || prev.length >= 4 ? prev : [...prev, n]));
-  };
-  const lock = () => {
-    if (draft.length === 4) onLock(draft.join(''));
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key >= '1' && e.key <= '9') {
-        e.preventDefault();
-        press(parseInt(e.key, 10));
-      } else if (e.key === 'Backspace') {
-        e.preventDefault();
-        setDraft((prev) => prev.slice(0, -1));
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        lock();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft]);
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4">
-      <div className="w-full sm:max-w-md bg-[#191b21] border border-[#33353b] rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-[#e9c400]/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,214,0,0.3)]">
-          <Lock className="w-7 h-7 text-[#ffe170]" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="font-['Cairo'] text-2xl font-black uppercase text-white">{t('setup.title')}</span>
-          <span className="text-sm text-[#a98891]">{t('setup.text', { name: botName, level: levelLabel })}</span>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2 w-full">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`h-16 rounded-xl flex items-center justify-center font-['Cairo'] text-3xl font-black ${
-                i < draft.length
-                  ? 'bg-[#282a30] border-2 border-[#e9c400] text-[#ffe170]'
-                  : 'bg-[#0c0e14] border border-[#282a30] text-[#a98891]/40'
-              }`}
-            >
-              {i < draft.length ? draft[i] : '·'}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 w-full">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
-            const used = draft.includes(n);
-            return (
-              <button
-                key={n}
-                onClick={() => press(n)}
-                disabled={used}
-                className={`h-12 rounded-xl font-['Cairo'] text-xl font-black transition-all ${
-                  used
-                    ? 'bg-[#282a30] text-[#ff479b] opacity-40 cursor-not-allowed'
-                    : 'bg-[#111319] border border-[#282a30] hover:border-[#ff479b]/60 text-white active:scale-95'
-                }`}
-              >
-                {n}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <button
-            onClick={() => setDraft((prev) => prev.slice(0, -1))}
-            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
-          >
-            <Delete className="w-3.5 h-3.5" /> {t('setup.undo')}
-          </button>
-          <button
-            onClick={() => setDraft(generateSecretNumber().split('').map(Number))}
-            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#e2e2ea] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
-          >
-            <Shuffle className="w-3.5 h-3.5" /> {t('setup.random')}
-          </button>
-          <button
-            onClick={onCancel}
-            className="h-10 rounded-xl bg-[#111319] border border-[#282a30] text-[#a98891] text-xs font-bold uppercase tracking-wider"
-          >
-            {t('setup.cancel')}
-          </button>
-        </div>
-
-        <button
-          onClick={lock}
-          disabled={draft.length < 4}
-          className={`w-full py-3 rounded-xl font-['Cairo'] font-black text-sm uppercase tracking-wider transition-all ${
-            draft.length === 4
-              ? 'bg-gradient-to-r from-[#ff5959] to-[#ff2e95] text-white shadow-lg hover:brightness-110 active:scale-95'
-              : 'bg-[#282a30] text-[#a98891] opacity-70 cursor-not-allowed'
-          }`}
-        >
-          {t('setup.lock')}
-        </button>
-      </div>
     </div>
   );
 };

@@ -51,7 +51,7 @@ export interface IMatchParticipantView {
   attemptsUsed: number;
 }
 
-/** `GET /match/:id` and the entries of `GET /match/active`. The rival's secret is never included. */
+/** `GET /match/:id` and the entries of `GET /match/active`. The rival's secret is only included once the match is over. */
 export interface IMatchView {
   id: string;
   mode: TApiGameMode;
@@ -70,6 +70,13 @@ export interface IMatchView {
   turnCount: number;
   participants: IMatchParticipantView[];
   moves: IMoveView[];
+  /** A pending rematch offer for this (finished) match, if any. */
+  rematch?: IRematchOffer | null;
+}
+
+export interface IRematchOffer {
+  code: string;
+  requestedBy: string;
 }
 
 /** `GET /match/active` answers `{}` when the player has no unfinished match. */

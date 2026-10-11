@@ -26,33 +26,16 @@
     "closed": "The room is no longer available."
   },
   "secret": {
-    "title": "Choose your secret cipher",
     "subtitle": "4 different digits from 1 to 9. Your rival will try to guess it.",
-    "random": "Random",
-    "lock": "Lock secret",
     "waitingRival": "Secret locked. Waiting for your rival…",
     "timeLeft": "Time to choose: {{seconds}} s"
   },
   "match": {
-    "yourTurn": "Your turn",
-    "rivalTurn": "Rival's turn",
-    "you": "You",
     "rival": "Rival",
-    "mySecret": "Your secret",
-    "turn": "Turn {{n}} / {{max}}",
-    "timeLeft": "{{seconds}} s",
-    "noMoves": "No guesses yet",
-    "hint": "Digits 1–9 · No repeats · {{count}} remaining",
-    "submit": "Send guess",
-    "clear": "Clear",
-    "undo": "Undo",
-    "digit": "Digit",
     "forfeit": "Forfeit",
-    "pico": "P",
-    "pala": "L",
-    "picosLabel": "picos",
-    "palasLabel": "palas",
-    "connectionLost": "Connection problem. Retrying…"
+    "connectionLost": "Connection problem. Retrying…",
+    "sending": "Sending guess…",
+    "rivalThinking": "Waiting…"
   },
   "forfeitDialog": {
     "title": "Forfeit this duel?",
@@ -65,7 +48,6 @@
     "loss": "Defeat",
     "draw": "Draw",
     "cancelled": "Duel cancelled",
-    "back": "Back to lobby",
     "reason": {
       "GUESSED": "The secret was cracked.",
       "MAX_TURNS": "Turn limit reached.",
@@ -73,7 +55,23 @@
       "TIMEOUT": "A player ran out of time.",
       "RESIGNED": "A player forfeited.",
       "none": ""
-    }
+    },
+    "badge": {
+      "win": "VICTORY",
+      "loss": "DEFEAT",
+      "draw": "DRAW",
+      "cancelled": "CANCELLED"
+    },
+    "exit": "Leave",
+    "viewMatch": "View match",
+    "rematch": "Request rematch",
+    "rematchAccept": "Accept rematch",
+    "rematchWaiting": "Rematch requested",
+    "rematchSent": "Waiting for your rival to accept…",
+    "rematchOffered": "Your rival wants a rematch",
+    "rivalGuesses": "Rival's guesses",
+    "secretDecrypted": "Rival's secret cracked",
+    "secretWas": "The rival's secret was"
   },
   "errors": {
     "generic": "Something went wrong. Try again.",
